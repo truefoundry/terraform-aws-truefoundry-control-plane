@@ -115,7 +115,7 @@ module "truefoundry_bucket" {
 
   cors_rule = [
     {
-      allowed_methods = ["GET","POST", "PUT"]
+      allowed_methods = ["GET", "POST", "PUT"]
       allowed_origins = var.truefoundry_s3_cors_origins
       allowed_headers = ["*"]
       expose_headers  = ["ETag"]
