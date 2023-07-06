@@ -2,7 +2,7 @@
 
 module "mlfoundry_oidc_iam" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "~> 4.17"
+  version = "5.27.0"
 
   create_role  = true
   role_name    = "${var.cluster_name}-mlfoundry-deps"
@@ -25,7 +25,7 @@ data "aws_iam_policy" "servicefoundry_ecr_policy" {
 
 module "svcfoundry_oidc_iam" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "~> 4.0"
+  version = "5.27.0"
 
   create_role  = true
   role_name    = "${var.cluster_name}-svcfoundry-deps"
