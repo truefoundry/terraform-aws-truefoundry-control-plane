@@ -51,18 +51,16 @@ resource "aws_security_group" "rds-public" {
 }
 
 resource "aws_db_instance" "truefoundry_db" {
-  tags                   = local.tags
-  engine                 = "postgres"
-  engine_version         = var.truefoundry_db_engine_version
-  allocated_storage      = var.truefoundry_db_allocated_storage
-  port                   = local.truefoundry_db_port
-  db_subnet_group_name   = aws_db_subnet_group.rds.name
-  vpc_security_group_ids = concat([aws_security_group.rds.id], aws_security_group.rds-public.*.id)
-  username               = local.truefoundry_db_master_username
-
-  identifier        = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
-  identifier_prefix = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
-
+  tags                            = local.tags
+  engine                          = "postgres"
+  engine_version                  = var.truefoundry_db_engine_version
+  allocated_storage               = var.truefoundry_db_allocated_storage
+  port                            = local.truefoundry_db_port
+  db_subnet_group_name            = aws_db_subnet_group.rds.name
+  vpc_security_group_ids          = concat([aws_security_group.rds.id], aws_security_group.rds-public.*.id)
+  username                        = local.truefoundry_db_master_username
+  identifier                      = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
+  identifier_prefix               = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
   db_name                         = local.truefoundry_db_database_name
   skip_final_snapshot             = var.truefoundry_db_skip_final_snapshot
   password                        = random_password.truefoundry_db_password.result
