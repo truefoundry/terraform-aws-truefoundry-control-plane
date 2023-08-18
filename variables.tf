@@ -89,7 +89,7 @@ variable "truefoundry_db_storage_encrypted" {
 }
 
 variable "truefoundry_db_engine_version" {
-  default     = 13.10
+  default     = "13.10"
   type        = string
   description = "Truefoundry DB Postgres version"
 }
