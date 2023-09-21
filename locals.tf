@@ -14,7 +14,7 @@ locals {
 
   tags = merge(
     {
-      "terraform-module" = "truefoundry-aws"
+      "terraform-module" = "truefoundry-control-plane"
       "terraform"        = "true"
     },
     var.tags
