@@ -158,10 +158,10 @@ variable "truefoundry_s3_cors_origins" {
 
 ###### MLFoundry
 
-variable "mlfoundry_name" {
-  description = "Name of mlfoundry deployment"
-  type        = string
-}
+# variable "mlfoundry_name" {
+#   description = "Name of mlfoundry deployment"
+#   type        = string
+# }
 
 
 variable "mlfoundry_k8s_service_account" {
@@ -176,20 +176,20 @@ variable "mlfoundry_k8s_namespace" {
 
 ###### mlmonitoring
 
-variable "mlmonitoring_name" {
-  description = "Name of mlmonitoring deployment"
-  type        = string
-}
+# variable "mlmonitoring_name" {
+#   description = "Name of mlmonitoring deployment"
+#   type        = string
+# }
 
-variable "mlmonitoring_k8s_service_account" {
-  description = "The k8s mlmonitoring service account name"
-  type        = string
-}
+# variable "mlmonitoring_k8s_service_account" {
+#   description = "The k8s mlmonitoring service account name"
+#   type        = string
+# }
 
-variable "mlmonitoring_k8s_namespace" {
-  description = "The k8s mlmonitoring namespace"
-  type        = string
-}
+# variable "mlmonitoring_k8s_namespace" {
+#   description = "The k8s mlmonitoring namespace"
+#   type        = string
+# }
 
 ###### svcfoundry
 
