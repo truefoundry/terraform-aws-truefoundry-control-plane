@@ -17,8 +17,6 @@ module "mlfoundry_oidc_iam" {
   tags = local.tags
 }
 
-
-
 data "aws_iam_policy" "servicefoundry_ecr_policy" {
   name = "AmazonEC2ContainerRegistryFullAccess"
 }

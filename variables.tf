@@ -1,3 +1,6 @@
+##################################################################################
+## Generic
+##################################################################################
 variable "cluster_name" {
   description = "Cluster name"
   type        = string
@@ -7,7 +10,6 @@ variable "cluster_oidc_issuer_url" {
   description = "The oidc url of the eks cluster"
   type        = string
 }
-
 
 variable "aws_region" {
   description = "EKS Cluster region"
@@ -30,12 +32,18 @@ variable "tags" {
   description = "AWS Tags common to all the resources created"
 }
 
+##################################################################################
+## network
+##################################################################################
+
 variable "vpc_id" {
   type        = string
   description = "AWS VPC to deploy Truefoundry rds"
 }
 
-#### Control Plane Components Database (truefoundry_db)
+##################################################################################
+## Database
+##################################################################################
 
 variable "truefoundry_db_ingress_security_group" {
   type        = string
@@ -109,6 +117,10 @@ variable "truefoundry_db_override_name" {
   }
 }
 
+##################################################################################
+## Mlfoundry bucket
+##################################################################################
+
 variable "truefoundry_s3_enable_override" {
   description = "Enable override for s3 bucket name. You must pass truefoundry_s3_override_name"
   type        = bool
@@ -156,13 +168,9 @@ variable "truefoundry_s3_cors_origins" {
 }
 
 
-###### MLFoundry
-
-variable "mlfoundry_name" {
-  description = "Name of mlfoundry deployment"
-  type        = string
-}
-
+##################################################################################
+## MLfoundry service account
+##################################################################################
 
 variable "mlfoundry_k8s_service_account" {
   description = "The k8s mlfoundry service account name"
@@ -174,24 +182,9 @@ variable "mlfoundry_k8s_namespace" {
   type        = string
 }
 
-###### mlmonitoring
-
-variable "mlmonitoring_name" {
-  description = "Name of mlmonitoring deployment"
-  type        = string
-}
-
-variable "mlmonitoring_k8s_service_account" {
-  description = "The k8s mlmonitoring service account name"
-  type        = string
-}
-
-variable "mlmonitoring_k8s_namespace" {
-  description = "The k8s mlmonitoring namespace"
-  type        = string
-}
-
-###### svcfoundry
+##################################################################################
+## Servicefoundry
+##################################################################################
 
 variable "svcfoundry_name" {
   description = "Name of svcfoundry deployment"

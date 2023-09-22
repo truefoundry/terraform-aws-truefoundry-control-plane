@@ -52,13 +52,13 @@ module "truefoundry_bucket" {
   version = "3.14.0"
 
   bucket        = var.truefoundry_s3_enable_override ? var.truefoundry_s3_override_name : null
-  bucket_prefix = var.truefoundry_s3_enable_override ? null : "${trimsuffix(substr(local.truefoundry_unique_name, 0, 37), "-")}"
+  bucket_prefix = var.truefoundry_s3_enable_override ? null : trimsuffix(substr(local.truefoundry_unique_name, 0, 37), "-")
 
   force_destroy = var.truefoundry_s3_force_destroy
 
   tags = merge(
     {
-      Name = var.truefoundry_s3_enable_override ? var.truefoundry_s3_override_name : "${trimsuffix(substr(local.truefoundry_unique_name, 0, 37), "-")}"
+      Name = var.truefoundry_s3_enable_override ? var.truefoundry_s3_override_name : trimsuffix(substr(local.truefoundry_unique_name, 0, 37), "-")
     },
     local.tags
   )

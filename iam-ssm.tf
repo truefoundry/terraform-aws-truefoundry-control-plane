@@ -2,6 +2,7 @@ resource "aws_iam_policy" "svcfoundry_access_to_ssm" {
   name_prefix = "${local.svcfoundry_unique_name}-access-to-ssm"
   description = "SSM read access for ${var.svcfoundry_name} on ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.svcfoundry_access_to_ssm.json
+  tags        = local.tags
 }
 
 data "aws_iam_policy_document" "svcfoundry_access_to_ssm" {
@@ -32,6 +33,7 @@ resource "aws_iam_policy" "svcfoundry_access_to_multitenant_ssm" {
   name_prefix = "${local.svcfoundry_unique_name}-access-to-multitenant-ssm"
   description = "SSM read access for ${var.svcfoundry_name} to all multitenant params on ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm.json
+  tags        = local.tags
 }
 
 data "aws_iam_policy_document" "svcfoundry_access_to_multitenant_ssm" {
