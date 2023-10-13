@@ -33,6 +33,7 @@ Truefoundry AWS Control Plane Module
 | [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/db_subnet_group) | resource |
 | [aws_iam_policy.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.svcfoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
 | [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/security_group) | resource |
 | [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/security_group) | resource |
@@ -40,6 +41,7 @@ Truefoundry AWS Control Plane Module
 | [aws_iam_policy.servicefoundry_ecr_policy](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.svcfoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
