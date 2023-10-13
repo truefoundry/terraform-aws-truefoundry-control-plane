@@ -53,3 +53,23 @@ data "aws_iam_policy_document" "svcfoundry_access_to_multitenant_ssm" {
     ]
   }
 }
+
+# allow servicefoundry to assume any role to support Assume role feature
+data "aws_iam_policy_document" "svcfoundry_assume_role_all" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "svcfoundry_assume_role_all" {
+  name_prefix = "${local.svcfoundry_unique_name}-allow-assume-role-all"
+  description = "Allow access to assume role for ${var.svcfoundry_name} in ${var.cluster_name}"
+  policy      = data.aws_iam_policy_document.svcfoundry_assume_role_all.json
+  tags        = local.tags
+}
