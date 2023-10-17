@@ -171,6 +171,10 @@ variable "truefoundry_s3_cors_origins" {
 ##################################################################################
 ## MLfoundry service account
 ##################################################################################
+variable "mlfoundry_name" {
+  description = "Name of mlfoundry deployment"
+  type        = string
+}
 
 variable "mlfoundry_k8s_service_account" {
   description = "The k8s mlfoundry service account name"
