@@ -55,6 +55,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_cluster_oidc_issuer_url"></a> [cluster\_oidc\_issuer\_url](#input\_cluster\_oidc\_issuer\_url) | The oidc url of the eks cluster | `string` | n/a | yes |
 | <a name="input_mlfoundry_k8s_namespace"></a> [mlfoundry\_k8s\_namespace](#input\_mlfoundry\_k8s\_namespace) | The k8s mlfoundry namespace | `string` | n/a | yes |
 | <a name="input_mlfoundry_k8s_service_account"></a> [mlfoundry\_k8s\_service\_account](#input\_mlfoundry\_k8s\_service\_account) | The k8s mlfoundry service account name | `string` | n/a | yes |
+| <a name="input_mlfoundry_name"></a> [mlfoundry\_name](#input\_mlfoundry\_name) | Name of mlfoundry deployment | `string` | n/a | yes |
 | <a name="input_svcfoundry_k8s_namespace"></a> [svcfoundry\_k8s\_namespace](#input\_svcfoundry\_k8s\_namespace) | The k8s svcfoundry namespace | `string` | n/a | yes |
 | <a name="input_svcfoundry_k8s_service_account"></a> [svcfoundry\_k8s\_service\_account](#input\_svcfoundry\_k8s\_service\_account) | The k8s svcfoundry service account name | `string` | n/a | yes |
 | <a name="input_svcfoundry_name"></a> [svcfoundry\_name](#input\_svcfoundry\_name) | Name of svcfoundry deployment | `string` | n/a | yes |
