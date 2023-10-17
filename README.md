@@ -33,7 +33,7 @@ Truefoundry AWS Control Plane Module
 | [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/db_subnet_group) | resource |
 | [aws_iam_policy.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.svcfoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/iam_policy) | resource |
 | [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/security_group) | resource |
 | [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/security_group) | resource |
@@ -41,7 +41,7 @@ Truefoundry AWS Control Plane Module
 | [aws_iam_policy.servicefoundry_ecr_policy](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.svcfoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
@@ -55,6 +55,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_cluster_oidc_issuer_url"></a> [cluster\_oidc\_issuer\_url](#input\_cluster\_oidc\_issuer\_url) | The oidc url of the eks cluster | `string` | n/a | yes |
 | <a name="input_mlfoundry_k8s_namespace"></a> [mlfoundry\_k8s\_namespace](#input\_mlfoundry\_k8s\_namespace) | The k8s mlfoundry namespace | `string` | n/a | yes |
 | <a name="input_mlfoundry_k8s_service_account"></a> [mlfoundry\_k8s\_service\_account](#input\_mlfoundry\_k8s\_service\_account) | The k8s mlfoundry service account name | `string` | n/a | yes |
+| <a name="input_mlfoundry_name"></a> [mlfoundry\_name](#input\_mlfoundry\_name) | Name of mlfoundry deployment | `string` | n/a | yes |
 | <a name="input_svcfoundry_k8s_namespace"></a> [svcfoundry\_k8s\_namespace](#input\_svcfoundry\_k8s\_namespace) | The k8s svcfoundry namespace | `string` | n/a | yes |
 | <a name="input_svcfoundry_k8s_service_account"></a> [svcfoundry\_k8s\_service\_account](#input\_svcfoundry\_k8s\_service\_account) | The k8s svcfoundry service account name | `string` | n/a | yes |
 | <a name="input_svcfoundry_name"></a> [svcfoundry\_name](#input\_svcfoundry\_name) | Name of svcfoundry deployment | `string` | n/a | yes |
