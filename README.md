@@ -21,9 +21,8 @@ Truefoundry AWS Control Plane Module
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_mlfoundry_oidc_iam"></a> [mlfoundry\_oidc\_iam](#module\_mlfoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.27.0 |
-| <a name="module_svcfoundry_oidc_iam"></a> [svcfoundry\_oidc\_iam](#module\_svcfoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.27.0 |
 | <a name="module_truefoundry_bucket"></a> [truefoundry\_bucket](#module\_truefoundry\_bucket) | terraform-aws-modules/s3-bucket/aws | 3.14.0 |
+| <a name="module_truefoundry_oidc_iam"></a> [truefoundry\_oidc\_iam](#module\_truefoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.27.0 |
 
 ## Resources
 
@@ -86,8 +85,6 @@ Truefoundry AWS Control Plane Module
 
 | Name | Description |
 |------|-------------|
-| <a name="output_mlfoundry_iam_role_arn"></a> [mlfoundry\_iam\_role\_arn](#output\_mlfoundry\_iam\_role\_arn) | n/a |
-| <a name="output_svcfoundry_iam_role_arn"></a> [svcfoundry\_iam\_role\_arn](#output\_svcfoundry\_iam\_role\_arn) | n/a |
 | <a name="output_truefoundry_bucket_id"></a> [truefoundry\_bucket\_id](#output\_truefoundry\_bucket\_id) | n/a |
 | <a name="output_truefoundry_db_address"></a> [truefoundry\_db\_address](#output\_truefoundry\_db\_address) | n/a |
 | <a name="output_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#output\_truefoundry\_db\_database\_name) | n/a |
@@ -97,4 +94,5 @@ Truefoundry AWS Control Plane Module
 | <a name="output_truefoundry_db_password"></a> [truefoundry\_db\_password](#output\_truefoundry\_db\_password) | n/a |
 | <a name="output_truefoundry_db_port"></a> [truefoundry\_db\_port](#output\_truefoundry\_db\_port) | n/a |
 | <a name="output_truefoundry_db_username"></a> [truefoundry\_db\_username](#output\_truefoundry\_db\_username) | n/a |
+| <a name="output_truefoundry_iam_role_arn"></a> [truefoundry\_iam\_role\_arn](#output\_truefoundry\_iam\_role\_arn) | n/a |
 <!-- END_TF_DOCS -->
