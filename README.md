@@ -2,11 +2,6 @@
 Truefoundry AWS Control Plane Module
 
 <!-- BEGIN_TF_DOCS -->
-## Upgrade 
-### From 0.3.2 - 0.3.3
-- `mlfoundry_oidc_iam` and `svcfoundry_oidc_iam` replaced with a single role `truefoundry_oidc_iam`
-- outputs `mlfoundry_iam_role_arn` and `svcfoundry_iam_role_arn` replaced with `truefoundry_iam_role_arn`
-
 ## Requirements
 
 | Name | Version |
