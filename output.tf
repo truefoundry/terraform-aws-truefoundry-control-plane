@@ -35,14 +35,6 @@ output "truefoundry_bucket_id" {
   value = module.truefoundry_bucket.s3_bucket_id
 }
 
-# output "mlfoundry_iam_role_arn" {
-#   value = module.mlfoundry_oidc_iam.iam_role_arn
-# }
-
-# output "svcfoundry_iam_role_arn" {
-#   value = module.svcfoundry_oidc_iam.iam_role_arn
-# }
-
 output "truefoundry_iam_role_arn" {
   value = module.truefoundry_oidc_iam.iam_role_arn
 }
