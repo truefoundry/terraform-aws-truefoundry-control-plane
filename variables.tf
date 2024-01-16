@@ -69,6 +69,12 @@ variable "truefoundry_db_publicly_accessible" {
 variable "truefoundry_db_allocated_storage" {
   type        = string
   description = "Storage for RDS"
+  default     = "10"
+}
+
+variable "truefoundry_db_max_allocated_storage" {
+  type        = string
+  description = "Max allowed storage for RDS when autoscaling is enabled"
 }
 
 variable "truefoundry_db_storage_type" {
@@ -115,6 +121,12 @@ variable "truefoundry_db_override_name" {
     condition     = length(var.truefoundry_db_override_name) <= 63
     error_message = "Error: DB Instance name is too long."
   }
+}
+
+variable "truefoundry_db_multiple_az" {
+  description = "Enable Multi-az (standby) instances for RDS instances"
+  type        = bool
+  default     = false
 }
 
 ##################################################################################

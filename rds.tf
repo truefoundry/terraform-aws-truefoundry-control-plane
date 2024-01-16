@@ -54,7 +54,9 @@ resource "aws_db_instance" "truefoundry_db" {
   tags                            = local.tags
   engine                          = "postgres"
   engine_version                  = var.truefoundry_db_engine_version
+  multi_az                        = var.truefoundry_db_multiple_az
   allocated_storage               = var.truefoundry_db_allocated_storage
+  max_allocated_storage           = var.truefoundry_db_max_allocated_storage
   port                            = local.truefoundry_db_port
   db_subnet_group_name            = aws_db_subnet_group.rds.name
   vpc_security_group_ids          = concat([aws_security_group.rds.id], aws_security_group.rds-public[*].id)
