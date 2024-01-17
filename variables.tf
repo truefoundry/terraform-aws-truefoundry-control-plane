@@ -68,8 +68,8 @@ variable "truefoundry_db_publicly_accessible" {
 
 variable "truefoundry_db_allocated_storage" {
   type        = string
-  description = "Storage for RDS"
-  default     = "10"
+  description = "Storage for RDS. Minimum storage allowed for gp3 volumes is 20GB"
+  default     = "20"
 }
 
 variable "truefoundry_db_max_allocated_storage" {
@@ -80,6 +80,7 @@ variable "truefoundry_db_max_allocated_storage" {
 variable "truefoundry_db_storage_type" {
   type        = string
   description = "Storage type for truefoundry db"
+  default     = "gp3"
 }
 
 variable "truefoundry_db_storage_iops" {
