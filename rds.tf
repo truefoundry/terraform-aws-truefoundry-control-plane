@@ -51,28 +51,30 @@ resource "aws_security_group" "rds-public" {
 }
 
 resource "aws_db_instance" "truefoundry_db" {
-  tags                            = local.tags
-  engine                          = "postgres"
-  engine_version                  = var.truefoundry_db_engine_version
-  multi_az                        = var.truefoundry_db_multiple_az
-  allocated_storage               = var.truefoundry_db_allocated_storage
-  max_allocated_storage           = var.truefoundry_db_max_allocated_storage
-  port                            = local.truefoundry_db_port
-  db_subnet_group_name            = aws_db_subnet_group.rds.name
-  vpc_security_group_ids          = concat([aws_security_group.rds.id], aws_security_group.rds-public[*].id)
-  username                        = local.truefoundry_db_master_username
-  identifier                      = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
-  identifier_prefix               = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
-  db_name                         = local.truefoundry_db_database_name
-  skip_final_snapshot             = var.truefoundry_db_skip_final_snapshot
-  password                        = random_password.truefoundry_db_password.result
-  backup_retention_period         = 14
-  instance_class                  = var.truefoundry_db_instance_class
-  publicly_accessible             = var.truefoundry_db_publicly_accessible
-  deletion_protection             = var.truefoundry_db_deletion_protection
-  apply_immediately               = true
-  storage_encrypted               = var.truefoundry_db_storage_encrypted
-  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
-  storage_type                    = var.truefoundry_db_storage_type
-  iops                            = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
+  tags                                  = local.tags
+  engine                                = "postgres"
+  engine_version                        = var.truefoundry_db_engine_version
+  multi_az                              = var.truefoundry_db_multiple_az
+  allocated_storage                     = var.truefoundry_db_allocated_storage
+  max_allocated_storage                 = var.truefoundry_db_max_allocated_storage
+  port                                  = local.truefoundry_db_port
+  db_subnet_group_name                  = aws_db_subnet_group.rds.name
+  vpc_security_group_ids                = concat([aws_security_group.rds.id], aws_security_group.rds-public[*].id)
+  username                              = local.truefoundry_db_master_username
+  identifier                            = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
+  identifier_prefix                     = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
+  db_name                               = local.truefoundry_db_database_name
+  skip_final_snapshot                   = var.truefoundry_db_skip_final_snapshot
+  password                              = random_password.truefoundry_db_password.result
+  backup_retention_period               = 14
+  instance_class                        = var.truefoundry_db_instance_class
+  performance_insights_enabled          = var.truefoundry_db_enable_insights
+  performance_insights_retention_period = var.truefoundry_db_enable_insights ? 31 : 0
+  publicly_accessible                   = var.truefoundry_db_publicly_accessible
+  deletion_protection                   = var.truefoundry_db_deletion_protection
+  apply_immediately                     = true
+  storage_encrypted                     = var.truefoundry_db_storage_encrypted
+  enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
+  storage_type                          = var.truefoundry_db_storage_type
+  iops                                  = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
 }
