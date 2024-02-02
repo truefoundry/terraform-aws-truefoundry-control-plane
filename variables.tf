@@ -124,6 +124,12 @@ variable "truefoundry_db_override_name" {
   }
 }
 
+variable "truefoundry_db_enable_insights" {
+  description = "Enable insights to truefoundry db"
+  type        = bool
+  default     = false
+}
+
 variable "truefoundry_db_multiple_az" {
   description = "Enable Multi-az (standby) instances for RDS instances"
   type        = bool
