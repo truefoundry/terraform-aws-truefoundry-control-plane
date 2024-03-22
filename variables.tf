@@ -66,6 +66,12 @@ variable "truefoundry_db_publicly_accessible" {
   description = "Make database publicly accessible. Subnets and SG must match"
 }
 
+variable "truefoundry_db_backup_retention_period" {
+  type = number
+  default = 14
+  description = "Backup retention period for RDS"
+}
+
 variable "truefoundry_db_allocated_storage" {
   type        = string
   description = "Storage for RDS. Minimum storage allowed for gp3 volumes is 20GB"

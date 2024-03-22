@@ -66,7 +66,7 @@ resource "aws_db_instance" "truefoundry_db" {
   db_name                               = local.truefoundry_db_database_name
   skip_final_snapshot                   = var.truefoundry_db_skip_final_snapshot
   password                              = random_password.truefoundry_db_password.result
-  backup_retention_period               = 14
+  backup_retention_period               = var.truefoundry_db_backup_retention_period
   instance_class                        = var.truefoundry_db_instance_class
   performance_insights_enabled          = var.truefoundry_db_enable_insights
   performance_insights_retention_period = var.truefoundry_db_enable_insights ? 31 : 0
