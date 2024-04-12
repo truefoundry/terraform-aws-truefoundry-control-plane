@@ -67,8 +67,8 @@ variable "truefoundry_db_publicly_accessible" {
 }
 
 variable "truefoundry_db_backup_retention_period" {
-  type = number
-  default = 14
+  type        = number
+  default     = 14
   description = "Backup retention period for RDS"
 }
 
@@ -142,6 +142,42 @@ variable "truefoundry_db_multiple_az" {
   default     = false
 }
 
+variable "iam_database_authentication_enabled" {
+  description = "Enable IAM database authentication"
+  type        = bool
+  default     = false
+}
+
+variable "manage_master_user_password" {
+  description = "Enable master user password management. If set to true master user management is done by RDS in secrets manager, if false a random password is generated"
+  type        = bool
+  default     = false
+}
+
+variable "manage_master_user_password_rotation" {
+  description = "Enable master user password rotation"
+  type        = bool
+  default     = false
+}
+
+variable "master_user_password_rotate_immediately" {
+  description = "Rotate master user password immediately"
+  type        = bool
+  default     = false
+}
+
+variable "master_user_password_rotation_automatically_after_days" {
+  description = "Rotate master user password automatically after days"
+  type        = number
+  default     = 90
+}
+
+variable "master_user_password_rotation_duration" {
+  description = "Master user password rotation duration"
+  type        = string
+  default     = "3h"
+}
+
 ##################################################################################
 ## Mlfoundry bucket
 ##################################################################################
@@ -151,6 +187,7 @@ variable "truefoundry_s3_enable_override" {
   type        = bool
   default     = false
 }
+
 variable "truefoundry_s3_override_name" {
   description = "Override name for s3 bucket. truefoundry_s3_enable_override must be set true"
   type        = string
@@ -191,7 +228,6 @@ variable "truefoundry_s3_cors_origins" {
   type        = list(string)
   default     = ["*"]
 }
-
 
 ##################################################################################
 ## MLfoundry service account

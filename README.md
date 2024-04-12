@@ -7,14 +7,14 @@ Truefoundry AWS Control Plane Module
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.32.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.44.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | 3.5.1 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.32.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.44.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.5.1 |
 
 ## Modules
@@ -22,26 +22,32 @@ Truefoundry AWS Control Plane Module
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_truefoundry_bucket"></a> [truefoundry\_bucket](#module\_truefoundry\_bucket) | terraform-aws-modules/s3-bucket/aws | 3.14.0 |
-| <a name="module_truefoundry_oidc_iam"></a> [truefoundry\_oidc\_iam](#module\_truefoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.27.0 |
+| <a name="module_truefoundry_oidc_iam"></a> [truefoundry\_oidc\_iam](#module\_truefoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.39.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [aws_db_instance.truefoundry_db](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/db_instance) | resource |
-| [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/db_subnet_group) | resource |
-| [aws_iam_policy.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/iam_policy) | resource |
-| [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/security_group) | resource |
-| [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/resources/security_group) | resource |
+| [aws_db_instance.truefoundry_db](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/db_instance) | resource |
+| [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/db_subnet_group) | resource |
+| [aws_iam_policy.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.truefoundry_db_iam_auth_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
+| [aws_kms_alias.truefoundry_db_master_user_secret_kms](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/kms_alias) | resource |
+| [aws_kms_key.truefoundry_db_master_user_secret_kms_key](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/kms_key) | resource |
+| [aws_secretsmanager_secret_rotation.turefoundry_db_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/secretsmanager_secret_rotation) | resource |
+| [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/security_group) | resource |
+| [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/security_group) | resource |
 | [random_password.truefoundry_db_password](https://registry.terraform.io/providers/hashicorp/random/3.5.1/docs/resources/password) | resource |
-| [aws_iam_policy.servicefoundry_ecr_policy](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/data-sources/iam_policy) | data source |
-| [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.32.1/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy.servicefoundry_ecr_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy) | data source |
+| [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_db_iam_auth_policy_document](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_db_master_user_secret_kms_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
@@ -52,6 +58,12 @@ Truefoundry AWS Control Plane Module
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | EKS Cluster region | `string` | n/a | yes |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Cluster name | `string` | n/a | yes |
 | <a name="input_cluster_oidc_issuer_url"></a> [cluster\_oidc\_issuer\_url](#input\_cluster\_oidc\_issuer\_url) | The oidc url of the eks cluster | `string` | n/a | yes |
+| <a name="input_iam_database_authentication_enabled"></a> [iam\_database\_authentication\_enabled](#input\_iam\_database\_authentication\_enabled) | Enable IAM database authentication | `bool` | `false` | no |
+| <a name="input_manage_master_user_password"></a> [manage\_master\_user\_password](#input\_manage\_master\_user\_password) | Enable master user password management. If set to true master user management is done by RDS in secrets manager, if false a random password is generated | `bool` | `false` | no |
+| <a name="input_manage_master_user_password_rotation"></a> [manage\_master\_user\_password\_rotation](#input\_manage\_master\_user\_password\_rotation) | Enable master user password rotation | `bool` | `false` | no |
+| <a name="input_master_user_password_rotate_immediately"></a> [master\_user\_password\_rotate\_immediately](#input\_master\_user\_password\_rotate\_immediately) | Rotate master user password immediately | `bool` | `false` | no |
+| <a name="input_master_user_password_rotation_automatically_after_days"></a> [master\_user\_password\_rotation\_automatically\_after\_days](#input\_master\_user\_password\_rotation\_automatically\_after\_days) | Rotate master user password automatically after days | `number` | `90` | no |
+| <a name="input_master_user_password_rotation_duration"></a> [master\_user\_password\_rotation\_duration](#input\_master\_user\_password\_rotation\_duration) | Master user password rotation duration | `string` | `"3h"` | no |
 | <a name="input_mlfoundry_k8s_namespace"></a> [mlfoundry\_k8s\_namespace](#input\_mlfoundry\_k8s\_namespace) | The k8s mlfoundry namespace | `string` | n/a | yes |
 | <a name="input_mlfoundry_k8s_service_account"></a> [mlfoundry\_k8s\_service\_account](#input\_mlfoundry\_k8s\_service\_account) | The k8s mlfoundry service account name | `string` | n/a | yes |
 | <a name="input_mlfoundry_name"></a> [mlfoundry\_name](#input\_mlfoundry\_name) | Name of mlfoundry deployment | `string` | n/a | yes |
