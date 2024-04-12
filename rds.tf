@@ -1,4 +1,5 @@
 resource "random_password" "truefoundry_db_password" {
+  count            = var.manage_master_user_password ? 0 : 1
   length           = 24
   special          = true
   override_special = "#%&*()-_=+[]{}<>:"
@@ -65,16 +66,30 @@ resource "aws_db_instance" "truefoundry_db" {
   identifier_prefix                     = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
   db_name                               = local.truefoundry_db_database_name
   skip_final_snapshot                   = var.truefoundry_db_skip_final_snapshot
-  password                              = random_password.truefoundry_db_password.result
+  password                              = var.manage_master_user_password ? null : random_password.truefoundry_db_password[0].result
+  manage_master_user_password           = var.manage_master_user_password ? true : null
+  master_user_secret_kms_key_id         = var.manage_master_user_password ? aws_kms_key.truefoundry_db_master_user_secret_kms_key[0].arn : null
+  final_snapshot_identifier             = var.truefoundry_db_skip_final_snapshot ? null : "${local.truefoundry_db_database_name}-${formatdate("DD-MM-YYYY-hh-mm-ss", timestamp())}"
   backup_retention_period               = var.truefoundry_db_backup_retention_period
   instance_class                        = var.truefoundry_db_instance_class
   performance_insights_enabled          = var.truefoundry_db_enable_insights
   performance_insights_retention_period = var.truefoundry_db_enable_insights ? 31 : 0
   publicly_accessible                   = var.truefoundry_db_publicly_accessible
   deletion_protection                   = var.truefoundry_db_deletion_protection
+  iam_database_authentication_enabled   = var.iam_database_authentication_enabled
   apply_immediately                     = true
   storage_encrypted                     = var.truefoundry_db_storage_encrypted
   enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
   storage_type                          = var.truefoundry_db_storage_type
   iops                                  = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
+}
+
+resource "aws_secretsmanager_secret_rotation" "turefoundry_db_secret_rotation" {
+  count              = var.manage_master_user_password ? var.manage_master_user_password_rotation ? 1 : 0 : 0
+  secret_id          = aws_db_instance.truefoundry_db.master_user_secret[0].secret_arn
+  rotate_immediately = var.master_user_password_rotate_immediately
+  rotation_rules {
+    automatically_after_days = var.master_user_password_rotation_automatically_after_days
+    duration                 = var.master_user_password_rotation_duration
+  }
 }
