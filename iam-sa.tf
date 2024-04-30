@@ -21,7 +21,7 @@ module "truefoundry_oidc_iam" {
     aws_iam_policy.svcfoundry_access_to_ssm.arn,
     aws_iam_policy.svcfoundry_access_to_multitenant_ssm.arn,
     aws_iam_policy.truefoundry_assume_role_all.arn,
-    data.aws_iam_policy.servicefoundry_ecr_policy.arn,
+    aws_iam_policy.svcfoundry_access_to_ecr.arn,
     aws_iam_policy.truefoundry_db_iam_auth_policy.arn,
   ]
   tags = local.tags
