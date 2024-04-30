@@ -1,9 +1,5 @@
 # From https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/irsa/irsa.tf
 
-data "aws_iam_policy" "servicefoundry_ecr_policy" {
-  name = "AmazonEC2ContainerRegistryFullAccess"
-}
-
 module "truefoundry_oidc_iam" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "5.39.0"
