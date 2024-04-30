@@ -30,6 +30,7 @@ Truefoundry AWS Control Plane Module
 |------|------|
 | [aws_db_instance.truefoundry_db](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/db_instance) | resource |
 | [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/db_subnet_group) | resource |
+| [aws_iam_policy.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
@@ -42,6 +43,7 @@ Truefoundry AWS Control Plane Module
 | [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/security_group) | resource |
 | [random_password.truefoundry_db_password](https://registry.terraform.io/providers/hashicorp/random/3.5.1/docs/resources/password) | resource |
 | [aws_iam_policy.servicefoundry_ecr_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy) | data source |
+| [aws_iam_policy_document.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
