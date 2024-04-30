@@ -248,7 +248,7 @@ variable "mlfoundry_k8s_namespace" {
 }
 
 ##################################################################################
-## Servicefoundry
+## Servicefoundry service account
 ##################################################################################
 
 variable "svcfoundry_name" {
