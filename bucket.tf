@@ -49,7 +49,7 @@ resource "aws_iam_policy" "truefoundry_bucket_policy" {
 }
 
 module "truefoundry_bucket" {
-  count = var.truefoundry_s3_enabled ? 1 : 0
+  count   = var.truefoundry_s3_enabled ? 1 : 0
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.14.0"
 
