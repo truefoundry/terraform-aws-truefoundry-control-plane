@@ -16,4 +16,13 @@ echo "Doing this for resource $i"
 terragrunt state mv module.truefoundry_oidc_iam.aws_iam_role_policy_attachment.custom[$i] module.truefoundry_oidc_iam[0].aws_iam_role_policy_attachment.custom[$i]
 echo "Resource $i is moved"
 done
+
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket.this[0] module.truefoundry_bucket[0].aws_s3_bucket.this[0]
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket_cors_configuration.this[0] module.truefoundry_bucket[0].aws_s3_bucket_cors_configuration.this[0]
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket_intelligent_tiering_configuration.this module.truefoundry_bucket[0].aws_s3_bucket_intelligent_tiering_configuration.this
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket_lifecycle_configuration.this[0] module.truefoundry_bucket[0].aws_s3_bucket_lifecycle_configuration.this[0]
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket_policy.this[0] module.truefoundry_bucket[0].aws_s3_bucket_policy.this[0]
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket_public_access_block.this[0] module.truefoundry_bucket[0].aws_s3_bucket_public_access_block.this[0]
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket_server_side_encryption_configuration.this[0] module.truefoundry_bucket[0].aws_s3_bucket_server_side_encryption_configuration.this[0]
+terragrunt state mv module.truefoundry_bucket.aws_s3_bucket_versioning.this[0] module.truefoundry_bucket[0].aws_s3_bucket_versioning.this[0]
 ```

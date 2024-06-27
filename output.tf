@@ -32,7 +32,7 @@ output "truefoundry_db_password" {
 }
 
 output "truefoundry_bucket_id" {
-  value = module.truefoundry_bucket.s3_bucket_id
+  value = var.truefoundry_s3_enabled ? module.truefoundry_bucket[0].s3_bucket_id : ""
 }
 
 output "truefoundry_iam_role_arn" {
