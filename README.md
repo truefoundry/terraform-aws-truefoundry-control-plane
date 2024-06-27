@@ -22,7 +22,7 @@ Truefoundry AWS Control Plane Module
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_truefoundry_bucket"></a> [truefoundry\_bucket](#module\_truefoundry\_bucket) | terraform-aws-modules/s3-bucket/aws | 3.14.0 |
-| <a name="module_truefoundry_oidc_iam"></a> [truefoundry\_oidc\_iam](#module\_truefoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.39.0 |
+| <a name="module_truefoundry_oidc_iam"></a> [truefoundry\_oidc\_iam](#module\_truefoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.39.1 |
 
 ## Resources
 
@@ -78,6 +78,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_deletion_protection"></a> [truefoundry\_db\_deletion\_protection](#input\_truefoundry\_db\_deletion\_protection) | n/a | `bool` | `true` | no |
 | <a name="input_truefoundry_db_enable_insights"></a> [truefoundry\_db\_enable\_insights](#input\_truefoundry\_db\_enable\_insights) | Enable insights to truefoundry db | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enable_override"></a> [truefoundry\_db\_enable\_override](#input\_truefoundry\_db\_enable\_override) | Enable override for truefoundry db name. You must pass truefoundry\_db\_override\_name | `bool` | `false` | no |
+| <a name="input_truefoundry_db_enabled"></a> [truefoundry\_db\_enabled](#input\_truefoundry\_db\_enabled) | variable to enable/disable truefoundry db creation | `bool` | `true` | no |
 | <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"13.14"` | no |
 | <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | n/a | yes |
 | <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | n/a | yes |
@@ -90,8 +91,10 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_storage_iops"></a> [truefoundry\_db\_storage\_iops](#input\_truefoundry\_db\_storage\_iops) | Provisioned IOPS for the db | `number` | n/a | yes |
 | <a name="input_truefoundry_db_storage_type"></a> [truefoundry\_db\_storage\_type](#input\_truefoundry\_db\_storage\_type) | Storage type for truefoundry db | `string` | `"gp3"` | no |
 | <a name="input_truefoundry_db_subnet_ids"></a> [truefoundry\_db\_subnet\_ids](#input\_truefoundry\_db\_subnet\_ids) | List of subnets where the RDS database will be deployed | `list(string)` | n/a | yes |
+| <a name="input_truefoundry_iam_role_enabled"></a> [truefoundry\_iam\_role\_enabled](#input\_truefoundry\_iam\_role\_enabled) | variable to enable/disable truefoundry iam role creation | `bool` | `true` | no |
 | <a name="input_truefoundry_s3_cors_origins"></a> [truefoundry\_s3\_cors\_origins](#input\_truefoundry\_s3\_cors\_origins) | List of CORS origins for Mlfoundry bucket | `list(string)` | <pre>[<br>  "*"<br>]</pre> | no |
 | <a name="input_truefoundry_s3_enable_override"></a> [truefoundry\_s3\_enable\_override](#input\_truefoundry\_s3\_enable\_override) | Enable override for s3 bucket name. You must pass truefoundry\_s3\_override\_name | `bool` | `false` | no |
+| <a name="input_truefoundry_s3_enabled"></a> [truefoundry\_s3\_enabled](#input\_truefoundry\_s3\_enabled) | variable to enable/disable truefoundry s3 bucket creation | `bool` | `true` | no |
 | <a name="input_truefoundry_s3_encryption_algorithm"></a> [truefoundry\_s3\_encryption\_algorithm](#input\_truefoundry\_s3\_encryption\_algorithm) | Algorithm used for encrypting the default bucket. | `string` | `"AES256"` | no |
 | <a name="input_truefoundry_s3_encryption_key_arn"></a> [truefoundry\_s3\_encryption\_key\_arn](#input\_truefoundry\_s3\_encryption\_key\_arn) | ARN of the key used to encrypt the bucket. Only needed if you set aws:kms as encryption algorithm. | `string` | `null` | no |
 | <a name="input_truefoundry_s3_force_destroy"></a> [truefoundry\_s3\_force\_destroy](#input\_truefoundry\_s3\_force\_destroy) | Force destroy for mlfoundry s3 bucket | `bool` | `false` | no |
