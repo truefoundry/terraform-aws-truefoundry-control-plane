@@ -41,6 +41,7 @@ data "aws_iam_policy_document" "truefoundry_bucket_policy" {
 }
 
 resource "aws_iam_policy" "truefoundry_bucket_policy" {
+  count       = var.truefoundry_iam_role_enabled ? 1 : 0
   name_prefix = "${local.truefoundry_unique_name}-access-to-bucket"
   description = "IAM policy for TrueFoundry bucket"
   policy      = data.aws_iam_policy_document.truefoundry_bucket_policy.json

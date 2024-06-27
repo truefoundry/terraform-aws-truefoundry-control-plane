@@ -2,7 +2,8 @@
 
 module "truefoundry_oidc_iam" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.39.0"
+  count   = var.truefoundry_iam_role_enabled ? 1 : 0
+  version = "5.39.1"
 
   create_role  = true
   role_name    = "${var.cluster_name}-truefoundry-deps"
@@ -13,12 +14,12 @@ module "truefoundry_oidc_iam" {
   ]
 
   role_policy_arns = [
-    aws_iam_policy.truefoundry_bucket_policy.arn,
-    aws_iam_policy.svcfoundry_access_to_ssm.arn,
-    aws_iam_policy.svcfoundry_access_to_multitenant_ssm.arn,
-    aws_iam_policy.truefoundry_assume_role_all.arn,
-    aws_iam_policy.svcfoundry_access_to_ecr.arn,
-    aws_iam_policy.truefoundry_db_iam_auth_policy.arn,
+    aws_iam_policy.truefoundry_bucket_policy[0].arn,
+    aws_iam_policy.svcfoundry_access_to_ssm[0].arn,
+    aws_iam_policy.svcfoundry_access_to_multitenant_ssm[0].arn,
+    aws_iam_policy.truefoundry_assume_role_all[0].arn,
+    aws_iam_policy.svcfoundry_access_to_ecr[0].arn,
+    aws_iam_policy.truefoundry_db_iam_auth_policy[0].arn,
   ]
   tags = local.tags
 }

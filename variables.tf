@@ -45,6 +45,12 @@ variable "vpc_id" {
 ## Database
 ##################################################################################
 
+variable "truefoundry_db_enabled" {
+  type        = bool
+  description = "variable to enable/disable truefoundry db creation"
+  default     = true
+}
+
 variable "truefoundry_db_ingress_security_group" {
   type        = string
   description = "SG allowed to connect to the database"
@@ -182,6 +188,12 @@ variable "master_user_password_rotation_duration" {
 ## Mlfoundry bucket
 ##################################################################################
 
+variable "truefoundry_s3_enabled" {
+  type        = bool
+  description = "variable to enable/disable truefoundry s3 bucket creation"
+  default     = true
+}
+
 variable "truefoundry_s3_enable_override" {
   description = "Enable override for s3 bucket name. You must pass truefoundry_s3_override_name"
   type        = bool
@@ -264,4 +276,14 @@ variable "svcfoundry_k8s_service_account" {
 variable "svcfoundry_k8s_namespace" {
   description = "The k8s svcfoundry namespace"
   type        = string
+}
+
+##################################################################################
+## IAM role
+##################################################################################
+
+variable "truefoundry_iam_role_enabled" {
+  default     = true
+  type        = bool
+  description = "variable to enable/disable truefoundry iam role creation"
 }
