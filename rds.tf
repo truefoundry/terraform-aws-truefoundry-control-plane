@@ -1,17 +1,19 @@
 resource "random_password" "truefoundry_db_password" {
-  count            = var.manage_master_user_password ? 0 : 1
+  count            = var.truefoundry_db_enabled ? var.manage_master_user_password ? 0 : 1 : 0
   length           = 24
   special          = true
   override_special = "#%&*()-_=+[]{}<>:"
 }
 
 resource "aws_db_subnet_group" "rds" {
+  count      = var.truefoundry_db_enabled ? 1 : 0
   name       = "${local.truefoundry_db_unique_name}-rds"
   subnet_ids = var.truefoundry_db_subnet_ids
   tags       = local.tags
 }
 
 resource "aws_security_group" "rds" {
+  count  = var.truefoundry_db_enabled ? 1 : 0
   name   = "${local.truefoundry_db_unique_name}-rds"
   vpc_id = var.vpc_id
   tags   = local.tags
@@ -31,7 +33,7 @@ resource "aws_security_group" "rds" {
   }
 }
 resource "aws_security_group" "rds-public" {
-  count  = var.truefoundry_db_publicly_accessible ? 1 : 0
+  count  = var.truefoundry_db_enabled ? var.truefoundry_db_publicly_accessible ? 1 : 0 : 0
   name   = "${local.truefoundry_db_unique_name}-rds-public"
   vpc_id = var.vpc_id
   tags   = local.tags
@@ -52,6 +54,7 @@ resource "aws_security_group" "rds-public" {
 }
 
 resource "aws_db_instance" "truefoundry_db" {
+  count                                 = var.truefoundry_db_enabled ? 1 : 0
   tags                                  = local.tags
   engine                                = "postgres"
   engine_version                        = var.truefoundry_db_engine_version
@@ -59,8 +62,8 @@ resource "aws_db_instance" "truefoundry_db" {
   allocated_storage                     = var.truefoundry_db_allocated_storage
   max_allocated_storage                 = var.truefoundry_db_max_allocated_storage
   port                                  = local.truefoundry_db_port
-  db_subnet_group_name                  = aws_db_subnet_group.rds.name
-  vpc_security_group_ids                = concat([aws_security_group.rds.id], aws_security_group.rds-public[*].id)
+  db_subnet_group_name                  = aws_db_subnet_group.rds[0].name
+  vpc_security_group_ids                = concat([aws_security_group.rds[0].id], aws_security_group.rds-public[*].id)
   username                              = local.truefoundry_db_master_username
   identifier                            = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
   identifier_prefix                     = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
@@ -85,8 +88,8 @@ resource "aws_db_instance" "truefoundry_db" {
 }
 
 resource "aws_secretsmanager_secret_rotation" "turefoundry_db_secret_rotation" {
-  count              = var.manage_master_user_password ? var.manage_master_user_password_rotation ? 1 : 0 : 0
-  secret_id          = aws_db_instance.truefoundry_db.master_user_secret[0].secret_arn
+  count              = var.truefoundry_db_enabled ? var.manage_master_user_password ? var.manage_master_user_password_rotation ? 1 : 0 : 0 : 0
+  secret_id          = aws_db_instance.truefoundry_db[0].master_user_secret[0].secret_arn
   rotate_immediately = var.master_user_password_rotate_immediately
   rotation_rules {
     automatically_after_days = var.master_user_password_rotation_automatically_after_days
