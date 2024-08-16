@@ -6,16 +6,16 @@ Truefoundry AWS Control Plane Module
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.44.0 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | 3.5.1 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.8 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.63.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | 3.6.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.44.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.5.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.63.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.6.2 |
 
 ## Modules
 
@@ -28,27 +28,27 @@ Truefoundry AWS Control Plane Module
 
 | Name | Type |
 |------|------|
-| [aws_db_instance.truefoundry_db](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/db_instance) | resource |
-| [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/db_subnet_group) | resource |
-| [aws_iam_policy.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.truefoundry_db_iam_auth_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/iam_policy) | resource |
-| [aws_kms_alias.truefoundry_db_master_user_secret_kms](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/kms_alias) | resource |
-| [aws_kms_key.truefoundry_db_master_user_secret_kms_key](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/kms_key) | resource |
-| [aws_secretsmanager_secret_rotation.turefoundry_db_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/secretsmanager_secret_rotation) | resource |
-| [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/security_group) | resource |
-| [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/resources/security_group) | resource |
-| [random_password.truefoundry_db_password](https://registry.terraform.io/providers/hashicorp/random/3.5.1/docs/resources/password) | resource |
-| [aws_iam_policy_document.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.truefoundry_db_iam_auth_policy_document](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.truefoundry_db_master_user_secret_kms_policy](https://registry.terraform.io/providers/hashicorp/aws/5.44.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_db_instance.truefoundry_db](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/db_instance) | resource |
+| [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/db_subnet_group) | resource |
+| [aws_iam_policy.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.truefoundry_db_iam_auth_policy](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/iam_policy) | resource |
+| [aws_kms_alias.truefoundry_db_master_user_secret_kms](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/kms_alias) | resource |
+| [aws_kms_key.truefoundry_db_master_user_secret_kms_key](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/kms_key) | resource |
+| [aws_secretsmanager_secret_rotation.turefoundry_db_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/secretsmanager_secret_rotation) | resource |
+| [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/security_group) | resource |
+| [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/resources/security_group) | resource |
+| [random_password.truefoundry_db_password](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/password) | resource |
+| [aws_iam_policy_document.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_db_iam_auth_policy_document](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_db_master_user_secret_kms_policy](https://registry.terraform.io/providers/hashicorp/aws/5.63.0/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
@@ -72,6 +72,9 @@ Truefoundry AWS Control Plane Module
 | <a name="input_svcfoundry_k8s_service_account"></a> [svcfoundry\_k8s\_service\_account](#input\_svcfoundry\_k8s\_service\_account) | The k8s svcfoundry service account name | `string` | n/a | yes |
 | <a name="input_svcfoundry_name"></a> [svcfoundry\_name](#input\_svcfoundry\_name) | Name of svcfoundry deployment | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | AWS Tags common to all the resources created | `map(string)` | `{}` | no |
+| <a name="input_tfy_workflow_admin_k8s_namespace"></a> [tfy\_workflow\_admin\_k8s\_namespace](#input\_tfy\_workflow\_admin\_k8s\_namespace) | The k8s tfy workflow admin namespace | `string` | n/a | yes |
+| <a name="input_tfy_workflow_admin_k8s_service_account"></a> [tfy\_workflow\_admin\_k8s\_service\_account](#input\_tfy\_workflow\_admin\_k8s\_service\_account) | The k8s tfy workflow admin service account name | `string` | n/a | yes |
+| <a name="input_tfy_workflow_admin_name"></a> [tfy\_workflow\_admin\_name](#input\_tfy\_workflow\_admin\_name) | Name of tfy workflow admin deployment | `string` | n/a | yes |
 | <a name="input_truefoundry_artifact_buckets_will_read"></a> [truefoundry\_artifact\_buckets\_will\_read](#input\_truefoundry\_artifact\_buckets\_will\_read) | A list of bucket IDs mlfoundry will need read access to, in order to show the stored artifacts. It accepts any valid IAM resource, including ARNs with wildcards, so you can do something like arn:aws:s3:::bucket-prefix-* | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_allocated_storage"></a> [truefoundry\_db\_allocated\_storage](#input\_truefoundry\_db\_allocated\_storage) | Storage for RDS. Minimum storage allowed for gp3 volumes is 20GB | `string` | `"20"` | no |
 | <a name="input_truefoundry_db_backup_retention_period"></a> [truefoundry\_db\_backup\_retention\_period](#input\_truefoundry\_db\_backup\_retention\_period) | Backup retention period for RDS | `number` | `14` | no |
