@@ -279,6 +279,25 @@ variable "svcfoundry_k8s_namespace" {
 }
 
 ##################################################################################
+## TFy workflow admin service account
+##################################################################################
+
+variable "tfy_workflow_admin_name" {
+  description = "Name of tfy workflow admin deployment"
+  type        = string
+}
+
+variable "tfy_workflow_admin_k8s_service_account" {
+  description = "The k8s tfy workflow admin service account name"
+  type        = string
+}
+
+variable "tfy_workflow_admin_k8s_namespace" {
+  description = "The k8s tfy workflow admin namespace"
+  type        = string
+}
+
+##################################################################################
 ## IAM role
 ##################################################################################
 
