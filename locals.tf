@@ -1,6 +1,6 @@
 locals {
 
-  truefoundry_unique_name = var.truefoundry_s3_enable_override ? var.truefoundry_s3_override_name : "${var.cluster_name}-truefoundry"
+  truefoundry_unique_name         = var.truefoundry_s3_enable_override ? var.truefoundry_s3_override_name : "${var.cluster_name}-truefoundry"
   truefoundry_trimmed_unique_name = trimsuffix(substr(local.truefoundry_unique_name, 0, 37), "-")
 
   truefoundry_db_unique_name = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : "${var.cluster_name}-db"
