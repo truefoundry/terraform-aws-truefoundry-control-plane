@@ -7,7 +7,7 @@ data "aws_iam_policy_document" "truefoundry_bucket_policy" {
     ]
 
     resources = concat(
-      ["arn:aws:s3:::${local.truefoundry_unique_name}*"],
+      ["arn:aws:s3:::${local.truefoundry_trimmed_unique_name}*"],
       var.truefoundry_artifact_buckets_will_read,
     )
   }
@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "truefoundry_bucket_policy" {
       "s3:DeleteObject",
     ]
     resources = [
-      for bucket in concat(["arn:aws:s3:::${local.truefoundry_unique_name}*"], var.truefoundry_artifact_buckets_will_read) :
+      for bucket in concat(["arn:aws:s3:::${local.truefoundry_trimmed_unique_name}*"], var.truefoundry_artifact_buckets_will_read) :
       "${bucket}/*"
     ]
   }
