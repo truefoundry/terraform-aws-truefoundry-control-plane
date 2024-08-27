@@ -22,7 +22,8 @@ resource "aws_security_group" "rds" {
     from_port       = local.truefoundry_db_port
     to_port         = local.truefoundry_db_port
     protocol        = "tcp"
-    security_groups = [var.truefoundry_db_ingress_security_group]
+    security_groups = var.truefoundry_db_ingress_security_group != "" ? [var.truefoundry_db_ingress_security_group] : []
+    cidr_blocks = var.truefoundry_db_ingress_cidr_block != "" ? [var.truefoundry_db_ingress_cidr_block] : []
   }
 
   egress {

@@ -56,6 +56,11 @@ variable "truefoundry_db_ingress_security_group" {
   description = "SG allowed to connect to the database"
 }
 
+variable "truefoundry_db_ingress_cidr_block" {
+  type        = string
+  description = "CIDR block allowed to connect to the database"
+}
+
 variable "truefoundry_db_subnet_ids" {
   type        = list(string)
   description = "List of subnets where the RDS database will be deployed"
