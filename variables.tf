@@ -56,9 +56,9 @@ variable "truefoundry_db_ingress_security_group" {
   description = "SG allowed to connect to the database"
 }
 
-variable "truefoundry_db_ingress_cidr_block" {
-  type        = string
-  description = "CIDR block allowed to connect to the database"
+variable "truefoundry_db_ingress_cidr_blocks" {
+  type        = list(string)
+  description = "CIDR blocks allowed to connect to the database"
 }
 
 variable "truefoundry_db_subnet_ids" {
