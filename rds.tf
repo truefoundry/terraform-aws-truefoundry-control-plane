@@ -68,7 +68,7 @@ resource "aws_db_instance" "truefoundry_db" {
   username                              = local.truefoundry_db_master_username
   identifier                            = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
   identifier_prefix                     = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
-  db_name                               = local.truefoundry_db_database_name
+  db_name                               = var.truefoundry_db_database_name
   skip_final_snapshot                   = var.truefoundry_db_skip_final_snapshot
   password                              = var.manage_master_user_password ? null : random_password.truefoundry_db_password[0].result
   manage_master_user_password           = var.manage_master_user_password ? true : null

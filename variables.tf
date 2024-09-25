@@ -51,6 +51,12 @@ variable "truefoundry_db_enabled" {
   default     = true
 }
 
+variable "truefoundry_db_database_name" {
+  type        = string
+  description = "Name of the database in DB"
+  default     = "ctl"
+}
+
 variable "truefoundry_db_ingress_security_group" {
   type        = string
   description = "SG allowed to connect to the database"
@@ -59,6 +65,7 @@ variable "truefoundry_db_ingress_security_group" {
 variable "truefoundry_db_ingress_cidr_blocks" {
   type        = list(string)
   description = "CIDR blocks allowed to connect to the database"
+  default     = []
 }
 
 variable "truefoundry_db_subnet_ids" {
@@ -132,7 +139,7 @@ variable "truefoundry_db_enable_override" {
   default     = false
 }
 variable "truefoundry_db_override_name" {
-  description = "Override name for truefoundry db. truefoundry_db_enable_override must be set true"
+  description = "Override name for truefoundry db.This is the name of the RDS resources in AWS . truefoundry_db_enable_override must be set true"
   type        = string
   default     = ""
   validation {
