@@ -154,6 +154,11 @@ variable "truefoundry_db_enable_insights" {
   default     = false
 }
 
+variable "truefoundry_cloudwatch_log_exports" {
+  description = "Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported"
+  type        = list(string)
+  default     = ["postgresql", "upgrade"]
+}
 variable "truefoundry_db_multiple_az" {
   description = "Enable Multi-az (standby) instances for RDS instances"
   type        = bool
