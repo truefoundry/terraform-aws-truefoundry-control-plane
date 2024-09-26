@@ -10,7 +10,6 @@ locals {
 
   truefoundry_db_port            = 5432
   truefoundry_db_master_username = "root"
-  truefoundry_db_database_name   = "ctl"
 
   tags = merge(
     {

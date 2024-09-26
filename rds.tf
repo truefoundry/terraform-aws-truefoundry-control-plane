@@ -68,12 +68,12 @@ resource "aws_db_instance" "truefoundry_db" {
   username                              = local.truefoundry_db_master_username
   identifier                            = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
   identifier_prefix                     = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
-  db_name                               = local.truefoundry_db_database_name
+  db_name                               = var.truefoundry_db_database_name
   skip_final_snapshot                   = var.truefoundry_db_skip_final_snapshot
   password                              = var.manage_master_user_password ? null : random_password.truefoundry_db_password[0].result
   manage_master_user_password           = var.manage_master_user_password ? true : null
   master_user_secret_kms_key_id         = var.manage_master_user_password ? aws_kms_key.truefoundry_db_master_user_secret_kms_key[0].arn : null
-  final_snapshot_identifier             = var.truefoundry_db_skip_final_snapshot ? null : "${local.truefoundry_db_database_name}-${formatdate("DD-MM-YYYY-hh-mm-ss", timestamp())}"
+  final_snapshot_identifier             = var.truefoundry_db_skip_final_snapshot ? null : "${var.truefoundry_db_database_name}-${formatdate("DD-MM-YYYY-hh-mm-ss", timestamp())}"
   backup_retention_period               = var.truefoundry_db_backup_retention_period
   instance_class                        = var.truefoundry_db_instance_class
   performance_insights_enabled          = var.truefoundry_db_enable_insights
@@ -83,7 +83,7 @@ resource "aws_db_instance" "truefoundry_db" {
   iam_database_authentication_enabled   = var.iam_database_authentication_enabled
   apply_immediately                     = true
   storage_encrypted                     = var.truefoundry_db_storage_encrypted
-  enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
+  enabled_cloudwatch_logs_exports       = var.truefoundry_cloudwatch_log_exports
   storage_type                          = var.truefoundry_db_storage_type
   iops                                  = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
 }
