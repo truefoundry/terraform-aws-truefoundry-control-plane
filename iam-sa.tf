@@ -11,7 +11,8 @@ module "truefoundry_oidc_iam" {
   oidc_fully_qualified_subjects = [
     "system:serviceaccount:${var.svcfoundry_k8s_namespace}:${var.svcfoundry_k8s_service_account}",
     "system:serviceaccount:${var.mlfoundry_k8s_namespace}:${var.mlfoundry_k8s_service_account}",
-    "system:serviceaccount:${var.tfy_workflow_admin_k8s_namespace}:${var.tfy_workflow_admin_k8s_service_account}"
+    "system:serviceaccount:${var.tfy_workflow_admin_k8s_namespace}:${var.tfy_workflow_admin_k8s_service_account}",
+    "system:serviceaccount:${var.truefoundry_k8s_namespace}:${var.truefoundry_service_account}",
   ]
 
   role_description = "Truefoundry IAM role for ${var.svcfoundry_name}, ${var.mlfoundry_name} and ${var.tfy_workflow_admin_name} in cluster ${var.cluster_name}"

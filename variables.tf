@@ -315,6 +315,24 @@ variable "tfy_workflow_admin_k8s_namespace" {
 }
 
 ##################################################################################
+## Truefoundry service account
+##################################################################################
+
+variable "truefoundry_service_account" {
+  description = "Truefoundry k8s service name"
+  type        = string
+  default     = "truefoundry"
+}
+
+
+variable "truefoundry_k8s_namespace" {
+  description = "Truefoundry k8s namespace"
+  type        = string
+  default     = "truefoundry"
+}
+
+
+##################################################################################
 ## IAM role
 ##################################################################################
 
