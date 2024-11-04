@@ -1,18 +1,9 @@
 name: 'Lint and Clean'
 
 on:
-  pull_request:
-
-  push:
-    branches:
-      - main
+  - pull_request
 
 jobs:
-  fmt:
-    name: Terraform FMT
-    runs-on: ubuntu-latest
-    container:
-      image: hashicorp/terraform:latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: terraform fmt --recursive --diff -check=true
+  fmt_and_lint:
+    name: Terraform fmt and tflint
+    uses: truefoundry/github-workflows-public/.github/workflows/terraform-lint-format.yml@v0.1.0
