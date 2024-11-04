@@ -1,0 +1,10 @@
+name: Vulnerability scanning
+on:
+  - pull_request
+
+jobs:
+  terraform-scan:
+    name: Vulnerability scanning
+    uses: truefoundry/github-workflows-public/.github/workflows/terraform-scan.yml@v0.1.0
+    secrets:
+      snyk_token: ${{ secrets.SNYK_TOKEN }}
