@@ -5,4 +5,6 @@ on:
 jobs:
   terraform-docs-generator:
     name: Generate terraform docs
-    uses: truefoundry/github-workflows-public/.github/workflows/terraform-doc-generator.yml@v0.1.0
+    uses: truefoundry/github-workflows-public/.github/workflows/terraform-doc-generator.yml@v0.1.1
+    with:
+      commit_ref: ${{ github.event.pull_request.head.ref }}
