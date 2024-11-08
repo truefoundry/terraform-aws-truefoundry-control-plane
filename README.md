@@ -6,16 +6,16 @@ Truefoundry AWS Control Plane Module
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.57.0 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | 3.6.2 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.4 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.57 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.6 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.57.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.6.2 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.57 |
+| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.6 |
 
 ## Modules
 
@@ -41,7 +41,7 @@ Truefoundry AWS Control Plane Module
 | [aws_secretsmanager_secret_rotation.turefoundry_db_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_rotation) | resource |
 | [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
-| [random_password.truefoundry_db_password](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/password) | resource |
+| [random_password.truefoundry_db_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [aws_iam_policy_document.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_ssm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
