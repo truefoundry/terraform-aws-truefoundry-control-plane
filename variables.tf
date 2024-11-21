@@ -21,11 +21,6 @@ variable "aws_account_id" {
   type        = string
 }
 
-variable "account_name" {
-  description = "AWS Account Name"
-  type        = string
-}
-
 variable "tags" {
   type        = map(string)
   default     = {}
@@ -76,6 +71,7 @@ variable "truefoundry_db_subnet_ids" {
 variable "truefoundry_db_instance_class" {
   type        = string
   description = "Instance class for RDS"
+  default     = "db.t3.medium"
 }
 
 variable "truefoundry_db_publicly_accessible" {
@@ -99,6 +95,7 @@ variable "truefoundry_db_allocated_storage" {
 variable "truefoundry_db_max_allocated_storage" {
   type        = string
   description = "Max allowed storage for RDS when autoscaling is enabled"
+  default     = "30"
 }
 
 variable "truefoundry_db_storage_type" {
@@ -110,6 +107,7 @@ variable "truefoundry_db_storage_type" {
 variable "truefoundry_db_storage_iops" {
   type        = number
   description = "Provisioned IOPS for the db"
+  default     = 0
 }
 
 variable "truefoundry_db_skip_final_snapshot" {
@@ -138,6 +136,7 @@ variable "truefoundry_db_enable_override" {
   type        = bool
   default     = false
 }
+
 variable "truefoundry_db_override_name" {
   description = "Override name for truefoundry db.This is the name of the RDS resources in AWS . truefoundry_db_enable_override must be set true"
   type        = string
@@ -261,57 +260,49 @@ variable "truefoundry_s3_cors_origins" {
 ##################################################################################
 ## MLfoundry service account
 ##################################################################################
-variable "mlfoundry_name" {
-  description = "Name of mlfoundry deployment"
-  type        = string
-}
 
 variable "mlfoundry_k8s_service_account" {
   description = "The k8s mlfoundry service account name"
   type        = string
+  default     = "mlfoundry-server"
 }
 
 variable "mlfoundry_k8s_namespace" {
   description = "The k8s mlfoundry namespace"
   type        = string
+  default     = "truefoundry"
 }
 
 ##################################################################################
 ## Servicefoundry service account
 ##################################################################################
 
-variable "svcfoundry_name" {
-  description = "Name of svcfoundry deployment"
-  type        = string
-}
-
 variable "svcfoundry_k8s_service_account" {
   description = "The k8s svcfoundry service account name"
   type        = string
+  default     = "servicefoundry-server"
 }
 
 variable "svcfoundry_k8s_namespace" {
   description = "The k8s svcfoundry namespace"
   type        = string
+  default     = "truefoundry"
 }
 
 ##################################################################################
 ## TFy workflow admin service account
 ##################################################################################
 
-variable "tfy_workflow_admin_name" {
-  description = "Name of tfy workflow admin deployment"
-  type        = string
-}
-
 variable "tfy_workflow_admin_k8s_service_account" {
   description = "The k8s tfy workflow admin service account name"
   type        = string
+  default     = "tfy-workflow-admin"
 }
 
 variable "tfy_workflow_admin_k8s_namespace" {
   description = "The k8s tfy workflow admin namespace"
   type        = string
+  default     = "truefoundry"
 }
 
 ##################################################################################
