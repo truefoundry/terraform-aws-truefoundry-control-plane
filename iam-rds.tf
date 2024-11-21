@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "truefoundry_db_iam_auth_policy_document" {
 resource "aws_iam_policy" "truefoundry_db_iam_auth_policy" {
   count       = var.truefoundry_iam_role_enabled ? 1 : 0
   name_prefix = "${local.svcfoundry_unique_name}-db-iam-auth-policy"
-  description = "IAM based authentication policy for ${var.svcfoundry_name} and ${var.mlfoundry_name} in cluster ${var.cluster_name}"
+  description = "IAM based authentication policy for ${var.svcfoundry_k8s_service_account} and ${var.mlfoundry_k8s_service_account} in cluster ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.truefoundry_db_iam_auth_policy_document.json
   tags        = local.tags
 }

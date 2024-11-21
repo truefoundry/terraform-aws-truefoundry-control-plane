@@ -54,7 +54,6 @@ Truefoundry AWS Control Plane Module
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_account_name"></a> [account\_name](#input\_account\_name) | AWS Account Name | `string` | n/a | yes |
 | <a name="input_aws_account_id"></a> [aws\_account\_id](#input\_aws\_account\_id) | AWS Account ID | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | EKS Cluster region | `string` | n/a | yes |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Cluster name | `string` | n/a | yes |
@@ -65,16 +64,13 @@ Truefoundry AWS Control Plane Module
 | <a name="input_master_user_password_rotate_immediately"></a> [master\_user\_password\_rotate\_immediately](#input\_master\_user\_password\_rotate\_immediately) | Rotate master user password immediately | `bool` | `false` | no |
 | <a name="input_master_user_password_rotation_automatically_after_days"></a> [master\_user\_password\_rotation\_automatically\_after\_days](#input\_master\_user\_password\_rotation\_automatically\_after\_days) | Rotate master user password automatically after days | `number` | `90` | no |
 | <a name="input_master_user_password_rotation_duration"></a> [master\_user\_password\_rotation\_duration](#input\_master\_user\_password\_rotation\_duration) | Master user password rotation duration | `string` | `"3h"` | no |
-| <a name="input_mlfoundry_k8s_namespace"></a> [mlfoundry\_k8s\_namespace](#input\_mlfoundry\_k8s\_namespace) | The k8s mlfoundry namespace | `string` | n/a | yes |
-| <a name="input_mlfoundry_k8s_service_account"></a> [mlfoundry\_k8s\_service\_account](#input\_mlfoundry\_k8s\_service\_account) | The k8s mlfoundry service account name | `string` | n/a | yes |
-| <a name="input_mlfoundry_name"></a> [mlfoundry\_name](#input\_mlfoundry\_name) | Name of mlfoundry deployment | `string` | n/a | yes |
-| <a name="input_svcfoundry_k8s_namespace"></a> [svcfoundry\_k8s\_namespace](#input\_svcfoundry\_k8s\_namespace) | The k8s svcfoundry namespace | `string` | n/a | yes |
-| <a name="input_svcfoundry_k8s_service_account"></a> [svcfoundry\_k8s\_service\_account](#input\_svcfoundry\_k8s\_service\_account) | The k8s svcfoundry service account name | `string` | n/a | yes |
-| <a name="input_svcfoundry_name"></a> [svcfoundry\_name](#input\_svcfoundry\_name) | Name of svcfoundry deployment | `string` | n/a | yes |
+| <a name="input_mlfoundry_k8s_namespace"></a> [mlfoundry\_k8s\_namespace](#input\_mlfoundry\_k8s\_namespace) | The k8s mlfoundry namespace | `string` | `"truefoundry"` | no |
+| <a name="input_mlfoundry_k8s_service_account"></a> [mlfoundry\_k8s\_service\_account](#input\_mlfoundry\_k8s\_service\_account) | The k8s mlfoundry service account name | `string` | `"mlfoundry-server"` | no |
+| <a name="input_svcfoundry_k8s_namespace"></a> [svcfoundry\_k8s\_namespace](#input\_svcfoundry\_k8s\_namespace) | The k8s svcfoundry namespace | `string` | `"truefoundry"` | no |
+| <a name="input_svcfoundry_k8s_service_account"></a> [svcfoundry\_k8s\_service\_account](#input\_svcfoundry\_k8s\_service\_account) | The k8s svcfoundry service account name | `string` | `"servicefoundry-server"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | AWS Tags common to all the resources created | `map(string)` | `{}` | no |
-| <a name="input_tfy_workflow_admin_k8s_namespace"></a> [tfy\_workflow\_admin\_k8s\_namespace](#input\_tfy\_workflow\_admin\_k8s\_namespace) | The k8s tfy workflow admin namespace | `string` | n/a | yes |
-| <a name="input_tfy_workflow_admin_k8s_service_account"></a> [tfy\_workflow\_admin\_k8s\_service\_account](#input\_tfy\_workflow\_admin\_k8s\_service\_account) | The k8s tfy workflow admin service account name | `string` | n/a | yes |
-| <a name="input_tfy_workflow_admin_name"></a> [tfy\_workflow\_admin\_name](#input\_tfy\_workflow\_admin\_name) | Name of tfy workflow admin deployment | `string` | n/a | yes |
+| <a name="input_tfy_workflow_admin_k8s_namespace"></a> [tfy\_workflow\_admin\_k8s\_namespace](#input\_tfy\_workflow\_admin\_k8s\_namespace) | The k8s tfy workflow admin namespace | `string` | `"truefoundry"` | no |
+| <a name="input_tfy_workflow_admin_k8s_service_account"></a> [tfy\_workflow\_admin\_k8s\_service\_account](#input\_tfy\_workflow\_admin\_k8s\_service\_account) | The k8s tfy workflow admin service account name | `string` | `"tfy-workflow-admin"` | no |
 | <a name="input_truefoundry_artifact_buckets_will_read"></a> [truefoundry\_artifact\_buckets\_will\_read](#input\_truefoundry\_artifact\_buckets\_will\_read) | A list of bucket IDs mlfoundry will need read access to, in order to show the stored artifacts. It accepts any valid IAM resource, including ARNs with wildcards, so you can do something like arn:aws:s3:::bucket-prefix-* | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_cloudwatch_log_exports"></a> [truefoundry\_cloudwatch\_log\_exports](#input\_truefoundry\_cloudwatch\_log\_exports) | Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported | `list(string)` | <pre>[<br/>  "postgresql",<br/>  "upgrade"<br/>]</pre> | no |
 | <a name="input_truefoundry_db_allocated_storage"></a> [truefoundry\_db\_allocated\_storage](#input\_truefoundry\_db\_allocated\_storage) | Storage for RDS. Minimum storage allowed for gp3 volumes is 20GB | `string` | `"20"` | no |
@@ -87,14 +83,14 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"13.14"` | no |
 | <a name="input_truefoundry_db_ingress_cidr_blocks"></a> [truefoundry\_db\_ingress\_cidr\_blocks](#input\_truefoundry\_db\_ingress\_cidr\_blocks) | CIDR blocks allowed to connect to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | n/a | yes |
-| <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | n/a | yes |
-| <a name="input_truefoundry_db_max_allocated_storage"></a> [truefoundry\_db\_max\_allocated\_storage](#input\_truefoundry\_db\_max\_allocated\_storage) | Max allowed storage for RDS when autoscaling is enabled | `string` | n/a | yes |
+| <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | `"db.t3.medium"` | no |
+| <a name="input_truefoundry_db_max_allocated_storage"></a> [truefoundry\_db\_max\_allocated\_storage](#input\_truefoundry\_db\_max\_allocated\_storage) | Max allowed storage for RDS when autoscaling is enabled | `string` | `"30"` | no |
 | <a name="input_truefoundry_db_multiple_az"></a> [truefoundry\_db\_multiple\_az](#input\_truefoundry\_db\_multiple\_az) | Enable Multi-az (standby) instances for RDS instances | `bool` | `false` | no |
 | <a name="input_truefoundry_db_override_name"></a> [truefoundry\_db\_override\_name](#input\_truefoundry\_db\_override\_name) | Override name for truefoundry db.This is the name of the RDS resources in AWS . truefoundry\_db\_enable\_override must be set true | `string` | `""` | no |
 | <a name="input_truefoundry_db_publicly_accessible"></a> [truefoundry\_db\_publicly\_accessible](#input\_truefoundry\_db\_publicly\_accessible) | Make database publicly accessible. Subnets and SG must match | `string` | `false` | no |
 | <a name="input_truefoundry_db_skip_final_snapshot"></a> [truefoundry\_db\_skip\_final\_snapshot](#input\_truefoundry\_db\_skip\_final\_snapshot) | n/a | `bool` | `false` | no |
 | <a name="input_truefoundry_db_storage_encrypted"></a> [truefoundry\_db\_storage\_encrypted](#input\_truefoundry\_db\_storage\_encrypted) | n/a | `bool` | `true` | no |
-| <a name="input_truefoundry_db_storage_iops"></a> [truefoundry\_db\_storage\_iops](#input\_truefoundry\_db\_storage\_iops) | Provisioned IOPS for the db | `number` | n/a | yes |
+| <a name="input_truefoundry_db_storage_iops"></a> [truefoundry\_db\_storage\_iops](#input\_truefoundry\_db\_storage\_iops) | Provisioned IOPS for the db | `number` | `0` | no |
 | <a name="input_truefoundry_db_storage_type"></a> [truefoundry\_db\_storage\_type](#input\_truefoundry\_db\_storage\_type) | Storage type for truefoundry db | `string` | `"gp3"` | no |
 | <a name="input_truefoundry_db_subnet_ids"></a> [truefoundry\_db\_subnet\_ids](#input\_truefoundry\_db\_subnet\_ids) | List of subnets where the RDS database will be deployed | `list(string)` | n/a | yes |
 | <a name="input_truefoundry_iam_role_enabled"></a> [truefoundry\_iam\_role\_enabled](#input\_truefoundry\_iam\_role\_enabled) | variable to enable/disable truefoundry iam role creation | `bool` | `true` | no |
