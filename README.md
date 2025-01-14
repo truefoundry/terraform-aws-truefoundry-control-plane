@@ -80,7 +80,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_enable_insights"></a> [truefoundry\_db\_enable\_insights](#input\_truefoundry\_db\_enable\_insights) | Enable insights to truefoundry db | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enable_override"></a> [truefoundry\_db\_enable\_override](#input\_truefoundry\_db\_enable\_override) | Enable override for truefoundry db name. You must pass truefoundry\_db\_override\_name | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enabled"></a> [truefoundry\_db\_enabled](#input\_truefoundry\_db\_enabled) | variable to enable/disable truefoundry db creation | `bool` | `true` | no |
-| <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"13.14"` | no |
+| <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"17.2"` | no |
 | <a name="input_truefoundry_db_ingress_cidr_blocks"></a> [truefoundry\_db\_ingress\_cidr\_blocks](#input\_truefoundry\_db\_ingress\_cidr\_blocks) | CIDR blocks allowed to connect to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | n/a | yes |
 | <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | `"db.t3.medium"` | no |
