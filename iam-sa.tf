@@ -23,6 +23,7 @@ module "truefoundry_oidc_iam" {
     aws_iam_policy.truefoundry_assume_role_all[0].arn,
     aws_iam_policy.svcfoundry_access_to_ecr[0].arn,
     aws_iam_policy.truefoundry_db_iam_auth_policy[0].arn,
+    aws_iam_policy.svcfoundry_access_to_eks[0].arn
   ]
   tags = local.tags
 }
