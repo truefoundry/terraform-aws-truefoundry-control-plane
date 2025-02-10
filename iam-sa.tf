@@ -16,14 +16,13 @@ module "truefoundry_oidc_iam" {
   ]
 
   role_description = "Truefoundry IAM role for ${var.svcfoundry_k8s_service_account}, ${var.mlfoundry_k8s_service_account} and ${var.tfy_workflow_admin_k8s_service_account} in cluster ${var.cluster_name}"
-  role_policy_arns = [
-    aws_iam_policy.truefoundry_bucket_policy[0].arn,
-    aws_iam_policy.svcfoundry_access_to_ssm[0].arn,
-    aws_iam_policy.svcfoundry_access_to_multitenant_ssm[0].arn,
-    aws_iam_policy.truefoundry_assume_role_all[0].arn,
-    aws_iam_policy.svcfoundry_access_to_ecr[0].arn,
-    aws_iam_policy.truefoundry_db_iam_auth_policy[0].arn,
-    aws_iam_policy.svcfoundry_access_to_eks[0].arn
-  ]
+
+  role_policy_arns = concat(
+    [aws_iam_policy.truefoundry_bucket_policy[0].arn],
+    [aws_iam_policy.svcfoundry_access_to_multitenant_ssm[0].arn],
+    [aws_iam_policy.truefoundry_assume_role_all[0].arn],
+    [aws_iam_policy.svcfoundry_access_to_ecr[0].arn],
+    (var.truefoundry_db_enabled && var.iam_database_authentication_enabled) ? [aws_iam_policy.truefoundry_db_iam_auth_policy[0].arn] : []
+  )
   tags = local.tags
 }
