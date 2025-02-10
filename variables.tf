@@ -75,7 +75,7 @@ variable "truefoundry_db_subnet_ids" {
   default     = []
 
   validation {
-    condition     = !var.truefoundry_db_enabled || length(var.truefoundry_db_subnet_ids) > 0
+    condition     = var.truefoundry_db_enabled ? length(var.truefoundry_db_subnet_ids) > 0 : true
     error_message = "truefoundry_db_subnet_ids is required when truefoundry_db_enabled is true"
   }
 }
