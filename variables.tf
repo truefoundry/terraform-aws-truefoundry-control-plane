@@ -58,7 +58,7 @@ variable "truefoundry_db_ingress_security_group" {
   default     = ""
 
   validation {
-    condition     = !var.truefoundry_db_enabled || var.truefoundry_db_ingress_security_group != ""
+    condition     = var.truefoundry_db_enabled ? var.truefoundry_db_ingress_security_group != "" : true
     error_message = "truefoundry_db_ingress_security_group is required when truefoundry_db_enabled is true"
   }
 }
