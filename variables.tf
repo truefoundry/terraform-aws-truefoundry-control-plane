@@ -55,6 +55,12 @@ variable "truefoundry_db_database_name" {
 variable "truefoundry_db_ingress_security_group" {
   type        = string
   description = "SG allowed to connect to the database"
+  default     = ""
+
+  validation {
+    condition     = !var.truefoundry_db_enabled || var.truefoundry_db_ingress_security_group != ""
+    error_message = "truefoundry_db_ingress_security_group is required when truefoundry_db_enabled is true"
+  }
 }
 
 variable "truefoundry_db_ingress_cidr_blocks" {
@@ -66,6 +72,12 @@ variable "truefoundry_db_ingress_cidr_blocks" {
 variable "truefoundry_db_subnet_ids" {
   type        = list(string)
   description = "List of subnets where the RDS database will be deployed"
+  default     = []
+
+  validation {
+    condition     = !var.truefoundry_db_enabled || length(var.truefoundry_db_subnet_ids) > 0
+    error_message = "truefoundry_db_subnet_ids is required when truefoundry_db_enabled is true"
+  }
 }
 
 variable "truefoundry_db_instance_class" {
