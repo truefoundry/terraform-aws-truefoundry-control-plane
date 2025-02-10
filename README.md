@@ -84,7 +84,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_enabled"></a> [truefoundry\_db\_enabled](#input\_truefoundry\_db\_enabled) | variable to enable/disable truefoundry db creation | `bool` | `true` | no |
 | <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"17.2"` | no |
 | <a name="input_truefoundry_db_ingress_cidr_blocks"></a> [truefoundry\_db\_ingress\_cidr\_blocks](#input\_truefoundry\_db\_ingress\_cidr\_blocks) | CIDR blocks allowed to connect to the database | `list(string)` | `[]` | no |
-| <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | n/a | yes |
+| <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | `""` | no |
 | <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | `"db.t3.medium"` | no |
 | <a name="input_truefoundry_db_max_allocated_storage"></a> [truefoundry\_db\_max\_allocated\_storage](#input\_truefoundry\_db\_max\_allocated\_storage) | Max allowed storage for RDS when autoscaling is enabled | `string` | `"30"` | no |
 | <a name="input_truefoundry_db_multiple_az"></a> [truefoundry\_db\_multiple\_az](#input\_truefoundry\_db\_multiple\_az) | Enable Multi-az (standby) instances for RDS instances | `bool` | `false` | no |
@@ -94,7 +94,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_storage_encrypted"></a> [truefoundry\_db\_storage\_encrypted](#input\_truefoundry\_db\_storage\_encrypted) | n/a | `bool` | `true` | no |
 | <a name="input_truefoundry_db_storage_iops"></a> [truefoundry\_db\_storage\_iops](#input\_truefoundry\_db\_storage\_iops) | Provisioned IOPS for the db | `number` | `0` | no |
 | <a name="input_truefoundry_db_storage_type"></a> [truefoundry\_db\_storage\_type](#input\_truefoundry\_db\_storage\_type) | Storage type for truefoundry db | `string` | `"gp3"` | no |
-| <a name="input_truefoundry_db_subnet_ids"></a> [truefoundry\_db\_subnet\_ids](#input\_truefoundry\_db\_subnet\_ids) | List of subnets where the RDS database will be deployed | `list(string)` | n/a | yes |
+| <a name="input_truefoundry_db_subnet_ids"></a> [truefoundry\_db\_subnet\_ids](#input\_truefoundry\_db\_subnet\_ids) | List of subnets where the RDS database will be deployed | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_iam_role_enabled"></a> [truefoundry\_iam\_role\_enabled](#input\_truefoundry\_iam\_role\_enabled) | variable to enable/disable truefoundry iam role creation | `bool` | `true` | no |
 | <a name="input_truefoundry_k8s_namespace"></a> [truefoundry\_k8s\_namespace](#input\_truefoundry\_k8s\_namespace) | Truefoundry k8s namespace | `string` | `"truefoundry"` | no |
 | <a name="input_truefoundry_s3_cors_origins"></a> [truefoundry\_s3\_cors\_origins](#input\_truefoundry\_s3\_cors\_origins) | List of CORS origins for Mlfoundry bucket | `list(string)` | <pre>[<br/>  "*"<br/>]</pre> | no |
