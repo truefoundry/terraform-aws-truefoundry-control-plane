@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "truefoundry_assume_role_all" {
 
 resource "aws_iam_policy" "truefoundry_assume_role_all" {
   count       = var.truefoundry_iam_role_enabled ? 1 : 0
-  name_prefix = "truefoundry-allow-assume-role-all"
+  name_prefix = "${local.svcfoundry_unique_name}-truefoundry-allow-assume-role-all"
   description = "Allow access to assume role for ${local.svcfoundry_unique_name} and ${local.mlfoundry_unique_name} in ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.truefoundry_assume_role_all.json
   tags        = local.tags
