@@ -170,6 +170,7 @@ variable "truefoundry_cloudwatch_log_exports" {
   type        = list(string)
   default     = ["postgresql", "upgrade"]
 }
+
 variable "truefoundry_db_multiple_az" {
   description = "Enable Multi-az (standby) instances for RDS instances"
   type        = bool
@@ -343,4 +344,28 @@ variable "truefoundry_iam_role_enabled" {
   default     = true
   type        = bool
   description = "variable to enable/disable truefoundry iam role creation"
+}
+
+variable "truefoundry_iam_role_enable_override" {
+  default     = false
+  type        = bool
+  description = "Enable overriding the truefoundry IAM role name. You need to pass truefoundry_iam_role_override_name to pass the role name"
+}
+
+variable "truefoundry_iam_role_override_name" {
+  default     = ""
+  type        = string
+  description = "Truefoundry IAM role name"
+}
+
+variable "truefoundry_iam_role_additional_oidc_subjects" {
+  default     = []
+  type        = list(string)
+  description = "List of fully qualifies oidc subjects that can assume the truefoundry IAM role"
+}
+
+variable "truefoundry_iam_role_additional_policies_arn" {
+  default     = []
+  type        = list(string)
+  description = "List of ARN of policies that you want to attach to the "
 }
