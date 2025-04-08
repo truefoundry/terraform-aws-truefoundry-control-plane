@@ -86,6 +86,12 @@ resource "aws_db_instance" "truefoundry_db" {
   enabled_cloudwatch_logs_exports       = var.truefoundry_cloudwatch_log_exports
   storage_type                          = var.truefoundry_db_storage_type
   iops                                  = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
+
+  lifecycle {
+    ignore_changes = [
+      identifier
+    ]
+  }
 }
 
 resource "aws_secretsmanager_secret_rotation" "turefoundry_db_secret_rotation" {

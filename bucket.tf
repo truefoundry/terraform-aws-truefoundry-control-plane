@@ -62,6 +62,7 @@ module "truefoundry_bucket" {
     {
       Name = var.truefoundry_s3_enable_override ? var.truefoundry_s3_override_name : trimsuffix(substr(local.truefoundry_unique_name, 0, 37), "-")
     },
+    var.blob_storage_extra_tags,
     local.tags
   )
 
