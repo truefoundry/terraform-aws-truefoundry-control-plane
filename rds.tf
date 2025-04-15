@@ -89,7 +89,8 @@ resource "aws_db_instance" "truefoundry_db" {
 
   lifecycle {
     ignore_changes = [
-      identifier
+      identifier,
+      final_snapshot_identifier
     ]
   }
 }
