@@ -12,6 +12,7 @@ module "truefoundry_oidc_iam" {
     "system:serviceaccount:${var.svcfoundry_k8s_namespace}:${var.svcfoundry_k8s_service_account}",
     "system:serviceaccount:${var.mlfoundry_k8s_namespace}:${var.mlfoundry_k8s_service_account}",
     "system:serviceaccount:${var.tfy_workflow_admin_k8s_namespace}:${var.tfy_workflow_admin_k8s_service_account}",
+    "system:serviceaccount:${var.tfy_llm_gateway_k8s_namespace}:${var.tfy_llm_gateway_k8s_service_account}",
     "system:serviceaccount:${var.truefoundry_k8s_namespace}:${var.truefoundry_service_account}",
   ], var.truefoundry_iam_role_additional_oidc_subjects)
 

@@ -325,11 +325,28 @@ variable "tfy_workflow_admin_k8s_namespace" {
 }
 
 ##################################################################################
+## TFY llm-gateway service account
+##################################################################################
+
+variable "tfy_llm_gateway_k8s_namespace" {
+  description = "Truefoundry k8s llm-gateway service account name"
+  type        = string
+  default     = "tfy-llm-gateway"
+}
+
+
+variable "tfy_llm_gateway_k8s_service_account" {
+  description = "Truefoundry k8s namespace"
+  type        = string
+  default     = "truefoundry"
+}
+
+##################################################################################
 ## Truefoundry service account
 ##################################################################################
 
 variable "truefoundry_service_account" {
-  description = "Truefoundry k8s service name"
+  description = "Truefoundry k8s service account name"
   type        = string
   default     = "truefoundry"
 }
