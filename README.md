@@ -70,6 +70,8 @@ Truefoundry AWS Control Plane Module
 | <a name="input_svcfoundry_k8s_namespace"></a> [svcfoundry\_k8s\_namespace](#input\_svcfoundry\_k8s\_namespace) | The k8s svcfoundry namespace | `string` | `"truefoundry"` | no |
 | <a name="input_svcfoundry_k8s_service_account"></a> [svcfoundry\_k8s\_service\_account](#input\_svcfoundry\_k8s\_service\_account) | The k8s svcfoundry service account name | `string` | `"servicefoundry-server"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | AWS Tags common to all the resources created | `map(string)` | `{}` | no |
+| <a name="input_tfy_llm_gateway_k8s_namespace"></a> [tfy\_llm\_gateway\_k8s\_namespace](#input\_tfy\_llm\_gateway\_k8s\_namespace) | Truefoundry k8s llm-gateway service account name | `string` | `"truefoundry"` | no |
+| <a name="input_tfy_llm_gateway_k8s_service_account"></a> [tfy\_llm\_gateway\_k8s\_service\_account](#input\_tfy\_llm\_gateway\_k8s\_service\_account) | Truefoundry k8s namespace | `string` | `"tfy-llm-gateway"` | no |
 | <a name="input_tfy_workflow_admin_k8s_namespace"></a> [tfy\_workflow\_admin\_k8s\_namespace](#input\_tfy\_workflow\_admin\_k8s\_namespace) | The k8s tfy workflow admin namespace | `string` | `"truefoundry"` | no |
 | <a name="input_tfy_workflow_admin_k8s_service_account"></a> [tfy\_workflow\_admin\_k8s\_service\_account](#input\_tfy\_workflow\_admin\_k8s\_service\_account) | The k8s tfy workflow admin service account name | `string` | `"tfy-workflow-admin"` | no |
 | <a name="input_truefoundry_artifact_buckets_will_read"></a> [truefoundry\_artifact\_buckets\_will\_read](#input\_truefoundry\_artifact\_buckets\_will\_read) | A list of bucket IDs mlfoundry will need read access to, in order to show the stored artifacts. It accepts any valid IAM resource, including ARNs with wildcards, so you can do something like arn:aws:s3:::bucket-prefix-* | `list(string)` | `[]` | no |
@@ -107,7 +109,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_s3_encryption_key_arn"></a> [truefoundry\_s3\_encryption\_key\_arn](#input\_truefoundry\_s3\_encryption\_key\_arn) | ARN of the key used to encrypt the bucket. Only needed if you set aws:kms as encryption algorithm. | `string` | `null` | no |
 | <a name="input_truefoundry_s3_force_destroy"></a> [truefoundry\_s3\_force\_destroy](#input\_truefoundry\_s3\_force\_destroy) | Force destroy for mlfoundry s3 bucket | `bool` | `false` | no |
 | <a name="input_truefoundry_s3_override_name"></a> [truefoundry\_s3\_override\_name](#input\_truefoundry\_s3\_override\_name) | Override name for s3 bucket. truefoundry\_s3\_enable\_override must be set true | `string` | `""` | no |
-| <a name="input_truefoundry_service_account"></a> [truefoundry\_service\_account](#input\_truefoundry\_service\_account) | Truefoundry k8s service name | `string` | `"truefoundry"` | no |
+| <a name="input_truefoundry_service_account"></a> [truefoundry\_service\_account](#input\_truefoundry\_service\_account) | Truefoundry k8s service account name | `string` | `"truefoundry"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | AWS VPC to deploy Truefoundry rds | `string` | n/a | yes |
 
 ## Outputs
