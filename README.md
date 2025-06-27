@@ -102,13 +102,17 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_iam_role_enabled"></a> [truefoundry\_iam\_role\_enabled](#input\_truefoundry\_iam\_role\_enabled) | variable to enable/disable truefoundry iam role creation | `bool` | `true` | no |
 | <a name="input_truefoundry_iam_role_override_name"></a> [truefoundry\_iam\_role\_override\_name](#input\_truefoundry\_iam\_role\_override\_name) | Truefoundry IAM role name | `string` | `""` | no |
 | <a name="input_truefoundry_k8s_namespace"></a> [truefoundry\_k8s\_namespace](#input\_truefoundry\_k8s\_namespace) | Truefoundry k8s namespace | `string` | `"truefoundry"` | no |
+| <a name="input_truefoundry_s3_block_public_acls"></a> [truefoundry\_s3\_block\_public\_acls](#input\_truefoundry\_s3\_block\_public\_acls) | Block public ACLs for mlfoundry s3 bucket | `bool` | `true` | no |
+| <a name="input_truefoundry_s3_block_public_policy"></a> [truefoundry\_s3\_block\_public\_policy](#input\_truefoundry\_s3\_block\_public\_policy) | Block public policy for mlfoundry s3 bucket | `bool` | `true` | no |
 | <a name="input_truefoundry_s3_cors_origins"></a> [truefoundry\_s3\_cors\_origins](#input\_truefoundry\_s3\_cors\_origins) | List of CORS origins for Mlfoundry bucket | `list(string)` | <pre>[<br/>  "*"<br/>]</pre> | no |
 | <a name="input_truefoundry_s3_enable_override"></a> [truefoundry\_s3\_enable\_override](#input\_truefoundry\_s3\_enable\_override) | Enable override for s3 bucket name. You must pass truefoundry\_s3\_override\_name | `bool` | `false` | no |
 | <a name="input_truefoundry_s3_enabled"></a> [truefoundry\_s3\_enabled](#input\_truefoundry\_s3\_enabled) | variable to enable/disable truefoundry s3 bucket creation | `bool` | `true` | no |
 | <a name="input_truefoundry_s3_encryption_algorithm"></a> [truefoundry\_s3\_encryption\_algorithm](#input\_truefoundry\_s3\_encryption\_algorithm) | Algorithm used for encrypting the default bucket. | `string` | `"AES256"` | no |
 | <a name="input_truefoundry_s3_encryption_key_arn"></a> [truefoundry\_s3\_encryption\_key\_arn](#input\_truefoundry\_s3\_encryption\_key\_arn) | ARN of the key used to encrypt the bucket. Only needed if you set aws:kms as encryption algorithm. | `string` | `null` | no |
 | <a name="input_truefoundry_s3_force_destroy"></a> [truefoundry\_s3\_force\_destroy](#input\_truefoundry\_s3\_force\_destroy) | Force destroy for mlfoundry s3 bucket | `bool` | `false` | no |
+| <a name="input_truefoundry_s3_ignore_public_acls"></a> [truefoundry\_s3\_ignore\_public\_acls](#input\_truefoundry\_s3\_ignore\_public\_acls) | Ignore public ACLs for mlfoundry s3 bucket | `bool` | `true` | no |
 | <a name="input_truefoundry_s3_override_name"></a> [truefoundry\_s3\_override\_name](#input\_truefoundry\_s3\_override\_name) | Override name for s3 bucket. truefoundry\_s3\_enable\_override must be set true | `string` | `""` | no |
+| <a name="input_truefoundry_s3_restrict_public_buckets"></a> [truefoundry\_s3\_restrict\_public\_buckets](#input\_truefoundry\_s3\_restrict\_public\_buckets) | Restrict public buckets for mlfoundry s3 bucket | `bool` | `true` | no |
 | <a name="input_truefoundry_service_account"></a> [truefoundry\_service\_account](#input\_truefoundry\_service\_account) | Truefoundry k8s service account name | `string` | `"truefoundry"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | AWS VPC to deploy Truefoundry rds | `string` | n/a | yes |
 
