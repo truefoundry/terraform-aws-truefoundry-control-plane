@@ -2,7 +2,7 @@ resource "random_password" "truefoundry_db_password" {
   count            = var.truefoundry_db_enabled ? var.manage_master_user_password ? 0 : 1 : 0
   length           = 24
   special          = true
-  override_special = "#%&*()-_=+[]{}<>:"
+  override_special = var.truefoundry_db_override_special_characters
 }
 
 resource "aws_db_subnet_group" "rds" {

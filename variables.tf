@@ -52,6 +52,12 @@ variable "truefoundry_db_database_name" {
   default     = "ctl"
 }
 
+variable "truefoundry_db_override_special_characters" {
+  type        = string
+  description = "Override special characters for the database name"
+  default     = "#%&*()-_=+[]{}<>:"
+}
+
 variable "truefoundry_db_ingress_security_group" {
   type        = string
   description = "SG allowed to connect to the database"
