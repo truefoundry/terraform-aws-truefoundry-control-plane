@@ -68,9 +68,10 @@ module "truefoundry_bucket" {
 
 
   # Bucket policies
-  attach_policy                         = true
-  attach_deny_insecure_transport_policy = true
-  attach_require_latest_tls_policy      = true
+  attach_policy                         = var.truefoundry_s3_attach_policy
+  attach_deny_insecure_transport_policy = var.truefoundry_s3_attach_deny_insecure_transport_policy
+  attach_require_latest_tls_policy      = var.truefoundry_s3_attach_require_latest_tls_policy
+  attach_public_policy                  = var.truefoundry_s3_attach_public_policy
 
   # S3 bucket-level Public Access Block configuration
   block_public_acls       = var.truefoundry_s3_block_public_acls

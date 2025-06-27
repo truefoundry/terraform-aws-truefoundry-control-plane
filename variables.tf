@@ -270,6 +270,31 @@ variable "truefoundry_s3_cors_origins" {
   default     = ["*"]
 }
 
+variable "truefoundry_s3_attach_policy" {
+  description = "Attach policy for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
+variable "truefoundry_s3_attach_deny_insecure_transport_policy" {
+  description = "Attach deny insecure transport policy for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
+variable "truefoundry_s3_attach_require_latest_tls_policy" {
+  description = "Attach require latest TLS policy for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
+
+variable "truefoundry_s3_attach_public_policy" {
+  description = "Attach public policy for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
 variable "truefoundry_s3_block_public_acls" {
   description = "Block public ACLs for mlfoundry s3 bucket"
   type        = bool
