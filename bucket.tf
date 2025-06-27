@@ -73,10 +73,10 @@ module "truefoundry_bucket" {
   attach_require_latest_tls_policy      = true
 
   # S3 bucket-level Public Access Block configuration
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  block_public_acls       = var.truefoundry_s3_block_public_acls
+  block_public_policy     = var.truefoundry_s3_block_public_policy
+  ignore_public_acls      = var.truefoundry_s3_ignore_public_acls
+  restrict_public_buckets = var.truefoundry_s3_restrict_public_buckets
 
   # acl = "private" # "acl" conflicts with "grant" and "owner"
 

@@ -270,6 +270,31 @@ variable "truefoundry_s3_cors_origins" {
   default     = ["*"]
 }
 
+variable "truefoundry_s3_block_public_acls" {
+  description = "Block public ACLs for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
+variable "truefoundry_s3_block_public_policy" {
+  description = "Block public policy for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
+variable "truefoundry_s3_ignore_public_acls" {
+  description = "Ignore public ACLs for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
+variable "truefoundry_s3_restrict_public_buckets" {
+  description = "Restrict public buckets for mlfoundry s3 bucket"
+  type        = bool
+  default     = true
+}
+
+
 variable "blob_storage_extra_tags" {
   description = "Extra tags for the s3 bucket"
   type        = map(string)
