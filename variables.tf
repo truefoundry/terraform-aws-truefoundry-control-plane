@@ -58,6 +58,17 @@ variable "truefoundry_db_override_special_characters" {
   default     = "#%&*()-_=+[]{}<>:"
 }
 
+variable "truefoundry_db_additional_security_group_ids" {
+  type        = list(string)
+  description = "Additional security group IDs to add to the database"
+  default     = []
+
+  validation {
+    condition     = var.truefoundry_db_enabled ? alltrue([for id in var.truefoundry_db_additional_security_group_ids : can(regex("^sg-[0-9a-fA-F]{8,}$", id))]) : true
+    error_message = "truefoundry_db_additional_security_group_ids must be a list of valid security group IDs"
+  }
+}
+
 variable "truefoundry_db_ingress_security_group" {
   type        = string
   description = "SG allowed to connect to the database"
