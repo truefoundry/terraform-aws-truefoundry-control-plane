@@ -64,7 +64,7 @@ resource "aws_db_instance" "truefoundry_db" {
   max_allocated_storage                 = var.truefoundry_db_max_allocated_storage
   port                                  = local.truefoundry_db_port
   db_subnet_group_name                  = aws_db_subnet_group.rds[0].name
-  vpc_security_group_ids                = concat([aws_security_group.rds[0].id], aws_security_group.rds-public[*].id)
+  vpc_security_group_ids                = concat([aws_security_group.rds[0].id], aws_security_group.rds-public[*].id, var.truefoundry_db_additional_security_group_ids)
   username                              = local.truefoundry_db_master_username
   identifier                            = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
   identifier_prefix                     = var.truefoundry_db_enable_override ? null : local.truefoundry_db_unique_name
