@@ -7,7 +7,7 @@ data "aws_iam_policy_document" "truefoundry_db_iam_auth_policy_document" {
       "rds-db:connect"
     ]
     resources = [
-      "arn:aws:rds-db:${var.aws_region}:${var.aws_account_id}:dbuser:${aws_db_instance.truefoundry_db[0].id}/*"
+      "arn:${data.aws_partition.current.partition}:rds-db:${var.aws_region}:${var.aws_account_id}:dbuser:${aws_db_instance.truefoundry_db[0].id}/*"
     ]
   }
 }

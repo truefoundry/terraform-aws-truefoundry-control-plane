@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "svcfoundry_access_to_ecr" {
     ]
 
     resources = [
-      "arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/tfy-*"
+      "arn:${data.aws_partition.current.partition}:ecr:${var.aws_region}:${var.aws_account_id}:repository/tfy-*"
     ]
   }
   statement {
