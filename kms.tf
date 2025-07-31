@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "truefoundry_db_master_user_secret_kms_policy" {
     effect  = "Allow"
     actions = ["kms:*"]
     principals {
-      identifiers = ["arn:aws:iam::${var.aws_account_id}:root"]
+      identifiers = ["arn:${data.aws_partition.current.partition}:iam::${var.aws_account_id}:root"]
       type        = "AWS"
     }
     resources = ["*"]

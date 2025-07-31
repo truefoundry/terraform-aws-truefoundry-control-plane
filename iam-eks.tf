@@ -20,12 +20,12 @@ data "aws_iam_policy_document" "svcfoundry_access_to_eks" {
     ]
 
     resources = [
-      "arn:aws:eks:${var.aws_region}:${var.aws_account_id}:fargateprofile/${var.cluster_name}/*/*",
-      "arn:aws:eks:${var.aws_region}:${var.aws_account_id}:addon/${var.cluster_name}/*/*",
-      "arn:aws:eks:${var.aws_region}:${var.aws_account_id}:nodegroup/${var.cluster_name}/*/*",
-      "arn:aws:eks:${var.aws_region}:${var.aws_account_id}:podidentityassociation/${var.cluster_name}/*",
-      "arn:aws:eks:${var.aws_region}:${var.aws_account_id}:identityproviderconfig/${var.cluster_name}/*/*/*",
-      "arn:aws:eks:${var.aws_region}:${var.aws_account_id}:cluster/${var.cluster_name}"
+      "arn:${data.aws_partition.current.partition}:eks:${var.aws_region}:${var.aws_account_id}:fargateprofile/${var.cluster_name}/*/*",
+      "arn:${data.aws_partition.current.partition}:eks:${var.aws_region}:${var.aws_account_id}:addon/${var.cluster_name}/*/*",
+      "arn:${data.aws_partition.current.partition}:eks:${var.aws_region}:${var.aws_account_id}:nodegroup/${var.cluster_name}/*/*",
+      "arn:${data.aws_partition.current.partition}:eks:${var.aws_region}:${var.aws_account_id}:podidentityassociation/${var.cluster_name}/*",
+      "arn:${data.aws_partition.current.partition}:eks:${var.aws_region}:${var.aws_account_id}:identityproviderconfig/${var.cluster_name}/*/*/*",
+      "arn:${data.aws_partition.current.partition}:eks:${var.aws_region}:${var.aws_account_id}:cluster/${var.cluster_name}"
     ]
   }
   statement {

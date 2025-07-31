@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "svcfoundry_access_to_multitenant_ssm" {
       "ssm:DeleteParameters",
     ]
     resources = [
-      "arn:aws:ssm:${var.aws_region}:${var.aws_account_id}:parameter/tfy-secret/*"
+      "arn:${data.aws_partition.current.partition}:ssm:${var.aws_region}:${var.aws_account_id}:parameter/tfy-secret/*"
     ]
   }
 }
