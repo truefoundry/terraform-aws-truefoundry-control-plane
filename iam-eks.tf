@@ -45,8 +45,8 @@ data "aws_iam_policy_document" "svcfoundry_access_to_eks" {
 
 resource "aws_iam_policy" "svcfoundry_access_to_eks" {
   count       = var.truefoundry_iam_role_enabled ? 1 : 0
-  name_prefix = "${local.svcfoundry_unique_name}-access-to-eks"
-  description = "EKS read access for ${var.svcfoundry_k8s_service_account} on ${var.cluster_name}"
+  name_prefix = "${local.truefoundry_iam_role_policy_prefix}-access-to-eks"
+  description = "EKS read access for ${var.truefoundry_service_account} on ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.svcfoundry_access_to_eks.json
   tags        = local.tags
 }

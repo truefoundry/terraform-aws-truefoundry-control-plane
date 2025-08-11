@@ -42,8 +42,8 @@ data "aws_iam_policy_document" "svcfoundry_access_to_ecr" {
 
 resource "aws_iam_policy" "svcfoundry_access_to_ecr" {
   count       = var.truefoundry_iam_role_enabled ? 1 : 0
-  name_prefix = "${local.svcfoundry_unique_name}-access-to-ecr"
-  description = "ECR access for ${var.svcfoundry_k8s_service_account} on ${var.cluster_name}"
+  name_prefix = "${local.truefoundry_iam_role_policy_prefix}-access-to-ecr"
+  description = "ECR access for ${var.truefoundry_service_account} on ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.svcfoundry_access_to_ecr.json
   tags        = local.tags
 }

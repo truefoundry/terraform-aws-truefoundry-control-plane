@@ -12,10 +12,12 @@ locals {
   truefoundry_db_master_username = "root"
 
   tags = merge(
-    {
+    var.disable_default_tags ? {} : {
       "terraform-module" = "truefoundry-control-plane"
       "terraform"        = "true"
     },
     var.tags
   )
+
+  truefoundry_iam_role_policy_prefix = var.truefoundry_iam_role_policy_prefix_override_enabled ? "${var.truefoundry_iam_role_policy_prefix_override_name}-truefoundry" : local.svcfoundry_unique_name
 }

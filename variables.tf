@@ -27,6 +27,12 @@ variable "tags" {
   description = "AWS Tags common to all the resources created"
 }
 
+variable "disable_default_tags" {
+  type        = bool
+  default     = false
+  description = "Disable default tags for the resources created"
+}
+
 ##################################################################################
 ## network
 ##################################################################################
@@ -464,4 +470,16 @@ variable "truefoundry_iam_role_additional_policies_arn" {
   default     = []
   type        = list(string)
   description = "List of ARN of policies that you want to attach to the "
+}
+
+variable "truefoundry_iam_role_policy_prefix_override_enabled" {
+  default     = false
+  type        = bool
+  description = "Enable overriding the truefoundry IAM role policy prefix. You need to pass truefoundry_iam_role_policy_prefix_override_name to pass the policy prefix"
+}
+
+variable "truefoundry_iam_role_policy_prefix_override_name" {
+  default     = ""
+  type        = string
+  description = "Truefoundry IAM role policy prefix. This is the prefix for the policies that will be attached to the truefoundry IAM role"
 }
