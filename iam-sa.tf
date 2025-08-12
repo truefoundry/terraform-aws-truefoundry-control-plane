@@ -16,7 +16,9 @@ module "truefoundry_oidc_iam" {
     "system:serviceaccount:${var.truefoundry_k8s_namespace}:${var.truefoundry_service_account}",
   ], var.truefoundry_iam_role_additional_oidc_subjects)
 
-  role_description = "Truefoundry IAM role for ${var.svcfoundry_k8s_service_account}, ${var.mlfoundry_k8s_service_account} and ${var.tfy_workflow_admin_k8s_service_account} in cluster ${var.cluster_name}"
+  role_description = "Truefoundry IAM role for ${var.truefoundry_service_account} in cluster ${var.cluster_name}"
+
+  role_permissions_boundary_arn = var.truefoundry_iam_role_permission_boundary_arn
 
   role_policy_arns = concat(
     var.truefoundry_s3_enabled ? [aws_iam_policy.truefoundry_bucket_policy[0].arn] : [],

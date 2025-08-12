@@ -27,6 +27,12 @@ variable "tags" {
   description = "AWS Tags common to all the resources created"
 }
 
+variable "disable_default_tags" {
+  type        = bool
+  default     = false
+  description = "Disable default tags for the resources created"
+}
+
 ##################################################################################
 ## network
 ##################################################################################
@@ -231,7 +237,7 @@ variable "master_user_password_rotation_duration" {
 }
 
 ##################################################################################
-## Mlfoundry bucket
+## TrueFoundry S3 bucket
 ##################################################################################
 
 variable "truefoundry_s3_enabled" {
@@ -448,6 +454,12 @@ variable "truefoundry_iam_role_override_name" {
   description = "Truefoundry IAM role name"
 }
 
+variable "truefoundry_iam_role_permission_boundary_arn" {
+  default     = null
+  type        = string
+  description = "ARN of the permission boundary to attach to the truefoundry IAM role"
+}
+
 variable "truefoundry_iam_role_additional_oidc_subjects" {
   default     = []
   type        = list(string)
@@ -458,4 +470,16 @@ variable "truefoundry_iam_role_additional_policies_arn" {
   default     = []
   type        = list(string)
   description = "List of ARN of policies that you want to attach to the "
+}
+
+variable "truefoundry_iam_role_policy_prefix_override_enabled" {
+  default     = false
+  type        = bool
+  description = "Enable overriding the truefoundry IAM role policy prefix. You need to pass truefoundry_iam_role_policy_prefix_override_name to pass the policy prefix"
+}
+
+variable "truefoundry_iam_role_policy_prefix_override_name" {
+  default     = ""
+  type        = string
+  description = "Truefoundry IAM role policy prefix. This is the prefix for the policies that will be attached to the truefoundry IAM role"
 }

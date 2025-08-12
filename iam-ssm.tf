@@ -18,8 +18,8 @@ data "aws_iam_policy_document" "svcfoundry_access_to_multitenant_ssm" {
 
 resource "aws_iam_policy" "svcfoundry_access_to_multitenant_ssm" {
   count       = var.truefoundry_iam_role_enabled ? 1 : 0
-  name_prefix = "${local.svcfoundry_unique_name}-access-to-multitenant-ssm"
-  description = "SSM read access for ${var.svcfoundry_k8s_service_account} to all multitenant params on ${var.cluster_name}"
+  name_prefix = "${local.truefoundry_iam_role_policy_prefix}-access-to-multitenant-ssm"
+  description = "SSM read access for ${var.truefoundry_service_account} to all multitenant params on ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm.json
   tags        = local.tags
 }
@@ -39,8 +39,8 @@ data "aws_iam_policy_document" "truefoundry_assume_role_all" {
 
 resource "aws_iam_policy" "truefoundry_assume_role_all" {
   count       = var.truefoundry_iam_role_enabled ? 1 : 0
-  name_prefix = "${local.svcfoundry_unique_name}-truefoundry-allow-assume-role-all"
-  description = "Allow access to assume role for ${local.svcfoundry_unique_name} and ${local.mlfoundry_unique_name} in ${var.cluster_name}"
+  name_prefix = "${local.truefoundry_iam_role_policy_prefix}-truefoundry-allow-assume-role-all"
+  description = "Allow access to assume role for ${var.truefoundry_service_account} in ${var.cluster_name}"
   policy      = data.aws_iam_policy_document.truefoundry_assume_role_all.json
   tags        = local.tags
 }
