@@ -21,7 +21,5 @@ locals {
 
   postgres_parameter_group_family = strcontains(var.truefoundry_db_engine_version, "17") ? "postgres17" : "postgres13"
 
-
-
   truefoundry_iam_role_policy_prefix = var.truefoundry_iam_role_policy_prefix_override_enabled ? "${var.truefoundry_iam_role_policy_prefix_override_name}-${local.svcfoundry_unique_name}" : local.svcfoundry_unique_name
 }
