@@ -161,7 +161,7 @@ variable "truefoundry_db_storage_encrypted" {
 }
 
 variable "truefoundry_db_engine_version" {
-  default     = "13.20"
+  default     = "17.5"
   type        = string
   description = "Truefoundry DB Postgres version"
 }
@@ -188,6 +188,12 @@ variable "truefoundry_db_enable_insights" {
   default     = false
 }
 
+variable "truefoundry_db_allow_major_version_upgrade" {
+  description = "Allow major version upgrade. This should be set to true if you want to upgrade the db version"
+  type        = bool
+  default     = false
+}
+
 variable "truefoundry_cloudwatch_log_exports" {
   description = "Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported"
   type        = list(string)
@@ -198,6 +204,18 @@ variable "truefoundry_db_multiple_az" {
   description = "Enable Multi-az (standby) instances for RDS instances"
   type        = bool
   default     = false
+}
+
+variable "truefoundry_db_postgres_parameter_group_override_enabled" {
+  description = "Enable override for postgres parameter group. You must pass truefoundry_db_postgres_parameter_group_override_name"
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_postgres_parameter_group_override_name" {
+  description = "Override name for postgres parameter group. truefoundry_db_postgres_parameter_group_override_enabled must be set true"
+  type        = string
+  default     = ""
 }
 
 variable "iam_database_authentication_enabled" {

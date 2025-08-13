@@ -29,6 +29,7 @@ Truefoundry AWS Control Plane Module
 | Name | Type |
 |------|------|
 | [aws_db_instance.truefoundry_db](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance) | resource |
+| [aws_db_parameter_group.truefoundry_db_parameter_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_parameter_group) | resource |
 | [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) | resource |
 | [aws_iam_policy.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.svcfoundry_access_to_eks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -80,13 +81,14 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_cloudwatch_log_exports"></a> [truefoundry\_cloudwatch\_log\_exports](#input\_truefoundry\_cloudwatch\_log\_exports) | Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported | `list(string)` | <pre>[<br/>  "postgresql",<br/>  "upgrade"<br/>]</pre> | no |
 | <a name="input_truefoundry_db_additional_security_group_ids"></a> [truefoundry\_db\_additional\_security\_group\_ids](#input\_truefoundry\_db\_additional\_security\_group\_ids) | Additional security group IDs to add to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_allocated_storage"></a> [truefoundry\_db\_allocated\_storage](#input\_truefoundry\_db\_allocated\_storage) | Storage for RDS. Minimum storage allowed for gp3 volumes is 20GB | `string` | `"20"` | no |
+| <a name="input_truefoundry_db_allow_major_version_upgrade"></a> [truefoundry\_db\_allow\_major\_version\_upgrade](#input\_truefoundry\_db\_allow\_major\_version\_upgrade) | Allow major version upgrade. This should be set to true if you want to upgrade the db version | `bool` | `false` | no |
 | <a name="input_truefoundry_db_backup_retention_period"></a> [truefoundry\_db\_backup\_retention\_period](#input\_truefoundry\_db\_backup\_retention\_period) | Backup retention period for RDS | `number` | `14` | no |
 | <a name="input_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#input\_truefoundry\_db\_database\_name) | Name of the database in DB | `string` | `"ctl"` | no |
 | <a name="input_truefoundry_db_deletion_protection"></a> [truefoundry\_db\_deletion\_protection](#input\_truefoundry\_db\_deletion\_protection) | n/a | `bool` | `true` | no |
 | <a name="input_truefoundry_db_enable_insights"></a> [truefoundry\_db\_enable\_insights](#input\_truefoundry\_db\_enable\_insights) | Enable insights to truefoundry db | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enable_override"></a> [truefoundry\_db\_enable\_override](#input\_truefoundry\_db\_enable\_override) | Enable override for truefoundry db name. You must pass truefoundry\_db\_override\_name | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enabled"></a> [truefoundry\_db\_enabled](#input\_truefoundry\_db\_enabled) | variable to enable/disable truefoundry db creation | `bool` | `true` | no |
-| <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"13.20"` | no |
+| <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"17.5"` | no |
 | <a name="input_truefoundry_db_ingress_cidr_blocks"></a> [truefoundry\_db\_ingress\_cidr\_blocks](#input\_truefoundry\_db\_ingress\_cidr\_blocks) | CIDR blocks allowed to connect to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | `""` | no |
 | <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | `"db.t3.medium"` | no |
@@ -94,6 +96,8 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_multiple_az"></a> [truefoundry\_db\_multiple\_az](#input\_truefoundry\_db\_multiple\_az) | Enable Multi-az (standby) instances for RDS instances | `bool` | `false` | no |
 | <a name="input_truefoundry_db_override_name"></a> [truefoundry\_db\_override\_name](#input\_truefoundry\_db\_override\_name) | Override name for truefoundry db.This is the name of the RDS resources in AWS . truefoundry\_db\_enable\_override must be set true | `string` | `""` | no |
 | <a name="input_truefoundry_db_override_special_characters"></a> [truefoundry\_db\_override\_special\_characters](#input\_truefoundry\_db\_override\_special\_characters) | Override special characters for the database name | `string` | `"#%&*()-_=+[]{}<>:"` | no |
+| <a name="input_truefoundry_db_postgres_parameter_group_override_enabled"></a> [truefoundry\_db\_postgres\_parameter\_group\_override\_enabled](#input\_truefoundry\_db\_postgres\_parameter\_group\_override\_enabled) | Enable override for postgres parameter group. You must pass truefoundry\_db\_postgres\_parameter\_group\_override\_name | `bool` | `false` | no |
+| <a name="input_truefoundry_db_postgres_parameter_group_override_name"></a> [truefoundry\_db\_postgres\_parameter\_group\_override\_name](#input\_truefoundry\_db\_postgres\_parameter\_group\_override\_name) | Override name for postgres parameter group. truefoundry\_db\_postgres\_parameter\_group\_override\_enabled must be set true | `string` | `""` | no |
 | <a name="input_truefoundry_db_publicly_accessible"></a> [truefoundry\_db\_publicly\_accessible](#input\_truefoundry\_db\_publicly\_accessible) | Make database publicly accessible. Subnets and SG must match | `string` | `false` | no |
 | <a name="input_truefoundry_db_skip_final_snapshot"></a> [truefoundry\_db\_skip\_final\_snapshot](#input\_truefoundry\_db\_skip\_final\_snapshot) | n/a | `bool` | `false` | no |
 | <a name="input_truefoundry_db_storage_encrypted"></a> [truefoundry\_db\_storage\_encrypted](#input\_truefoundry\_db\_storage\_encrypted) | n/a | `bool` | `true` | no |
