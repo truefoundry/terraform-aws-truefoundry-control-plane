@@ -82,16 +82,27 @@ resource "aws_db_instance" "truefoundry_db" {
   deletion_protection                   = var.truefoundry_db_deletion_protection
   iam_database_authentication_enabled   = var.iam_database_authentication_enabled
   apply_immediately                     = true
+  allow_major_version_upgrade           = var.truefoundry_db_allow_major_version_upgrade
   storage_encrypted                     = var.truefoundry_db_storage_encrypted
   enabled_cloudwatch_logs_exports       = var.truefoundry_cloudwatch_log_exports
   storage_type                          = var.truefoundry_db_storage_type
   iops                                  = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
-
+  parameter_group_name                  = var.truefoundry_db_postgres_parameter_group_override_enabled ? var.truefoundry_db_postgres_parameter_group_override_name : aws_db_parameter_group.truefoundry_db_parameter_group.name
   lifecycle {
     ignore_changes = [
       identifier,
       final_snapshot_identifier
     ]
+  }
+}
+
+resource "aws_db_parameter_group" "truefoundry_db_parameter_group" {
+  name   = "${local.truefoundry_db_unique_name}-rds-pg"
+  family = local.postgres_parameter_group_family
+
+  parameter {
+    name  = "rds.force_ssl"
+    value = "0"
   }
 }
 
