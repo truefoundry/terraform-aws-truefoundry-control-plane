@@ -20,3 +20,42 @@ resource "aws_iam_policy" "truefoundry_db_iam_auth_policy" {
   policy      = data.aws_iam_policy_document.truefoundry_db_iam_auth_policy_document[0].json
   tags        = local.tags
 }
+
+data "aws_iam_policy_document" "truefoundry_db_monitoring_role_trust_policy_document" {
+  count   = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring && var.truefoundry_db_monitoring_role_arn == "" ? 1 : 0
+  version = "2012-10-17"
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type = "Service"
+      identifiers = [
+        "monitoring.rds.amazonaws.com"
+      ]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values = [
+        var.aws_account_id
+      ]
+    }
+  }
+}
+
+resource "aws_iam_role" "truefoundry_db_monitoring_role" {
+  count = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring && var.truefoundry_db_monitoring_role_arn == "" ? 1 : 0
+
+  name_prefix        = "${substr(local.truefoundry_iam_role_policy_prefix, 0, 23)}-db-monitoring-"
+  description        = "IAM role for enhanced monitoring for ${var.truefoundry_service_account} in cluster ${var.cluster_name}"
+  assume_role_policy = data.aws_iam_policy_document.truefoundry_db_monitoring_role_trust_policy_document[0].json
+  tags               = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "truefoundry_db_monitoring_role_policy_attachment" {
+  count = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring && var.truefoundry_db_monitoring_role_arn == "" ? 1 : 0
+
+  role       = aws_iam_role.truefoundry_db_monitoring_role[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+}

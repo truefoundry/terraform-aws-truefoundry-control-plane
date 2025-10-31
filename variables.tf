@@ -188,6 +188,42 @@ variable "truefoundry_db_enable_insights" {
   default     = false
 }
 
+variable "truefoundry_db_enable_monitoring" {
+  description = <<EOT
+  Enable enhanced monitoring for the RDS DB instance.
+
+  This will create an IAM role and attach the necessary policies to the DB instance. If you want to use an existing IAM role, set `truefoundry_db_monitoring_role_arn`
+
+  Default collection interval is 5 seconds. Override with `truefoundry_db_monitoring_interval`.
+
+  https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_monitoring_interval" {
+  description = <<EOT
+  The interval, in seconds, between points when Enhanced Monitoring metrics are collected for the DB instance
+  EOT
+  type        = number
+  default     = 5
+  validation {
+    condition     = contains([1, 5, 10, 15, 30, 60], var.truefoundry_db_monitoring_interval)
+    error_message = "Error: valid values for truefoundry_db_monitoring_interval are 1, 5, 10, 15, 30, 60"
+  }
+}
+
+variable "truefoundry_db_monitoring_role_arn" {
+  description = <<EOT
+  Existing IAM role ARN for DB monitoring.
+
+  https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html#USER_Monitoring.OS.Enabling.Prerequisites
+  EOT
+  type        = string
+  default     = ""
+}
+
 variable "truefoundry_db_allow_major_version_upgrade" {
   description = "Allow major version upgrade. This should be set to true if you want to upgrade the db version"
   type        = bool
