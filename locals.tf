@@ -22,6 +22,6 @@ locals {
 
   truefoundry_iam_role_policy_prefix = var.truefoundry_iam_role_policy_prefix_override_enabled ? "${var.truefoundry_iam_role_policy_prefix_override_name}-${local.svcfoundry_unique_name}" : local.svcfoundry_unique_name
 
-  truefoundry_db_monitoring_interval = var.truefoundry_db_enable_monitoring ? var.truefoundry_db_monitoring_interval : null
-  truefoundry_db_monitoring_role_arn = var.truefoundry_db_enable_monitoring ? coalesce(var.truefoundry_db_monitoring_role_arn, try(aws_iam_role.truefoundry_db_monitoring_role[0].arn, null)) : null
+  truefoundry_db_monitoring_interval = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring ? var.truefoundry_db_monitoring_interval : null
+  truefoundry_db_monitoring_role_arn = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring ? coalesce(var.truefoundry_db_monitoring_role_arn, try(aws_iam_role.truefoundry_db_monitoring_role[0].arn, null)) : null
 }
