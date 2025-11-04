@@ -37,6 +37,8 @@ Truefoundry AWS Control Plane Module
 | [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.truefoundry_db_iam_auth_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.truefoundry_db_monitoring_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.truefoundry_db_monitoring_role_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_kms_alias.truefoundry_db_master_user_secret_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.truefoundry_db_master_user_secret_kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_secretsmanager_secret_rotation.turefoundry_db_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_rotation) | resource |
@@ -50,6 +52,7 @@ Truefoundry AWS Control Plane Module
 | [aws_iam_policy_document.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.truefoundry_db_iam_auth_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.truefoundry_db_master_user_secret_kms_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.truefoundry_db_monitoring_role_trust_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 
 ## Inputs
@@ -86,6 +89,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#input\_truefoundry\_db\_database\_name) | Name of the database in DB | `string` | `"ctl"` | no |
 | <a name="input_truefoundry_db_deletion_protection"></a> [truefoundry\_db\_deletion\_protection](#input\_truefoundry\_db\_deletion\_protection) | n/a | `bool` | `true` | no |
 | <a name="input_truefoundry_db_enable_insights"></a> [truefoundry\_db\_enable\_insights](#input\_truefoundry\_db\_enable\_insights) | Enable insights to truefoundry db | `bool` | `false` | no |
+| <a name="input_truefoundry_db_enable_monitoring"></a> [truefoundry\_db\_enable\_monitoring](#input\_truefoundry\_db\_enable\_monitoring) | Enable enhanced monitoring for the RDS DB instance.<br/><br/>  This will create an IAM role and attach the necessary policies to the DB instance. If you want to use an existing IAM role, set `truefoundry_db_monitoring_role_arn`<br/><br/>  Default collection interval is 5 seconds. Override with `truefoundry_db_monitoring_interval`.<br/><br/>  https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enable_override"></a> [truefoundry\_db\_enable\_override](#input\_truefoundry\_db\_enable\_override) | Enable override for truefoundry db name. You must pass truefoundry\_db\_override\_name | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enabled"></a> [truefoundry\_db\_enabled](#input\_truefoundry\_db\_enabled) | variable to enable/disable truefoundry db creation | `bool` | `true` | no |
 | <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"17.5"` | no |
@@ -93,6 +97,8 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | `""` | no |
 | <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | `"db.t3.medium"` | no |
 | <a name="input_truefoundry_db_max_allocated_storage"></a> [truefoundry\_db\_max\_allocated\_storage](#input\_truefoundry\_db\_max\_allocated\_storage) | Max allowed storage for RDS when autoscaling is enabled | `string` | `"30"` | no |
+| <a name="input_truefoundry_db_monitoring_interval"></a> [truefoundry\_db\_monitoring\_interval](#input\_truefoundry\_db\_monitoring\_interval) | The interval, in seconds, between points when Enhanced Monitoring metrics are collected for the DB instance | `number` | `5` | no |
+| <a name="input_truefoundry_db_monitoring_role_arn"></a> [truefoundry\_db\_monitoring\_role\_arn](#input\_truefoundry\_db\_monitoring\_role\_arn) | Existing IAM role ARN for DB monitoring.<br/><br/>  https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html#USER_Monitoring.OS.Enabling.Prerequisites | `string` | `""` | no |
 | <a name="input_truefoundry_db_multiple_az"></a> [truefoundry\_db\_multiple\_az](#input\_truefoundry\_db\_multiple\_az) | Enable Multi-az (standby) instances for RDS instances | `bool` | `false` | no |
 | <a name="input_truefoundry_db_override_name"></a> [truefoundry\_db\_override\_name](#input\_truefoundry\_db\_override\_name) | Override name for truefoundry db.This is the name of the RDS resources in AWS . truefoundry\_db\_enable\_override must be set true | `string` | `""` | no |
 | <a name="input_truefoundry_db_override_special_characters"></a> [truefoundry\_db\_override\_special\_characters](#input\_truefoundry\_db\_override\_special\_characters) | Override special characters for the database name | `string` | `"#%&*()-_=+[]{}<>:"` | no |
