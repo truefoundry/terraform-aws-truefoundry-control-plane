@@ -78,6 +78,8 @@ resource "aws_db_instance" "truefoundry_db" {
   instance_class                        = var.truefoundry_db_instance_class
   performance_insights_enabled          = var.truefoundry_db_enable_insights
   performance_insights_retention_period = var.truefoundry_db_enable_insights ? 31 : 0
+  monitoring_interval                   = local.truefoundry_db_monitoring_interval
+  monitoring_role_arn                   = local.truefoundry_db_monitoring_role_arn
   publicly_accessible                   = var.truefoundry_db_publicly_accessible
   deletion_protection                   = var.truefoundry_db_deletion_protection
   iam_database_authentication_enabled   = var.iam_database_authentication_enabled
