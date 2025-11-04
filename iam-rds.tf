@@ -48,7 +48,7 @@ resource "aws_iam_role" "truefoundry_db_monitoring_role" {
   count = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring && var.truefoundry_db_monitoring_role_arn == "" ? 1 : 0
 
   name_prefix        = "${substr(local.truefoundry_db_unique_name, 0, 25)}-monitoring-"
-  description        = "IAM role for enhanced monitoring for in ${var.cluster_name} cluster RDS instance"
+  description        = "IAM role for enhanced monitoring of RDS instance for ${var.cluster_name} cluster"
   assume_role_policy = data.aws_iam_policy_document.truefoundry_db_monitoring_role_trust_policy_document[0].json
   tags               = local.tags
 }
