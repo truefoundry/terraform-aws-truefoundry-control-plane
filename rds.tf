@@ -99,7 +99,7 @@ resource "aws_db_instance" "truefoundry_db" {
 }
 
 resource "aws_db_parameter_group" "truefoundry_db_parameter_group" {
-  count  = var.truefoundry_db_postgres_parameter_group_override_enabled ? 0 : 1
+  count  = var.truefoundry_db_postgres_parameter_group_enabled && var.truefoundry_db_postgres_parameter_group_override_enabled ? 0 : 1
   name   = "${local.truefoundry_db_unique_name}-rds-pg"
   family = local.postgres_parameter_group_family
 
