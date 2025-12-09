@@ -242,6 +242,12 @@ variable "truefoundry_db_multiple_az" {
   default     = false
 }
 
+variable "truefoundry_db_postgres_parameter_group_enabled" {
+  description = "Enable/disable postgres parameter group creation. If set to true, a new postgres parameter group will be created"
+  type        = bool
+  default     = true
+}
+
 variable "truefoundry_db_postgres_parameter_group_override_enabled" {
   description = "Enable override for postgres parameter group. You must pass truefoundry_db_postgres_parameter_group_override_name"
   type        = bool
