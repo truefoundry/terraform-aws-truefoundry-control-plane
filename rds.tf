@@ -89,7 +89,7 @@ resource "aws_db_instance" "truefoundry_db" {
   enabled_cloudwatch_logs_exports       = var.truefoundry_cloudwatch_log_exports
   storage_type                          = var.truefoundry_db_storage_type
   iops                                  = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
-  parameter_group_name                  = var.truefoundry_db_postgres_parameter_group_override_enabled ? var.truefoundry_db_postgres_parameter_group_override_name : aws_db_parameter_group.truefoundry_db_parameter_group[0].name
+  parameter_group_name                  = var.truefoundry_db_postgres_parameter_group_enabled ? aws_db_parameter_group.truefoundry_db_parameter_group[0].name : var.truefoundry_db_postgres_parameter_group_override_name
   lifecycle {
     ignore_changes = [
       identifier,
@@ -99,8 +99,8 @@ resource "aws_db_instance" "truefoundry_db" {
 }
 
 resource "aws_db_parameter_group" "truefoundry_db_parameter_group" {
-  count  = var.truefoundry_db_postgres_parameter_group_enabled && var.truefoundry_db_postgres_parameter_group_override_enabled ? 0 : 1
-  name   = "${local.truefoundry_db_unique_name}-rds-pg"
+  count  = var.truefoundry_db_postgres_parameter_group_enabled ? 1 : 0
+  name   = var.truefoundry_db_postgres_parameter_group_override_enabled ? var.truefoundry_db_postgres_parameter_group_override_name : "${local.truefoundry_db_unique_name}-rds-pg"
   family = local.postgres_parameter_group_family
 
   parameter {
