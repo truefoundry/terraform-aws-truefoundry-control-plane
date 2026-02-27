@@ -7,21 +7,21 @@ Truefoundry AWS Control Plane Module
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.9 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.57 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.57 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.6 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.57 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.57 |
 | <a name="provider_random"></a> [random](#provider\_random) | ~> 3.6 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_truefoundry_bucket"></a> [truefoundry\_bucket](#module\_truefoundry\_bucket) | terraform-aws-modules/s3-bucket/aws | 3.14.0 |
+| <a name="module_truefoundry_bucket"></a> [truefoundry\_bucket](#module\_truefoundry\_bucket) | terraform-aws-modules/s3-bucket/aws | 5.10.0 |
 | <a name="module_truefoundry_oidc_iam"></a> [truefoundry\_oidc\_iam](#module\_truefoundry\_oidc\_iam) | terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc | 5.39.1 |
 
 ## Resources
