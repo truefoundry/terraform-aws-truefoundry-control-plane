@@ -53,7 +53,7 @@ resource "aws_iam_policy" "truefoundry_bucket_policy" {
 module "truefoundry_bucket" {
   count   = var.truefoundry_s3_enabled ? 1 : 0
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "3.14.0"
+  version = "5.10.0"
 
   bucket        = var.truefoundry_s3_enable_override ? var.truefoundry_s3_override_name : null
   bucket_prefix = var.truefoundry_s3_enable_override ? null : trimsuffix(substr(local.truefoundry_unique_name, 0, 37), "-")
