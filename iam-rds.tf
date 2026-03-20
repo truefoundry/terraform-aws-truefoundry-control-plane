@@ -1,4 +1,3 @@
-# policy for IAM based authentication to RDS
 data "aws_iam_policy_document" "truefoundry_db_iam_auth_policy_document" {
   count = var.truefoundry_db_enabled && var.truefoundry_iam_role_enabled && var.iam_database_authentication_enabled ? 1 : 0
   statement {
@@ -6,9 +5,10 @@ data "aws_iam_policy_document" "truefoundry_db_iam_auth_policy_document" {
     actions = [
       "rds-db:connect"
     ]
-    resources = [
-      "arn:${data.aws_partition.current.partition}:rds-db:${var.aws_region}:${var.aws_account_id}:dbuser:${aws_db_instance.truefoundry_db[0].id}/*"
-    ]
+    resources = concat(
+      [for id in aws_db_instance.truefoundry_db[*].resource_id : "arn:${data.aws_partition.current.partition}:rds-db:${var.aws_region}:${var.aws_account_id}:dbuser:${id}/*"],
+      [for id in aws_rds_cluster.truefoundry_aurora[*].cluster_resource_id : "arn:${data.aws_partition.current.partition}:rds-db:${var.aws_region}:${var.aws_account_id}:dbuser:${id}/*"],
+    )
   }
 }
 

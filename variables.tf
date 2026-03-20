@@ -266,6 +266,84 @@ variable "iam_database_authentication_enabled" {
   default     = false
 }
 
+##################################################################################
+## Aurora
+##################################################################################
+
+variable "truefoundry_db_engine_mode" {
+  description = "Database engine mode. 'rds' for standard PostgreSQL, 'aurora' for Aurora PostgreSQL."
+  type        = string
+  default     = "rds"
+  validation {
+    condition     = contains(["rds", "aurora"], var.truefoundry_db_engine_mode)
+    error_message = "truefoundry_db_engine_mode must be one of: rds, aurora"
+  }
+}
+
+variable "truefoundry_aurora_engine_version" {
+  description = "Aurora PostgreSQL engine version"
+  type        = string
+  default     = "17.4"
+}
+
+variable "truefoundry_aurora_instance_class" {
+  description = "Instance class for Aurora cluster instances"
+  type        = string
+  default     = "db.r6g.large"
+}
+
+variable "truefoundry_aurora_instance_count" {
+  description = "Number of Aurora cluster instances"
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.truefoundry_aurora_instance_count >= 1
+    error_message = "truefoundry_aurora_instance_count must be at least 1"
+  }
+}
+
+variable "truefoundry_aurora_cloudwatch_log_exports" {
+  description = "Set of log types to enable for exporting to CloudWatch logs for Aurora. Valid values for Aurora PostgreSQL: postgresql"
+  type        = list(string)
+  default     = ["postgresql"]
+}
+
+variable "truefoundry_aurora_enable_global_cluster" {
+  description = "Enable Aurora Global Database with a secondary cluster in a DR region. The secondary region's provider must be passed as aws.secondary."
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_aurora_secondary_config" {
+  description = <<-EOT
+    Configuration for the secondary Aurora cluster in the DR region (aws.secondary provider).
+    Required when truefoundry_aurora_enable_global_cluster = true.
+  EOT
+  type = object({
+    cluster_identifier            = string
+    vpc_id                        = string
+    subnet_ids                    = list(string)
+    instance_class                = optional(string, "db.r6g.large")
+    instance_count                = optional(number, 1)
+    ingress_cidr_blocks           = optional(list(string), [])
+    ingress_security_group_ids    = optional(list(string), [])
+    additional_security_group_ids = optional(list(string), [])
+    publicly_accessible           = optional(bool, false)
+    backup_retention_period       = optional(number, 1)
+    kms_key_id                    = optional(string, null)
+    enable_insights               = optional(bool, false)
+    enable_monitoring             = optional(bool, false)
+    monitoring_interval           = optional(number, 5)
+    monitoring_role_arn           = optional(string, "")
+    tags                          = optional(map(string), {})
+  })
+  default = null
+}
+
+##################################################################################
+## Master user password management
+##################################################################################
+
 variable "manage_master_user_password" {
   description = "Enable master user password management. If set to true master user management is done by RDS in secrets manager, if false a random password is generated"
   type        = bool
@@ -542,4 +620,20 @@ variable "truefoundry_iam_role_policy_prefix_override_name" {
   default     = ""
   type        = string
   description = "Truefoundry IAM role policy prefix. This is the prefix for the policies that will be attached to the truefoundry IAM role"
+}
+
+##################################################################################
+## Automated Failover
+##################################################################################
+
+variable "truefoundry_aurora_alert_email" {
+  description = "Email address for failover alerts. Leave empty to skip email subscription."
+  type        = string
+  default     = ""
+}
+
+variable "truefoundry_aurora_alarm_evaluation_periods" {
+  description = "Number of 60-second CloudWatch periods before the replication lag alarm fires. Lower = faster failover but higher false-positive risk."
+  type        = number
+  default     = 3
 }
