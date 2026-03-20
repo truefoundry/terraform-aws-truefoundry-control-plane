@@ -14,7 +14,9 @@ Truefoundry AWS Control Plane Module
 
 | Name | Version |
 |------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | n/a |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6.33 |
+| <a name="provider_aws.secondary"></a> [aws.secondary](#provider\_aws.secondary) | ~> 6.33 |
 | <a name="provider_random"></a> [random](#provider\_random) | ~> 3.6 |
 
 ## Modules
@@ -28,8 +30,13 @@ Truefoundry AWS Control Plane Module
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_event_rule.failover_trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.failover_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_cloudwatch_log_group.failover_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_metric_alarm.replication_lag](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_db_instance.truefoundry_db](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance) | resource |
 | [aws_db_parameter_group.truefoundry_db_parameter_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_parameter_group) | resource |
+| [aws_db_subnet_group.aurora_secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) | resource |
 | [aws_db_subnet_group.rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) | resource |
 | [aws_iam_policy.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.svcfoundry_access_to_eks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -37,14 +44,34 @@ Truefoundry AWS Control Plane Module
 | [aws_iam_policy.truefoundry_assume_role_all](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.truefoundry_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.truefoundry_db_iam_auth_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.failover_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.truefoundry_db_monitoring_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.failover_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.truefoundry_db_monitoring_role_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_kms_alias.aurora_secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_alias.truefoundry_db_master_user_secret_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
+| [aws_kms_key.aurora_secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_kms_key.truefoundry_db_master_user_secret_kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
+| [aws_lambda_function.failover](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
+| [aws_lambda_permission.eventbridge_invoke](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [aws_rds_cluster.aurora_secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster) | resource |
+| [aws_rds_cluster.truefoundry_aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster) | resource |
+| [aws_rds_cluster_instance.aurora_secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance) | resource |
+| [aws_rds_cluster_instance.truefoundry_aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance) | resource |
+| [aws_rds_cluster_parameter_group.aurora_secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_parameter_group) | resource |
+| [aws_rds_cluster_parameter_group.truefoundry_aurora_parameter_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_parameter_group) | resource |
+| [aws_rds_global_cluster.truefoundry](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_global_cluster) | resource |
+| [aws_secretsmanager_secret_rotation.truefoundry_aurora_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_rotation) | resource |
 | [aws_secretsmanager_secret_rotation.turefoundry_db_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_rotation) | resource |
+| [aws_security_group.aurora_secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_sns_topic.failover_alerts](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [aws_sns_topic_subscription.failover_email](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [random_password.truefoundry_db_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [archive_file.failover_lambda](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
+| [aws_iam_policy_document.failover_lambda_assume](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.failover_lambda_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_ecr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_eks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.svcfoundry_access_to_multitenant_ssm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -54,6 +81,7 @@ Truefoundry AWS Control Plane Module
 | [aws_iam_policy_document.truefoundry_db_master_user_secret_kms_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.truefoundry_db_monitoring_role_trust_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
+| [aws_region.secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
@@ -81,6 +109,14 @@ Truefoundry AWS Control Plane Module
 | <a name="input_tfy_workflow_admin_k8s_namespace"></a> [tfy\_workflow\_admin\_k8s\_namespace](#input\_tfy\_workflow\_admin\_k8s\_namespace) | The k8s tfy workflow admin namespace | `string` | `"truefoundry"` | no |
 | <a name="input_tfy_workflow_admin_k8s_service_account"></a> [tfy\_workflow\_admin\_k8s\_service\_account](#input\_tfy\_workflow\_admin\_k8s\_service\_account) | The k8s tfy workflow admin service account name | `string` | `"tfy-workflow-admin"` | no |
 | <a name="input_truefoundry_artifact_buckets_will_read"></a> [truefoundry\_artifact\_buckets\_will\_read](#input\_truefoundry\_artifact\_buckets\_will\_read) | A list of bucket IDs mlfoundry will need read access to, in order to show the stored artifacts. It accepts any valid IAM resource, including ARNs with wildcards, so you can do something like arn:aws:s3:::bucket-prefix-* | `list(string)` | `[]` | no |
+| <a name="input_truefoundry_aurora_alarm_evaluation_periods"></a> [truefoundry\_aurora\_alarm\_evaluation\_periods](#input\_truefoundry\_aurora\_alarm\_evaluation\_periods) | Number of 60-second CloudWatch periods before the replication lag alarm fires. Lower = faster failover but higher false-positive risk. | `number` | `3` | no |
+| <a name="input_truefoundry_aurora_alert_email"></a> [truefoundry\_aurora\_alert\_email](#input\_truefoundry\_aurora\_alert\_email) | Email address for failover alerts. Leave empty to skip email subscription. | `string` | `""` | no |
+| <a name="input_truefoundry_aurora_cloudwatch_log_exports"></a> [truefoundry\_aurora\_cloudwatch\_log\_exports](#input\_truefoundry\_aurora\_cloudwatch\_log\_exports) | Set of log types to enable for exporting to CloudWatch logs for Aurora. Valid values for Aurora PostgreSQL: postgresql | `list(string)` | <pre>[<br/>  "postgresql"<br/>]</pre> | no |
+| <a name="input_truefoundry_aurora_enable_global_cluster"></a> [truefoundry\_aurora\_enable\_global\_cluster](#input\_truefoundry\_aurora\_enable\_global\_cluster) | Enable Aurora Global Database with a secondary cluster in a DR region. The secondary region's provider must be passed as aws.secondary. | `bool` | `false` | no |
+| <a name="input_truefoundry_aurora_engine_version"></a> [truefoundry\_aurora\_engine\_version](#input\_truefoundry\_aurora\_engine\_version) | Aurora PostgreSQL engine version | `string` | `"17.4"` | no |
+| <a name="input_truefoundry_aurora_instance_class"></a> [truefoundry\_aurora\_instance\_class](#input\_truefoundry\_aurora\_instance\_class) | Instance class for Aurora cluster instances | `string` | `"db.r6g.large"` | no |
+| <a name="input_truefoundry_aurora_instance_count"></a> [truefoundry\_aurora\_instance\_count](#input\_truefoundry\_aurora\_instance\_count) | Number of Aurora cluster instances | `number` | `1` | no |
+| <a name="input_truefoundry_aurora_secondary_config"></a> [truefoundry\_aurora\_secondary\_config](#input\_truefoundry\_aurora\_secondary\_config) | Configuration for the secondary Aurora cluster in the DR region (aws.secondary provider).<br/>Required when truefoundry\_aurora\_enable\_global\_cluster = true. | <pre>object({<br/>    cluster_identifier            = string<br/>    vpc_id                        = string<br/>    subnet_ids                    = list(string)<br/>    instance_class                = optional(string, "db.r6g.large")<br/>    instance_count                = optional(number, 1)<br/>    ingress_cidr_blocks           = optional(list(string), [])<br/>    ingress_security_group_ids    = optional(list(string), [])<br/>    additional_security_group_ids = optional(list(string), [])<br/>    publicly_accessible           = optional(bool, false)<br/>    backup_retention_period       = optional(number, 1)<br/>    kms_key_id                    = optional(string, null)<br/>    enable_insights               = optional(bool, false)<br/>    enable_monitoring             = optional(bool, false)<br/>    monitoring_interval           = optional(number, 5)<br/>    monitoring_role_arn           = optional(string, "")<br/>    tags                          = optional(map(string), {})<br/>  })</pre> | `null` | no |
 | <a name="input_truefoundry_cloudwatch_log_exports"></a> [truefoundry\_cloudwatch\_log\_exports](#input\_truefoundry\_cloudwatch\_log\_exports) | Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported | `list(string)` | <pre>[<br/>  "postgresql",<br/>  "upgrade"<br/>]</pre> | no |
 | <a name="input_truefoundry_db_additional_security_group_ids"></a> [truefoundry\_db\_additional\_security\_group\_ids](#input\_truefoundry\_db\_additional\_security\_group\_ids) | Additional security group IDs to add to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_allocated_storage"></a> [truefoundry\_db\_allocated\_storage](#input\_truefoundry\_db\_allocated\_storage) | Storage for RDS. Minimum storage allowed for gp3 volumes is 20GB | `string` | `"20"` | no |
@@ -92,6 +128,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_enable_monitoring"></a> [truefoundry\_db\_enable\_monitoring](#input\_truefoundry\_db\_enable\_monitoring) | Enable enhanced monitoring for the RDS DB instance.<br/><br/>  This will create an IAM role and attach the necessary policies to the DB instance. If you want to use an existing IAM role, set `truefoundry_db_monitoring_role_arn`<br/><br/>  Default collection interval is 5 seconds. Override with `truefoundry_db_monitoring_interval`.<br/><br/>  https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enable_override"></a> [truefoundry\_db\_enable\_override](#input\_truefoundry\_db\_enable\_override) | Enable override for truefoundry db name. You must pass truefoundry\_db\_override\_name | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enabled"></a> [truefoundry\_db\_enabled](#input\_truefoundry\_db\_enabled) | variable to enable/disable truefoundry db creation | `bool` | `true` | no |
+| <a name="input_truefoundry_db_engine_mode"></a> [truefoundry\_db\_engine\_mode](#input\_truefoundry\_db\_engine\_mode) | Database engine mode. 'rds' for standard PostgreSQL, 'aurora' for Aurora PostgreSQL. | `string` | `"rds"` | no |
 | <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"17.5"` | no |
 | <a name="input_truefoundry_db_ingress_cidr_blocks"></a> [truefoundry\_db\_ingress\_cidr\_blocks](#input\_truefoundry\_db\_ingress\_cidr\_blocks) | CIDR blocks allowed to connect to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | `""` | no |
@@ -142,14 +179,30 @@ Truefoundry AWS Control Plane Module
 
 | Name | Description |
 |------|-------------|
+| <a name="output_truefoundry_aurora_cluster_arn"></a> [truefoundry\_aurora\_cluster\_arn](#output\_truefoundry\_aurora\_cluster\_arn) | Aurora cluster ARN |
+| <a name="output_truefoundry_aurora_cluster_endpoint"></a> [truefoundry\_aurora\_cluster\_endpoint](#output\_truefoundry\_aurora\_cluster\_endpoint) | Aurora cluster writer endpoint |
+| <a name="output_truefoundry_aurora_cluster_id"></a> [truefoundry\_aurora\_cluster\_id](#output\_truefoundry\_aurora\_cluster\_id) | Aurora cluster identifier |
+| <a name="output_truefoundry_aurora_cluster_port"></a> [truefoundry\_aurora\_cluster\_port](#output\_truefoundry\_aurora\_cluster\_port) | Aurora cluster port |
+| <a name="output_truefoundry_aurora_cluster_reader_endpoint"></a> [truefoundry\_aurora\_cluster\_reader\_endpoint](#output\_truefoundry\_aurora\_cluster\_reader\_endpoint) | Aurora cluster reader endpoint |
+| <a name="output_truefoundry_aurora_failover_alarm_name"></a> [truefoundry\_aurora\_failover\_alarm\_name](#output\_truefoundry\_aurora\_failover\_alarm\_name) | Name of the CloudWatch alarm monitoring replication lag |
+| <a name="output_truefoundry_aurora_failover_lambda_name"></a> [truefoundry\_aurora\_failover\_lambda\_name](#output\_truefoundry\_aurora\_failover\_lambda\_name) | Name of the automated failover Lambda function |
+| <a name="output_truefoundry_aurora_failover_sns_topic_arn"></a> [truefoundry\_aurora\_failover\_sns\_topic\_arn](#output\_truefoundry\_aurora\_failover\_sns\_topic\_arn) | ARN of the SNS topic for failover alerts |
+| <a name="output_truefoundry_aurora_failover_test_command"></a> [truefoundry\_aurora\_failover\_test\_command](#output\_truefoundry\_aurora\_failover\_test\_command) | CLI command to test the failover Lambda without triggering a real failover |
+| <a name="output_truefoundry_aurora_global_cluster_arn"></a> [truefoundry\_aurora\_global\_cluster\_arn](#output\_truefoundry\_aurora\_global\_cluster\_arn) | Aurora Global Database cluster ARN |
+| <a name="output_truefoundry_aurora_global_cluster_id"></a> [truefoundry\_aurora\_global\_cluster\_id](#output\_truefoundry\_aurora\_global\_cluster\_id) | Aurora Global Database cluster identifier |
+| <a name="output_truefoundry_aurora_secondary_cluster_arn"></a> [truefoundry\_aurora\_secondary\_cluster\_arn](#output\_truefoundry\_aurora\_secondary\_cluster\_arn) | Secondary Aurora cluster ARN |
+| <a name="output_truefoundry_aurora_secondary_cluster_endpoint"></a> [truefoundry\_aurora\_secondary\_cluster\_endpoint](#output\_truefoundry\_aurora\_secondary\_cluster\_endpoint) | Secondary Aurora cluster endpoint (read-only until promoted) |
+| <a name="output_truefoundry_aurora_secondary_cluster_id"></a> [truefoundry\_aurora\_secondary\_cluster\_id](#output\_truefoundry\_aurora\_secondary\_cluster\_id) | Secondary Aurora cluster identifier |
+| <a name="output_truefoundry_aurora_secondary_cluster_reader_endpoint"></a> [truefoundry\_aurora\_secondary\_cluster\_reader\_endpoint](#output\_truefoundry\_aurora\_secondary\_cluster\_reader\_endpoint) | Secondary Aurora cluster reader endpoint |
 | <a name="output_truefoundry_bucket_id"></a> [truefoundry\_bucket\_id](#output\_truefoundry\_bucket\_id) | n/a |
-| <a name="output_truefoundry_db_address"></a> [truefoundry\_db\_address](#output\_truefoundry\_db\_address) | n/a |
-| <a name="output_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#output\_truefoundry\_db\_database\_name) | n/a |
-| <a name="output_truefoundry_db_endpoint"></a> [truefoundry\_db\_endpoint](#output\_truefoundry\_db\_endpoint) | n/a |
-| <a name="output_truefoundry_db_engine"></a> [truefoundry\_db\_engine](#output\_truefoundry\_db\_engine) | n/a |
-| <a name="output_truefoundry_db_id"></a> [truefoundry\_db\_id](#output\_truefoundry\_db\_id) | n/a |
-| <a name="output_truefoundry_db_password"></a> [truefoundry\_db\_password](#output\_truefoundry\_db\_password) | n/a |
-| <a name="output_truefoundry_db_port"></a> [truefoundry\_db\_port](#output\_truefoundry\_db\_port) | n/a |
-| <a name="output_truefoundry_db_username"></a> [truefoundry\_db\_username](#output\_truefoundry\_db\_username) | n/a |
+| <a name="output_truefoundry_db_address"></a> [truefoundry\_db\_address](#output\_truefoundry\_db\_address) | Database hostname |
+| <a name="output_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#output\_truefoundry\_db\_database\_name) | Database name |
+| <a name="output_truefoundry_db_endpoint"></a> [truefoundry\_db\_endpoint](#output\_truefoundry\_db\_endpoint) | Database connection endpoint in address:port format |
+| <a name="output_truefoundry_db_engine"></a> [truefoundry\_db\_engine](#output\_truefoundry\_db\_engine) | Database engine type |
+| <a name="output_truefoundry_db_engine_mode"></a> [truefoundry\_db\_engine\_mode](#output\_truefoundry\_db\_engine\_mode) | Active database engine mode |
+| <a name="output_truefoundry_db_id"></a> [truefoundry\_db\_id](#output\_truefoundry\_db\_id) | Database identifier (RDS instance ID or Aurora cluster ID) |
+| <a name="output_truefoundry_db_password"></a> [truefoundry\_db\_password](#output\_truefoundry\_db\_password) | Database master password |
+| <a name="output_truefoundry_db_port"></a> [truefoundry\_db\_port](#output\_truefoundry\_db\_port) | Database port |
+| <a name="output_truefoundry_db_username"></a> [truefoundry\_db\_username](#output\_truefoundry\_db\_username) | Database master username |
 | <a name="output_truefoundry_iam_role_arn"></a> [truefoundry\_iam\_role\_arn](#output\_truefoundry\_iam\_role\_arn) | n/a |
 <!-- END_TF_DOCS -->
