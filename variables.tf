@@ -347,6 +347,12 @@ variable "truefoundry_s3_encryption_key_arn" {
   default     = null
 }
 
+variable "truefoundry_s3_attach_cors_policy" {
+  description = "Attach CORS policy for the S3 bucket. When false, Terraform will not manage CORS, allowing it to be configured externally."
+  type        = bool
+  default     = true
+}
+
 variable "truefoundry_s3_cors_origins" {
   description = "List of CORS origins for Mlfoundry bucket"
   type        = list(string)

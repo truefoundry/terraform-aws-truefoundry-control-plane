@@ -119,13 +119,11 @@ module "truefoundry_bucket" {
     }
   ]
 
-  cors_rule = [
-    {
-      allowed_methods = ["GET", "POST", "PUT"]
-      allowed_origins = var.truefoundry_s3_cors_origins
-      allowed_headers = ["*"]
-      expose_headers  = ["ETag"]
-      max_age_seconds = 3000
-    }
-  ]
+  cors_rule = var.truefoundry_s3_attach_cors_policy ? [{
+    allowed_methods = ["GET", "POST", "PUT"]
+    allowed_origins = var.truefoundry_s3_cors_origins
+    allowed_headers = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }] : []
 }
