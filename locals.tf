@@ -7,6 +7,10 @@ locals {
 
   svcfoundry_unique_name = "${var.cluster_name}-${var.svcfoundry_k8s_service_account}"
 
+  rds_enabled            = var.truefoundry_db_enabled && var.truefoundry_db_engine_mode == "rds"
+  aurora_enabled         = var.truefoundry_db_enabled && var.truefoundry_db_engine_mode == "aurora"
+  global_cluster_enabled = local.aurora_enabled && var.truefoundry_aurora_enable_global_cluster
+
   truefoundry_db_port            = 5432
   truefoundry_db_master_username = "root"
 
@@ -19,9 +23,14 @@ locals {
   )
 
   postgres_parameter_group_family = strcontains(var.truefoundry_db_engine_version, "17") ? "postgres17" : "postgres13"
+  aurora_parameter_group_family   = "aurora-postgresql${split(".", var.truefoundry_aurora_engine_version)[0]}"
+
+  truefoundry_aurora_unique_name = var.truefoundry_db_enable_override ? "${var.truefoundry_db_override_name}-aurora" : "${var.cluster_name}-aurora"
 
   truefoundry_iam_role_policy_prefix = var.truefoundry_iam_role_policy_prefix_override_enabled ? "${var.truefoundry_iam_role_policy_prefix_override_name}-${local.svcfoundry_unique_name}" : local.svcfoundry_unique_name
 
   truefoundry_db_monitoring_interval = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring ? var.truefoundry_db_monitoring_interval : null
   truefoundry_db_monitoring_role_arn = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring ? coalesce(var.truefoundry_db_monitoring_role_arn, try(aws_iam_role.truefoundry_db_monitoring_role[0].arn, null)) : null
+
+  secondary_enabled = local.global_cluster_enabled && var.truefoundry_aurora_secondary_config != null
 }

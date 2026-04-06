@@ -55,7 +55,7 @@ resource "aws_security_group" "rds-public" {
 }
 
 resource "aws_db_instance" "truefoundry_db" {
-  count                                 = var.truefoundry_db_enabled ? 1 : 0
+  count                                 = local.rds_enabled ? 1 : 0
   tags                                  = local.tags
   engine                                = "postgres"
   engine_version                        = var.truefoundry_db_engine_version
@@ -99,7 +99,7 @@ resource "aws_db_instance" "truefoundry_db" {
 }
 
 resource "aws_db_parameter_group" "truefoundry_db_parameter_group" {
-  count  = var.truefoundry_db_postgres_parameter_group_enabled ? 1 : 0
+  count  = local.rds_enabled && var.truefoundry_db_postgres_parameter_group_enabled ? 1 : 0
   name   = var.truefoundry_db_postgres_parameter_group_override_enabled ? var.truefoundry_db_postgres_parameter_group_override_name : "${local.truefoundry_db_unique_name}-rds-pg"
   family = local.postgres_parameter_group_family
 
@@ -110,7 +110,7 @@ resource "aws_db_parameter_group" "truefoundry_db_parameter_group" {
 }
 
 resource "aws_secretsmanager_secret_rotation" "turefoundry_db_secret_rotation" {
-  count              = var.truefoundry_db_enabled ? var.manage_master_user_password ? var.manage_master_user_password_rotation ? 1 : 0 : 0 : 0
+  count              = local.rds_enabled ? var.manage_master_user_password ? var.manage_master_user_password_rotation ? 1 : 0 : 0 : 0
   secret_id          = aws_db_instance.truefoundry_db[0].master_user_secret[0].secret_arn
   rotate_immediately = var.master_user_password_rotate_immediately
   rotation_rules {
