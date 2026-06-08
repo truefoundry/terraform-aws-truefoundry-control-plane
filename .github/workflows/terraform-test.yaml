@@ -1,0 +1,8 @@
+name: OpenTofu Test
+on:
+  - pull_request
+
+jobs:
+  test:
+    name: OpenTofu Test
+    uses: truefoundry/github-workflows-public/.github/workflows/terraform-test.yml@feat/uniform-aws-tagging
