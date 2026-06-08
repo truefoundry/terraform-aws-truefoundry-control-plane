@@ -12,8 +12,9 @@ locals {
 
   tags = merge(
     var.disable_default_tags ? {} : {
-      "terraform-module" = "truefoundry-control-plane"
+      "terraform-module" = "control-plane"
       "terraform"        = "true"
+      "cluster-name"     = var.cluster_name
     },
     var.tags
   )
