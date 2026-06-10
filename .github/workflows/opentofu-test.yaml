@@ -1,0 +1,13 @@
+name: OpenTofu tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  offline-plan-tests:
+    name: Offline plan-based tests
+    uses: truefoundry/github-workflows-public/.github/workflows/terraform-test.yml@main
+    with:
+      opentofu_version: "1.10.0"
+      test_directory: "tests"
