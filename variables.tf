@@ -161,7 +161,7 @@ variable "truefoundry_db_storage_encrypted" {
 }
 
 variable "truefoundry_db_kms_key_arn" {
-  description = "ARN of a customer-managed KMS key for RDS storage encryption. If null, the AWS-managed aws/rds key is used. Requires truefoundry_db_storage_encrypted = true. Changing this on an existing instance forces replacement."
+  description = "ARN of a user-managed KMS key for RDS storage encryption. If null, the AWS-managed aws/rds key is used. Requires truefoundry_db_storage_encrypted = true. Changing this on an existing instance forces replacement."
   type        = string
   default     = null
 
@@ -172,7 +172,7 @@ variable "truefoundry_db_kms_key_arn" {
 }
 
 variable "truefoundry_db_master_user_secret_kms_key_arn" {
-  description = "ARN of a customer-managed KMS key to encrypt the RDS master user password secret. If null, the module creates and manages a dedicated KMS key. Only used when manage_master_user_password = true."
+  description = "ARN of a user-managed KMS key to encrypt the RDS master user password secret. If null, the module creates and manages a dedicated KMS key. Only used when manage_master_user_password = true."
   type        = string
   default     = null
 }
