@@ -24,4 +24,11 @@ locals {
 
   truefoundry_db_monitoring_interval = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring ? var.truefoundry_db_monitoring_interval : null
   truefoundry_db_monitoring_role_arn = var.truefoundry_db_enabled && var.truefoundry_db_enable_monitoring ? coalesce(var.truefoundry_db_monitoring_role_arn, try(aws_iam_role.truefoundry_db_monitoring_role[0].arn, null)) : null
+
+  # Use the customer-provided KMS key for the master user secret when set, otherwise the module-created key.
+  truefoundry_db_master_user_secret_kms_key_arn = var.truefoundry_db_enabled && var.manage_master_user_password ? (
+    var.truefoundry_db_master_user_secret_kms_key_arn != null
+    ? var.truefoundry_db_master_user_secret_kms_key_arn
+    : aws_kms_key.truefoundry_db_master_user_secret_kms_key[0].arn
+  ) : null
 }

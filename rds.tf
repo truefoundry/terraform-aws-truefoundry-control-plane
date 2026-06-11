@@ -72,7 +72,8 @@ resource "aws_db_instance" "truefoundry_db" {
   skip_final_snapshot                   = var.truefoundry_db_skip_final_snapshot
   password                              = var.manage_master_user_password ? null : random_password.truefoundry_db_password[0].result
   manage_master_user_password           = var.manage_master_user_password ? true : null
-  master_user_secret_kms_key_id         = var.manage_master_user_password ? aws_kms_key.truefoundry_db_master_user_secret_kms_key[0].arn : null
+  master_user_secret_kms_key_id         = local.truefoundry_db_master_user_secret_kms_key_arn
+  kms_key_id                            = var.truefoundry_db_kms_key_arn
   final_snapshot_identifier             = var.truefoundry_db_skip_final_snapshot ? null : "${var.truefoundry_db_database_name}-${formatdate("DD-MM-YYYY-hh-mm-ss", timestamp())}"
   backup_retention_period               = var.truefoundry_db_backup_retention_period
   instance_class                        = var.truefoundry_db_instance_class
