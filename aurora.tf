@@ -280,9 +280,9 @@ resource "aws_iam_role_policy" "failover_lambda" {
 data "archive_file" "failover_lambda" {
   count       = local.secondary_enabled ? 1 : 0
   type        = "zip"
-  output_path = "${path.module}/failover_lambda.zip"
+  output_path = "${path.module}/lambda/failover_lambda.zip"
   source {
-    content  = file("${path.module}/failover_lambda.py")
+    content  = file("${path.module}/lambda/failover_lambda.py")
     filename = "lambda_function.py"
   }
 }

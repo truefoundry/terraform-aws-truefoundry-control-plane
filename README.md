@@ -19,7 +19,7 @@ The module supports three database topologies, controlled by two inputs. Everyth
 ```hcl
 module "tfy_control_plane" {
   source  = "truefoundry/truefoundry-control-plane/aws"
-  version = "0.5.0"
+  version = "0.6.0"
 
   providers = {
     aws           = aws

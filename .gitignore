@@ -37,4 +37,4 @@ override.tf.json
 terraform.rc
 
 # Generated Lambda zips (built at plan time by data "archive_file")
-failover_lambda.zip
+lambda/*.zip

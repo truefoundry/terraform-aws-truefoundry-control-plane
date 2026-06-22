@@ -74,7 +74,7 @@ If you're upgrading from `0.4.x` to `0.5.x` and want to keep your existing RDS i
    ```hcl
    module "tfy_control_plane" {
      source  = "truefoundry/truefoundry-control-plane/aws"
-     version = "0.5.0"
+     version = "0.6.0"
 
      providers = {
        aws           = aws
