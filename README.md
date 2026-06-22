@@ -1,5 +1,51 @@
 # terraform-aws-truefoundry-control-plane
-Truefoundry AWS Control Plane Module
+
+Truefoundry AWS Control Plane Module.
+
+This module deploys the persistence and IAM dependencies of a Truefoundry control plane: a PostgreSQL database, an S3 bucket, and the IAM roles that bind workloads (`mlfoundry`, `servicefoundry`, the LLM gateway, the workflow admin) to the cluster's OIDC provider.
+
+## Quick start — pick your database mode
+
+The module supports three database topologies, controlled by two inputs. Everything else (S3, IAM, OIDC trust) is the same across modes.
+
+| Goal | `truefoundry_db_engine_mode` | `truefoundry_aurora_enable_global_cluster` | Provider stanza | Docs |
+| --- | --- | --- | --- | --- |
+| Standard RDS PostgreSQL (default) | `"rds"` (default) | `false` (default) | `aws.secondary = aws` | [Path 0](docs/aurora-migration-guide.md#path-0-stay-on-rds-no-migration) |
+| Single-region Aurora PostgreSQL | `"aurora"` | `false` | `aws.secondary = aws` | [Option 1](docs/aurora-migration-guide.md#option-1-fresh-aurora-deployment) / [Option 2](docs/aurora-migration-guide.md#option-2-migrating-from-rds-to-aurora) |
+| Aurora Global Database (multi-region DR) | `"aurora"` | `true` | `aws.secondary = aws.dr` | [Option 3](docs/aurora-migration-guide.md#option-3-aurora-global-database-multi-region-dr) |
+
+### Minimal RDS example (default)
+
+```hcl
+module "tfy_control_plane" {
+  source  = "truefoundry/truefoundry-control-plane/aws"
+  version = "0.5.0"
+
+  providers = {
+    aws           = aws
+    aws.secondary = aws  # required even for single-region RDS; unused alias
+  }
+
+  cluster_name            = "my-cluster"
+  cluster_oidc_issuer_url = module.cluster.cluster_oidc_issuer_url
+  aws_region              = "<primary-region>"
+  aws_account_id          = data.aws_caller_identity.current.account_id
+  vpc_id                  = module.network.vpc_id
+
+  truefoundry_db_subnet_ids             = module.network.private_subnets_id
+  truefoundry_db_ingress_security_group = module.cluster.node_security_group_id
+}
+```
+
+### Switching to Aurora later
+
+Migrating an existing RDS deployment to Aurora is destructive at the RDS resource (Terraform tears down RDS and creates an Aurora cluster), so do it as a deliberate operation following [Option 2](docs/aurora-migration-guide.md#option-2-migrating-from-rds-to-aurora) (pg_dump / DMS) or [Option 2b](docs/aurora-migration-guide.md#option-2b-near-zero-downtime-migration-using-aurora-read-replica) (Aurora Read Replica + import — near-zero downtime).
+
+### Adding a DR region
+
+When you enable Aurora Global Database, the module also provisions an automated failover pipeline in the DR region (CloudWatch alarm on `AuroraGlobalDBReplicationLag` → EventBridge → Lambda → SNS). See [Option 3](docs/aurora-migration-guide.md#option-3-aurora-global-database-multi-region-dr).
+
+For full version-to-version upgrade steps, see the [upgrade guide](upgrade-guide.md).
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

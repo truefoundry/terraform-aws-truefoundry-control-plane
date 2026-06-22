@@ -189,9 +189,15 @@ resource "aws_rds_cluster_instance" "aurora_secondary" {
   db_subnet_group_name                  = aws_db_subnet_group.aurora_secondary[0].name
   performance_insights_enabled          = var.truefoundry_aurora_secondary_config.enable_insights
   performance_insights_retention_period = var.truefoundry_aurora_secondary_config.enable_insights ? 31 : null
-  publicly_accessible                   = var.truefoundry_aurora_secondary_config.publicly_accessible
-  apply_immediately                     = true
-  tags                                  = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
+  monitoring_interval                   = var.truefoundry_aurora_secondary_config.enable_monitoring ? var.truefoundry_aurora_secondary_config.monitoring_interval : null
+  monitoring_role_arn = var.truefoundry_aurora_secondary_config.enable_monitoring ? (
+    var.truefoundry_aurora_secondary_config.monitoring_role_arn != "" ?
+    var.truefoundry_aurora_secondary_config.monitoring_role_arn :
+    try(aws_iam_role.truefoundry_db_monitoring_role[0].arn, null)
+  ) : null
+  publicly_accessible = var.truefoundry_aurora_secondary_config.publicly_accessible
+  apply_immediately   = true
+  tags                = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
 }
 
 ##################################################################################

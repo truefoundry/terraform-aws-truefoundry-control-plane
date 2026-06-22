@@ -5,8 +5,10 @@ This guide covers how to use Aurora PostgreSQL with the TrueFoundry control plan
 ## Table of Contents
 
 - [Overview](#overview)
+- [Path 0: Stay on RDS (no migration)](#path-0-stay-on-rds-no-migration)
 - [Option 1: Fresh Aurora Deployment](#option-1-fresh-aurora-deployment)
 - [Option 2: Migrating from RDS to Aurora](#option-2-migrating-from-rds-to-aurora)
+- [Option 2b: Near-Zero-Downtime Migration Using Aurora Read Replica](#option-2b-near-zero-downtime-migration-using-aurora-read-replica)
 - [Option 3: Aurora Global Database (Multi-Region DR)](#option-3-aurora-global-database-multi-region-dr)
 - [Variable Reference](#variable-reference)
 - [Output Reference](#output-reference)
@@ -29,6 +31,77 @@ When using Aurora, you can optionally enable Aurora Global Database to add a sec
 
 > **Important**: Switching `truefoundry_db_engine_mode` from `"rds"` to `"aurora"` will **destroy the existing RDS instance and create a new Aurora cluster**. Data must be migrated separately before making this change. See [Option 2](#option-2-migrating-from-rds-to-aurora) for the full migration procedure.
 
+### Pick your path
+
+| If you want… | Go to |
+| --- | --- |
+| Keep running on RDS, just bump the module version | [Path 0](#path-0-stay-on-rds-no-migration) |
+| Deploy Aurora on a brand-new stack | [Option 1](#option-1-fresh-aurora-deployment) |
+| Migrate an existing RDS instance to Aurora with downtime / DMS | [Option 2](#option-2-migrating-from-rds-to-aurora) |
+| Migrate an existing RDS instance to Aurora with near-zero downtime | [Option 2b](#option-2b-near-zero-downtime-migration-using-aurora-read-replica) |
+| Add a DR region (Aurora Global Database) | [Option 3](#option-3-aurora-global-database-multi-region-dr) |
+
+---
+
+## Path 0: Stay on RDS (no migration)
+
+If you're upgrading from `0.4.x` to `0.5.x` and want to keep your existing RDS instance exactly as it is, this is the only path you need. No data migration, no destructive changes, no `terraform state mv`.
+
+### What changes
+
+- Default `truefoundry_db_engine_mode` is `"rds"`, so omitting it preserves your current behavior.
+- No RDS variables were removed or renamed in `0.5.x` — every `truefoundry_db_*` input you already pass keeps working.
+- One **caller-side** change is required: the module now declares `configuration_aliases = [aws.secondary]`, so you must pass an `aws.secondary` provider in your module call. Reuse your default provider — nothing in the DR region is created.
+
+### Steps
+
+1. **Bump versions** in the root that calls this module:
+
+   ```hcl
+   terraform {
+     required_version = "~> 1.9"
+     required_providers {
+       aws = {
+         source  = "hashicorp/aws"
+         version = "~> 6.33"
+       }
+     }
+   }
+   ```
+
+2. **Add the `providers` block** to your module call. Everything else stays the same:
+
+   ```hcl
+   module "tfy_control_plane" {
+     source  = "truefoundry/truefoundry-control-plane/aws"
+     version = "0.5.0"
+
+     providers = {
+       aws           = aws
+       aws.secondary = aws   # unused; alias points back at the default provider
+     }
+
+     # ... all your existing truefoundry_db_*, truefoundry_s3_*, IAM, etc. unchanged ...
+   }
+   ```
+
+3. **Plan and verify no destructive changes**:
+
+   ```bash
+   terraform init -upgrade
+   terraform plan
+   ```
+
+   Expected: `No changes.` If you see any line containing `must be replaced` or `forces replacement` against `aws_db_instance.truefoundry_db[0]`, **stop** and read the [upgrade guide](../upgrade-guide.md#step-3--plan-and-confirm-no-changes) before applying. Tag additions (from AWS provider v6 default-tags behavior) are safe to apply.
+
+4. **Apply**.
+
+   ```bash
+   terraform apply
+   ```
+
+That's it — your stack is now on `0.5.x` still running RDS. You can revisit [Option 2](#option-2-migrating-from-rds-to-aurora) or [Option 3](#option-3-aurora-global-database-multi-region-dr) any time later without re-upgrading the module.
+
 ---
 
 ## Option 1: Fresh Aurora Deployment
@@ -47,7 +120,7 @@ module "control_plane" {
 
   cluster_name            = "my-cluster"
   cluster_oidc_issuer_url = var.oidc_url
-  aws_region              = "us-east-1"
+  aws_region              = "<primary-region>"
   aws_account_id          = var.account_id
   vpc_id                  = var.vpc_id
 
@@ -79,6 +152,8 @@ This is a multi-step process. Terraform handles the infrastructure; you handle t
 - An existing deployment using `truefoundry_db_engine_mode = "rds"`
 - A maintenance window with acceptable downtime (or AWS DMS for near-zero downtime)
 - The RDS and Aurora PostgreSQL major versions must be compatible
+
+> **Heads-up on the master password.** This path destroys the RDS instance and creates a new Aurora cluster, which means the master password is regenerated. If your application reads the password from a stable location, set `manage_master_user_password = true` on the module so the secret is owned by AWS Secrets Manager (`master_user_secret_arn` survives the swap and applications can keep pointing at the same secret). If you rely on the module-generated `random_password`, plan to roll your application's connection string after the cutover.
 
 ### Step 1: Record Current RDS Details
 
@@ -274,7 +349,7 @@ aws rds create-db-cluster \
   --global-cluster-identifier my-cluster-aurora-global \
   --db-subnet-group-name <dr-subnet-group> \
   --vpc-security-group-ids <dr-security-group> \
-  --region eu-west-1 \
+  --region <dr-region> \
   --storage-encrypted \
   --kms-key-id <dr-region-kms-key-arn>
 
@@ -284,7 +359,7 @@ aws rds create-db-instance \
   --db-instance-class db.r6g.large \
   --db-instance-identifier my-cluster-aurora-dr-1 \
   --engine aurora-postgresql \
-  --region eu-west-1
+  --region <dr-region>
 ```
 
 ### Step 4: Point Application to Aurora
@@ -386,7 +461,7 @@ terraform import \
 # Secondary KMS key (if module created it)
 terraform import \
   'module.control_plane.aws_kms_key.aurora_secondary[0]' \
-  arn:aws:kms:eu-west-1:111122223333:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  arn:aws:kms:<dr-region>:111122223333:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 # Secondary parameter group
 terraform import \
@@ -444,12 +519,12 @@ You must configure two AWS providers — one for the primary region and one for 
 
 ```hcl
 provider "aws" {
-  region = "us-east-1"
+  region = "<primary-region>"
 }
 
 provider "aws" {
   alias  = "dr"
-  region = "eu-west-1"
+  region = "<dr-region>"
 }
 ```
 
@@ -461,6 +536,8 @@ Security groups exist within a single VPC in a single region. You **cannot** ref
 - **Secondary** — uses `ingress_cidr_blocks` and/or `ingress_security_group_ids` inside `truefoundry_aurora_secondary_config` (must reference resources in the DR region's VPC)
 
 For the secondary cluster, prefer `ingress_cidr_blocks` (e.g., the DR VPC CIDR) since cross-region security group references are not possible. Only use `ingress_security_group_ids` if you have security groups in the DR region's VPC that you want to allow.
+
+> **Need a private network path between the primary VPC and the DR VPC?** Aurora Global itself replicates over the AWS backbone and does **not** require VPC peering. You only need peering (or Transit Gateway / VPN) when resources in the primary VPC must reach the DR cluster's endpoint privately — for example, primary-region apps reading from the DR reader endpoint, monitoring, or operators verifying replication. If you need this and don't already have it, `examples/complete/vpc-peering.tf` is a ready-to-adapt example that creates cross-region VPC peering, accepts it in the DR region, enables `allow_remote_vpc_dns_resolution` on both sides, and writes routes into the non-main route tables of both VPCs. Set `create_vpc_peering = true` in the example to opt in. Note: peering requires non-overlapping VPC CIDRs and only adds routes to non-main route tables.
 
 ### Module Configuration
 
@@ -474,7 +551,7 @@ module "control_plane" {
 
   cluster_name            = "my-cluster"
   cluster_oidc_issuer_url = var.oidc_url
-  aws_region              = "us-east-1"
+  aws_region              = "<primary-region>"
   aws_account_id          = var.account_id
   vpc_id                  = var.vpc_id
 
@@ -482,7 +559,7 @@ module "control_plane" {
   truefoundry_db_enabled                 = true
   truefoundry_db_engine_mode             = "aurora"
   truefoundry_db_subnet_ids              = var.primary_subnet_ids
-  truefoundry_db_ingress_security_group  = var.primary_security_group  # SG in us-east-1
+  truefoundry_db_ingress_security_group  = var.primary_security_group  # SG in the primary region
   truefoundry_aurora_engine_version      = "17.4"
   truefoundry_aurora_instance_class      = "db.r6g.large"
   truefoundry_aurora_instance_count      = 2
@@ -491,8 +568,8 @@ module "control_plane" {
   truefoundry_aurora_enable_global_cluster = true
   truefoundry_aurora_secondary_config = {
     cluster_identifier  = "my-cluster-aurora-dr"
-    vpc_id              = var.dr_vpc_id              # VPC in eu-west-1
-    subnet_ids          = var.dr_subnet_ids           # subnets in eu-west-1
+    vpc_id              = var.dr_vpc_id              # VPC in the DR region
+    subnet_ids          = var.dr_subnet_ids           # subnets in the DR region
     instance_class      = "db.r6g.large"
     instance_count      = 1
 
@@ -525,7 +602,7 @@ If the primary region goes down, promote the secondary cluster:
 aws rds failover-global-cluster \
   --global-cluster-identifier $(terraform output -raw truefoundry_aurora_global_cluster_id) \
   --target-db-cluster-identifier $(terraform output -raw truefoundry_aurora_secondary_cluster_id) \
-  --region eu-west-1
+  --region <dr-region>
 ```
 
 After failover:
