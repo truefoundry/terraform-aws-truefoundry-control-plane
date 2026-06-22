@@ -43,7 +43,7 @@ Migrating an existing RDS deployment to Aurora is destructive at the RDS resourc
 
 ### Adding a DR region
 
-When you enable Aurora Global Database, the module also provisions an automated failover pipeline in the DR region (CloudWatch alarm on `AuroraGlobalDBReplicationLag` → EventBridge → Lambda → SNS). See [Option 3](docs/aurora-migration-guide.md#option-3-aurora-global-database-multi-region-dr).
+When you enable Aurora Global Database, the module also provisions an automated failover pipeline in the DR region (CloudWatch alarm on `AuroraGlobalDBReplicationLag` → EventBridge → Lambda → SNS), and optionally cross-region VPC peering (`truefoundry_aurora_vpc_peering_enabled = true`) so workloads in one VPC can reach the peer cluster privately. See [Option 3](docs/aurora-migration-guide.md#option-3-aurora-global-database-multi-region-dr).
 
 For full version-to-version upgrade steps, see the [upgrade guide](upgrade-guide.md).
 

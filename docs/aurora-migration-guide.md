@@ -537,7 +537,60 @@ Security groups exist within a single VPC in a single region. You **cannot** ref
 
 For the secondary cluster, prefer `ingress_cidr_blocks` (e.g., the DR VPC CIDR) since cross-region security group references are not possible. Only use `ingress_security_group_ids` if you have security groups in the DR region's VPC that you want to allow.
 
-> **Need a private network path between the primary VPC and the DR VPC?** Aurora Global itself replicates over the AWS backbone and does **not** require VPC peering. You only need peering (or Transit Gateway / VPN) when resources in the primary VPC must reach the DR cluster's endpoint privately — for example, primary-region apps reading from the DR reader endpoint, monitoring, or operators verifying replication. If you need this and don't already have it, `examples/complete/vpc-peering.tf` is a ready-to-adapt example that creates cross-region VPC peering, accepts it in the DR region, enables `allow_remote_vpc_dns_resolution` on both sides, and writes routes into the non-main route tables of both VPCs. Set `create_vpc_peering = true` in the example to opt in. Note: peering requires non-overlapping VPC CIDRs and only adds routes to non-main route tables.
+### Cross-region VPC peering (optional)
+
+Aurora Global Database replication itself does **not** require VPC peering — AWS replicates between regions over its own backbone. Enable peering only when resources in one VPC must reach the database endpoint in the other VPC privately, for example:
+
+- primary-region apps reading from the DR reader endpoint,
+- operators or monitoring crossing regions over private IPs,
+- a failover drill where workloads remain in the primary VPC but the writer is in DR.
+
+The module can manage cross-region VPC peering for you. Set the following alongside `truefoundry_aurora_secondary_config`:
+
+```hcl
+module "control_plane" {
+  # ...
+  truefoundry_aurora_enable_global_cluster = true
+  truefoundry_aurora_secondary_config      = { /* see above */ }
+
+  # Module-native cross-region peering
+  truefoundry_aurora_vpc_peering_enabled = true
+
+  # Route tables that should learn the peer VPC's CIDR. Typically the
+  # route tables associated with the subnets whose workloads need to
+  # reach the peer cluster (EKS nodes, app subnets, etc.).
+  truefoundry_aurora_vpc_peering_primary_route_table_ids = [
+    "rtb-aaaaaaaaaaaaaaaaa",
+    "rtb-bbbbbbbbbbbbbbbbb",
+  ]
+  truefoundry_aurora_vpc_peering_dr_route_table_ids = [
+    "rtb-cccccccccccccccc",
+  ]
+
+  # Defaults to true; lets RDS/Aurora endpoint hostnames resolve to private
+  # IPs across the peering.
+  truefoundry_aurora_vpc_peering_allow_remote_dns_resolution = true
+}
+```
+
+What the module creates when `truefoundry_aurora_vpc_peering_enabled = true`:
+
+| Resource | Provider | Purpose |
+| --- | --- | --- |
+| `aws_vpc_peering_connection.primary_to_dr` | default (`aws`) | Requester, in the primary VPC |
+| `aws_vpc_peering_connection_accepter.secondary` | `aws.secondary` | Accepts the peering in the DR region |
+| `aws_vpc_peering_connection_options.primary` / `.secondary` | both | Enables cross-VPC private DNS resolution on both sides (gated by `truefoundry_aurora_vpc_peering_allow_remote_dns_resolution`) |
+| `aws_route.primary_to_dr` (one per supplied primary route table) | default | Route to the DR VPC CIDR |
+| `aws_route.dr_to_primary` (one per supplied DR route table) | `aws.secondary` | Route to the primary VPC CIDR |
+
+Things to know:
+
+- **Non-overlapping CIDRs.** AWS rejects peering between VPCs with overlapping CIDR blocks. Plan your VPC CIDRs accordingly before flipping the flag.
+- **Empty route table lists are allowed.** If you leave `*_route_table_ids` empty, the peering connection is still created (and DNS resolution still enabled), but no routes are added. Use this if you manage cross-region routes in another module.
+- **Already connected?** If your VPCs already share connectivity via Transit Gateway, an existing peering, or VPN, leave `truefoundry_aurora_vpc_peering_enabled = false`.
+- **Outputs.** When peering is enabled the module exposes `truefoundry_aurora_vpc_peering_id` and `truefoundry_aurora_vpc_peering_status`.
+
+> **Prefer not to let the module manage peering?** The standalone example at `examples/complete/vpc-peering.tf` shows the same pattern as a caller-side resource set you can copy into your own infra repo (uses `var.create_vpc_peering`, picks non-main route tables via `data "aws_route_tables"`). It predates the module-native option and is kept for users who need different route-table selection or want peering decoupled from this module's lifecycle.
 
 ### Module Configuration
 

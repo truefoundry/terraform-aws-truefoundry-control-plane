@@ -148,6 +148,20 @@ output "truefoundry_aurora_secondary_cluster_reader_endpoint" {
 }
 
 ##################################################################################
+## Cross-region VPC peering outputs
+##################################################################################
+
+output "truefoundry_aurora_vpc_peering_id" {
+  description = "Cross-region VPC peering connection ID. Empty when peering is disabled."
+  value       = local.vpc_peering_enabled ? aws_vpc_peering_connection.primary_to_dr[0].id : ""
+}
+
+output "truefoundry_aurora_vpc_peering_status" {
+  description = "Cross-region VPC peering accepter status (e.g. 'active'). Empty when peering is disabled."
+  value       = local.vpc_peering_enabled ? aws_vpc_peering_connection_accepter.secondary[0].accept_status : ""
+}
+
+##################################################################################
 ## Automated failover outputs
 ##################################################################################
 

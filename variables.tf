@@ -358,6 +358,70 @@ variable "truefoundry_aurora_secondary_config" {
 }
 
 ##################################################################################
+## Cross-region VPC peering (optional, for Aurora Global Database)
+##################################################################################
+
+variable "truefoundry_aurora_vpc_peering_enabled" {
+  description = <<-EOT
+    Create cross-region VPC peering between the primary VPC (var.vpc_id) and
+    the DR VPC (truefoundry_aurora_secondary_config.vpc_id). Only effective
+    when truefoundry_aurora_enable_global_cluster = true AND
+    truefoundry_aurora_secondary_config is set.
+
+    Aurora Global Database replication itself does NOT need this — AWS
+    replicates over its own backbone. Enable when resources in one VPC must
+    reach the database endpoint in the other VPC privately (e.g. primary-VPC
+    apps reading from the DR reader endpoint, cross-region operators,
+    monitoring crossing regions).
+
+    Requires non-overlapping VPC CIDRs. Leave disabled if you already have
+    connectivity via Transit Gateway, an existing peering, or VPN.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_aurora_vpc_peering_primary_route_table_ids" {
+  description = <<-EOT
+    Route table IDs in the primary VPC that should receive a route to the DR
+    VPC CIDR via the peering connection. Typically the route tables
+    associated with the subnets whose workloads need to reach the DR cluster
+    (for example EKS node subnets, app subnets).
+
+    Leave empty if you'll add the routes elsewhere — the peering connection
+    will still be created, but no routes will be added. Only used when
+    truefoundry_aurora_vpc_peering_enabled = true.
+  EOT
+  type        = list(string)
+  default     = []
+}
+
+variable "truefoundry_aurora_vpc_peering_dr_route_table_ids" {
+  description = <<-EOT
+    Route table IDs in the DR VPC that should receive a route to the primary
+    VPC CIDR via the peering connection.
+
+    Leave empty if you'll add the routes elsewhere. Only used when
+    truefoundry_aurora_vpc_peering_enabled = true.
+  EOT
+  type        = list(string)
+  default     = []
+}
+
+variable "truefoundry_aurora_vpc_peering_allow_remote_dns_resolution" {
+  description = <<-EOT
+    Enable cross-VPC private DNS resolution on the peering. With this on,
+    RDS/Aurora endpoint hostnames resolve to private IPs across the peering,
+    so clients in one VPC can reach the peer cluster via private addresses
+    transparently. Recommended.
+
+    Only used when truefoundry_aurora_vpc_peering_enabled = true.
+  EOT
+  type        = bool
+  default     = true
+}
+
+##################################################################################
 ## Master user password management
 ##################################################################################
 
