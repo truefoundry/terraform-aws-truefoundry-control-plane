@@ -30,6 +30,8 @@ run "tags_applied" {
 
     # Disable the IAM role module to avoid child-module ARN validation with mocked values
     truefoundry_iam_role_enabled = false
+    # Disable S3 to avoid tofu 1.10 mock-provider count evaluation issue in s3-bucket child module
+    truefoundry_s3_enabled = false
 
     tags = {
       "cost-center" = "test-123"
