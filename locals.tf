@@ -15,6 +15,7 @@ locals {
       "truefoundry-terraform-module" = "control-plane"
       "truefoundry-managed"          = "true"
       "truefoundry-cluster-name"     = var.cluster_name
+      "cluster-name"                 = var.cluster_name
     },
     var.tags
   )
