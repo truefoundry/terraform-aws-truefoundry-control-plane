@@ -64,7 +64,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_blob_storage_extra_tags"></a> [blob\_storage\_extra\_tags](#input\_blob\_storage\_extra\_tags) | Extra tags for the s3 bucket | `map(string)` | `{}` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Cluster name | `string` | n/a | yes |
 | <a name="input_cluster_oidc_issuer_url"></a> [cluster\_oidc\_issuer\_url](#input\_cluster\_oidc\_issuer\_url) | The oidc url of the eks cluster | `string` | n/a | yes |
-| <a name="input_disable_default_tags"></a> [disable\_default\_tags](#input\_disable\_default\_tags) | Disable default tags for the resources created | `bool` | `false` | no |
+| <a name="input_disable_default_tags"></a> [disable\_default\_tags](#input\_disable\_default\_tags) | Disable the TrueFoundry module-injected audit tags (truefoundry-*); only var.tags is applied. Does NOT affect the AWS provider default\_tags. | `bool` | `false` | no |
 | <a name="input_iam_database_authentication_enabled"></a> [iam\_database\_authentication\_enabled](#input\_iam\_database\_authentication\_enabled) | Enable IAM database authentication | `bool` | `false` | no |
 | <a name="input_manage_master_user_password"></a> [manage\_master\_user\_password](#input\_manage\_master\_user\_password) | Enable master user password management. If set to true master user management is done by RDS in secrets manager, if false a random password is generated | `bool` | `false` | no |
 | <a name="input_manage_master_user_password_rotation"></a> [manage\_master\_user\_password\_rotation](#input\_manage\_master\_user\_password\_rotation) | Enable master user password rotation | `bool` | `false` | no |
