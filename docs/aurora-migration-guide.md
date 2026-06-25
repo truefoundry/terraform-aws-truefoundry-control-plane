@@ -41,11 +41,47 @@ When using Aurora, you can optionally enable Aurora Global Database to add a sec
 | Migrate an existing RDS instance to Aurora with near-zero downtime | [Option 2b](#option-2b-near-zero-downtime-migration-using-aurora-read-replica) |
 | Add a DR region (Aurora Global Database) | [Option 3](#option-3-aurora-global-database-multi-region-dr) |
 
+### What this module creates (and what you must bring)
+
+This module manages the **data-plane** layer (databases, IAM, the failover pipeline). It does **not** create networking — VPCs, subnets, route tables, or NAT/Internet gateways are caller-side inputs.
+
+| Layer | This module | You provide |
+| --- | --- | --- |
+| VPC(s) | — | One VPC in each region you want to deploy to |
+| Subnets | — | At least 2 private subnets across 2 AZs per VPC (RDS/Aurora subnet groups require this) |
+| Route tables | — | Existing route tables (the module only writes routes into them when VPC peering is enabled) |
+| DB subnet group | created | — |
+| DB security group | created (with port 5432 ingress) | (optional) extra SG IDs or CIDR blocks to add to ingress |
+| RDS instance / Aurora cluster + instances | created | — |
+| Aurora Global cluster + DR cluster | created (opt-in) | A separate VPC + subnets in the DR region |
+| Failover Lambda + alarm + SNS | created (when Global is on) | (optional) email for SNS subscription |
+| KMS key for DR storage | created (opt-out via `kms_key_id`) | — |
+| Cross-region VPC peering | created (opt-in) | Non-overlapping VPC CIDRs; optionally, route-table IDs |
+| S3 bucket, IAM roles, OIDC trust | created | OIDC issuer URL from your EKS cluster |
+
+### Prerequisites at a glance
+
+| Path | AWS providers | VPCs | Subnets | Existing RDS? |
+| --- | --- | --- | --- | --- |
+| [Path 0](#path-0-stay-on-rds-no-migration) | 1 (+ alias `aws.secondary` reusing default) | 1 (existing — already in use) | ≥2 in ≥2 AZs (existing) | yes — keep it |
+| [Option 1](#option-1-fresh-aurora-deployment) | 1 (+ alias `aws.secondary` reusing default) | 1 | ≥2 in ≥2 AZs | no |
+| [Option 2](#option-2-migrating-from-rds-to-aurora) | 1 (+ alias `aws.secondary` reusing default) | 1 (existing, reused) | ≥2 in ≥2 AZs (existing) | yes |
+| [Option 2b](#option-2b-near-zero-downtime-migration-using-aurora-read-replica) | 1 (+ alias `aws.secondary` reusing default) | 1 (existing, reused) | ≥2 in ≥2 AZs (existing) | yes |
+| [Option 3](#option-3-aurora-global-database-multi-region-dr) | 2 (`aws` primary + `aws.secondary` DR) | **2** (one per region — the module does NOT create the DR VPC) | ≥2 in ≥2 AZs per region | optional |
+
 ---
 
 ## Path 0: Stay on RDS (no migration)
 
-If you're upgrading from `0.4.x` to `0.5.x` and want to keep your existing RDS instance exactly as it is, this is the only path you need. No data migration, no destructive changes, no `terraform state mv`.
+If you're upgrading from `0.4.x`/`0.5.x` to `0.6.0` and want to keep your existing RDS instance exactly as it is, this is the only path you need. No data migration, no destructive changes, no `terraform state mv`.
+
+### Prerequisites
+
+- A working deployment on `truefoundry_db_engine_mode = "rds"` (the default).
+- Module version `0.4.x` or `0.5.x`. (If you're already on `0.6.0`, you're done.)
+- Terraform / OpenTofu `~> 1.9` and AWS provider `~> 6.33` in your caller config.
+
+The module is **not** creating any new networking, IAM, or KMS resources on this path. Your existing VPC, subnets, security groups, and parameter group all stay in place.
 
 ### What changes
 
@@ -108,6 +144,29 @@ That's it — your stack is now on `0.5.x` still running RDS. You can revisit [O
 
 For new deployments where no existing RDS database exists.
 
+### Prerequisites
+
+**You provide** (this module does not create them):
+
+- **1 VPC** in the deployment region, with `enable_dns_support = true` and `enable_dns_hostnames = true` (needed for Aurora endpoint hostnames to resolve to private IPs from within the VPC).
+- **At least 2 private subnets** in **at least 2 Availability Zones** of that VPC. RDS/Aurora DB subnet groups reject anything less.
+- One of:
+  - A **security group ID** in the VPC whose members should be allowed to reach the database (`truefoundry_db_ingress_security_group`), or
+  - A list of **CIDR blocks** (`truefoundry_db_ingress_cidr_blocks`).
+- An **EKS cluster's OIDC issuer URL** if you want the module to bind IAM roles to in-cluster service accounts.
+
+**Caller-side Terraform:**
+
+- One AWS provider for the deployment region.
+- An `aws.secondary` provider alias — pass the default provider through when you're not using Aurora Global (`aws.secondary = aws`).
+
+**What the module creates for this path:**
+
+- DB subnet group, DB security group (port 5432 ingress), optional parameter group.
+- Aurora cluster + `truefoundry_aurora_instance_count` instances.
+- Optional: enhanced-monitoring IAM role, Secrets-Manager-managed master password, KMS key for the master-user-secret.
+- S3 bucket and IAM roles for `mlfoundry` / `servicefoundry` / `tfy-workflow-admin` / LLM gateway (toggleable).
+
 ### Single-Region Aurora
 
 ```hcl
@@ -149,9 +208,23 @@ This is a multi-step process. Terraform handles the infrastructure; you handle t
 
 ### Prerequisites
 
-- An existing deployment using `truefoundry_db_engine_mode = "rds"`
-- A maintenance window with acceptable downtime (or AWS DMS for near-zero downtime)
-- The RDS and Aurora PostgreSQL major versions must be compatible
+**Existing state:**
+
+- An existing deployment of this module using `truefoundry_db_engine_mode = "rds"`.
+- The current VPC, ≥2 subnets across ≥2 AZs, and DB security group **stay in place** — Aurora reuses them. No new networking is required.
+
+**Compatibility:**
+
+- RDS and Aurora PostgreSQL major versions must be compatible (e.g., RDS PostgreSQL 17.x → Aurora PostgreSQL 17.x).
+
+**Migration tooling:**
+
+- A maintenance window with acceptable downtime **OR** AWS DMS for near-zero downtime (full load + CDC).
+- `psql`, `pg_dump`, `pg_restore` of the same major version installed locally if you choose the dump/restore route.
+
+**Caller-side Terraform:**
+
+- One AWS provider (deployment region), plus the `aws.secondary` alias (pass the default provider through if you're not adding Aurora Global at the same time).
 
 > **Heads-up on the master password.** This path destroys the RDS instance and creates a new Aurora cluster, which means the master password is regenerated. If your application reads the password from a stable location, set `manage_master_user_password = true` on the module so the secret is owned by AWS Secrets Manager (`master_user_secret_arn` survives the swap and applications can keep pointing at the same secret). If you rely on the module-generated `random_password`, plan to roll your application's connection string after the cutover.
 
@@ -275,11 +348,28 @@ psql -h $(terraform output -raw truefoundry_db_address) \
 
 This method uses [AWS Aurora Read Replica migration](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraPostgreSQL.Migrating.RDSPostgreSQL.Replica.html) to migrate from RDS to Aurora with minimal downtime. The migration happens outside Terraform via the AWS Console/CLI, then you import the resulting resources into Terraform state.
 
-**Requirements:**
+### Prerequisites
 
-- RDS and Aurora PostgreSQL versions must be in the same major version family
-- Source RDS instance must not already have an Aurora read replica or cross-region read replica
-- Both must be in the same AWS Region and account
+**Existing state:**
+
+- An existing deployment of this module using `truefoundry_db_engine_mode = "rds"`.
+- The current VPC, ≥2 subnets across ≥2 AZs, DB subnet group, and DB security group are reused — `aws rds create-db-cluster` will reference them by name.
+
+**Aurora Read Replica constraints (AWS-side):**
+
+- RDS and Aurora PostgreSQL versions must be in the same major version family.
+- The source RDS instance must not already have an Aurora read replica or cross-region read replica.
+- The RDS instance and the new Aurora cluster must be in the **same AWS Region and account**.
+
+**Caller-side Terraform:**
+
+- One AWS provider, plus the `aws.secondary` alias (pass through the default provider unless you also want Aurora Global in the same change).
+- Permission to run `terraform import` — you'll be importing the manually-created Aurora cluster and instance into module state.
+
+**Migration tooling:**
+
+- AWS CLI v2 logged in to the same account/region as the RDS instance.
+- `psql` for the LSN catch-up check (Step 2).
 
 ### Step 1: Create Aurora Read Replica from RDS (AWS Console/CLI)
 
@@ -513,6 +603,50 @@ aws rds delete-db-instance \
 
 Aurora Global Database replicates your primary cluster to a secondary region with typical lag under 1 second. The secondary cluster is read-only and can be promoted to a standalone read-write cluster during a regional failover.
 
+### Prerequisites
+
+This is the path with the most caller-side setup. **Read this section carefully before enabling `truefoundry_aurora_enable_global_cluster = true`.**
+
+**You must provide in the primary region (the module does NOT create these):**
+
+- **1 VPC** with `enable_dns_support = true` and `enable_dns_hostnames = true`.
+- **≥ 2 private subnets** across **≥ 2 AZs**.
+- One of: a security group ID, or CIDR blocks, for primary-VPC clients to reach the primary cluster.
+
+**You must provide in the DR region (the module does NOT create these):**
+
+- **A separate VPC** in the DR region. This module will not create a VPC anywhere — you bring your own (e.g., via `terraform-aws-modules/vpc/aws`, your network module, or hand-rolled Terraform).
+- **≥ 2 private subnets** across **≥ 2 AZs** in that DR-region VPC.
+- The DR VPC's **CIDR block** (or a list of CIDRs) that should be allowed to reach the secondary cluster on port 5432, passed via `truefoundry_aurora_secondary_config.ingress_cidr_blocks`. Security-group IDs from the primary region's VPC **do not work** here — security groups are region-scoped.
+- (Optional) An existing **KMS key ARN in the DR region** for storage encryption (`truefoundry_aurora_secondary_config.kms_key_id`). If you omit it and `truefoundry_db_storage_encrypted = true`, the module will create a region-local KMS key for you.
+
+**Caller-side Terraform:**
+
+- **Two AWS providers** — one for the primary region (default `aws`) and one for the DR region (aliased, e.g. `aws.dr`), then wired into the module call as:
+
+  ```hcl
+  providers = {
+    aws           = aws
+    aws.secondary = aws.dr
+  }
+  ```
+
+- AWS credentials with permission to create RDS clusters, KMS keys, IAM roles, Lambda functions, SNS topics, CloudWatch alarms, and EventBridge rules in **both regions**.
+
+**Aurora Global constraints (AWS-side):**
+
+- Aurora PostgreSQL engine version that supports global databases (the module's default `17.4` does).
+- Aurora Global is available in [a fixed list of regions](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html#aurora-global-database.limitations) — confirm the DR region is on it.
+- One AWS account can have multiple global clusters across regions, but the primary and any single secondary must each live in their own dedicated cluster.
+
+**What the module creates for this path:**
+
+- Primary region: Aurora cluster + instance(s), DB subnet group, DB security group, parameter group (optional).
+- Global layer: `aws_rds_global_cluster` tying primary and secondary together.
+- DR region (via `aws.secondary`): Aurora secondary cluster + instance(s), DB subnet group, DB security group (sourced from the CIDRs/SG IDs you pass in `truefoundry_aurora_secondary_config`), parameter group (optional), KMS key (optional).
+- Automated failover pipeline in the DR region: Lambda + IAM role + CloudWatch log group + replication-lag alarm + EventBridge rule + SNS topic + (optional) email subscription.
+- (Opt-in) cross-region VPC peering — see [Cross-region VPC peering (optional)](#cross-region-vpc-peering-optional) below.
+
 ### Provider Setup
 
 You must configure two AWS providers — one for the primary region and one for the DR region:
@@ -544,6 +678,11 @@ Aurora Global Database replication itself does **not** require VPC peering — A
 - primary-region apps reading from the DR reader endpoint,
 - operators or monitoring crossing regions over private IPs,
 - a failover drill where workloads remain in the primary VPC but the writer is in DR.
+
+**Additional prerequisites if you enable peering:**
+
+- The primary VPC (`var.vpc_id`) and the DR VPC (`truefoundry_aurora_secondary_config.vpc_id`) must have **non-overlapping CIDR blocks**. AWS rejects peering otherwise; the module surfaces the AWS error at apply.
+- (Optional) IDs of the **route tables** in each VPC that should learn the peer CIDR — typically the route tables associated with the subnets whose workloads need to reach the peer cluster. Leave them empty if you manage cross-region routes elsewhere (e.g., in your network module); the peering connection is still created.
 
 The module can manage cross-region VPC peering for you. Set the following alongside `truefoundry_aurora_secondary_config`:
 
