@@ -182,7 +182,7 @@ output "truefoundry_aurora_failover_alarm_name" {
 
 output "truefoundry_aurora_failover_test_command" {
   description = "CLI command to test the failover Lambda without triggering a real failover"
-  value       = local.secondary_enabled ? "aws lambda invoke --function-name ${aws_lambda_function.failover[0].function_name} --payload '{\"source\": \"manual-test\"}' --region ${data.aws_region.secondary[0].id} response.json && cat response.json" : ""
+  value       = local.secondary_enabled ? "aws lambda invoke --function-name ${aws_lambda_function.failover[0].function_name} --payload '{\"source\": \"manual-test\"}' --region ${data.aws_region.secondary[0].region} response.json && cat response.json" : ""
 }
 
 ##################################################################################

@@ -644,7 +644,7 @@ This is the path with the most caller-side setup. **Read this section carefully 
 - Primary region: Aurora cluster + instance(s), DB subnet group, DB security group, parameter group (optional).
 - Global layer: `aws_rds_global_cluster` tying primary and secondary together.
 - DR region (via `aws.secondary`): Aurora secondary cluster + instance(s), DB subnet group, DB security group (sourced from the CIDRs/SG IDs you pass in `truefoundry_aurora_secondary_config`), parameter group (optional), KMS key (optional).
-- Automated failover pipeline in the DR region: Lambda + IAM role + CloudWatch log group + replication-lag alarm + EventBridge rule + SNS topic + (optional) email subscription.
+- Failover alerting in the DR region: replication-lag CloudWatch alarm + SNS topic + (optional) email subscription, plus a failover Lambda + IAM role + CloudWatch log group. The EventBridge rule that auto-invokes the Lambda is created only when `truefoundry_aurora_enable_automated_failover = true`; by default the pipeline alerts but does not promote automatically.
 - (Opt-in) cross-region VPC peering — see [Cross-region VPC peering (optional)](#cross-region-vpc-peering-optional) below.
 
 ### Provider Setup
@@ -788,12 +788,15 @@ module "control_plane" {
 
 ### Failover Procedure
 
-If the primary region goes down, promote the secondary cluster:
+If the primary region goes down, promote the secondary cluster. Pass the
+secondary cluster's **ARN** to `--target-db-cluster-identifier` — for a
+cross-region global failover AWS uses the ARN to locate the cluster in its
+region, and it is the same value the automated failover Lambda uses:
 
 ```bash
 aws rds failover-global-cluster \
   --global-cluster-identifier $(terraform output -raw truefoundry_aurora_global_cluster_id) \
-  --target-db-cluster-identifier $(terraform output -raw truefoundry_aurora_secondary_cluster_id) \
+  --target-db-cluster-identifier $(terraform output -raw truefoundry_aurora_secondary_cluster_arn) \
   --region <dr-region>
 ```
 
@@ -802,6 +805,12 @@ After failover:
 1. The secondary becomes the new primary (read-write)
 2. Update your application to use the secondary endpoint
 3. Update Terraform state to reflect the new topology
+
+> **Automated failover is opt-in.** By default this module only *alerts* on
+> sustained replication lag (CloudWatch alarm → SNS). To let the module promote
+> the DR cluster automatically (alarm → EventBridge → Lambda), set
+> `truefoundry_aurora_enable_automated_failover = true`. Leaving it off avoids an
+> unplanned global promotion during transient lag or a metric gap.
 
 ### Secondary Config Options
 

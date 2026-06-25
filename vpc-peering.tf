@@ -30,7 +30,7 @@ resource "aws_vpc_peering_connection" "primary_to_dr" {
   count       = local.vpc_peering_enabled ? 1 : 0
   vpc_id      = var.vpc_id
   peer_vpc_id = var.truefoundry_aurora_secondary_config.vpc_id
-  peer_region = data.aws_region.secondary[0].id
+  peer_region = data.aws_region.secondary[0].region
   auto_accept = false
   tags = merge(
     local.tags,

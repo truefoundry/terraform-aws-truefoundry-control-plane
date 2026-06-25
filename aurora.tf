@@ -8,6 +8,10 @@ resource "aws_rds_global_cluster" "truefoundry" {
   source_db_cluster_identifier = aws_rds_cluster.truefoundry_aurora[0].arn
   deletion_protection          = var.truefoundry_db_deletion_protection
   force_destroy                = !var.truefoundry_db_deletion_protection
+
+  # AWS requires the source cluster to have at least one instance before it can
+  # be promoted into a global database. Without this the apply can race and fail.
+  depends_on = [aws_rds_cluster_instance.truefoundry_aurora]
 }
 
 ##################################################################################
@@ -46,6 +50,7 @@ resource "aws_rds_cluster" "truefoundry_aurora" {
   skip_final_snapshot                 = var.truefoundry_db_skip_final_snapshot
   final_snapshot_identifier           = var.truefoundry_db_skip_final_snapshot ? null : "${var.truefoundry_db_database_name}-aurora-${formatdate("DD-MM-YYYY-hh-mm-ss", timestamp())}"
   storage_encrypted                   = var.truefoundry_db_storage_encrypted
+  kms_key_id                          = var.truefoundry_db_storage_encrypted ? var.truefoundry_db_kms_key_arn : null
   enabled_cloudwatch_logs_exports     = var.truefoundry_aurora_cloudwatch_log_exports
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
   apply_immediately                   = true
@@ -151,25 +156,64 @@ resource "aws_kms_alias" "aurora_secondary" {
   target_key_id = aws_kms_key.aurora_secondary[0].id
 }
 
+##################################################################################
+## Enhanced-monitoring role for the secondary cluster instances.
+## Created only when enable_monitoring is on and no monitoring_role_arn is
+## supplied. IAM is global, so this works for the DR-region instances. Without
+## it, enhanced monitoring on the secondary would have no valid role and fail.
+##################################################################################
+
+data "aws_iam_policy_document" "aurora_secondary_monitoring_assume" {
+  count = local.aurora_secondary_create_monitoring_role ? 1 : 0
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["monitoring.rds.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [var.aws_account_id]
+    }
+  }
+}
+
+resource "aws_iam_role" "aurora_secondary_monitoring" {
+  count              = local.aurora_secondary_create_monitoring_role ? 1 : 0
+  name_prefix        = "${substr(var.truefoundry_aurora_secondary_config.cluster_identifier, 0, 25)}-mon-"
+  description        = "Enhanced monitoring role for Aurora secondary cluster ${var.truefoundry_aurora_secondary_config.cluster_identifier}"
+  assume_role_policy = data.aws_iam_policy_document.aurora_secondary_monitoring_assume[0].json
+  tags               = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
+}
+
+resource "aws_iam_role_policy_attachment" "aurora_secondary_monitoring" {
+  count      = local.aurora_secondary_create_monitoring_role ? 1 : 0
+  role       = aws_iam_role.aurora_secondary_monitoring[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+}
+
 resource "aws_rds_cluster" "aurora_secondary" {
-  count                           = local.secondary_enabled ? 1 : 0
-  provider                        = aws.secondary
-  cluster_identifier              = var.truefoundry_aurora_secondary_config.cluster_identifier
-  global_cluster_identifier       = aws_rds_global_cluster.truefoundry[0].id
-  engine                          = "aurora-postgresql"
-  engine_version                  = var.truefoundry_aurora_engine_version
-  port                            = local.truefoundry_db_port
-  db_subnet_group_name            = aws_db_subnet_group.aurora_secondary[0].name
-  vpc_security_group_ids          = concat([aws_security_group.aurora_secondary[0].id], var.truefoundry_aurora_secondary_config.additional_security_group_ids)
-  db_cluster_parameter_group_name = var.truefoundry_db_postgres_parameter_group_enabled ? aws_rds_cluster_parameter_group.aurora_secondary[0].name : null
-  backup_retention_period         = var.truefoundry_aurora_secondary_config.backup_retention_period
-  deletion_protection             = var.truefoundry_db_deletion_protection
-  skip_final_snapshot             = var.truefoundry_db_skip_final_snapshot
-  storage_encrypted               = var.truefoundry_db_storage_encrypted
-  kms_key_id                      = var.truefoundry_db_storage_encrypted ? coalesce(var.truefoundry_aurora_secondary_config.kms_key_id, try(aws_kms_key.aurora_secondary[0].arn, null)) : null
-  enabled_cloudwatch_logs_exports = var.truefoundry_aurora_cloudwatch_log_exports
-  apply_immediately               = true
-  tags                            = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
+  count                               = local.secondary_enabled ? 1 : 0
+  provider                            = aws.secondary
+  cluster_identifier                  = var.truefoundry_aurora_secondary_config.cluster_identifier
+  global_cluster_identifier           = aws_rds_global_cluster.truefoundry[0].id
+  engine                              = "aurora-postgresql"
+  engine_version                      = var.truefoundry_aurora_engine_version
+  port                                = local.truefoundry_db_port
+  db_subnet_group_name                = aws_db_subnet_group.aurora_secondary[0].name
+  vpc_security_group_ids              = concat([aws_security_group.aurora_secondary[0].id], var.truefoundry_aurora_secondary_config.additional_security_group_ids)
+  db_cluster_parameter_group_name     = var.truefoundry_db_postgres_parameter_group_enabled ? aws_rds_cluster_parameter_group.aurora_secondary[0].name : null
+  backup_retention_period             = var.truefoundry_aurora_secondary_config.backup_retention_period
+  deletion_protection                 = var.truefoundry_db_deletion_protection
+  skip_final_snapshot                 = var.truefoundry_db_skip_final_snapshot
+  storage_encrypted                   = var.truefoundry_db_storage_encrypted
+  kms_key_id                          = var.truefoundry_db_storage_encrypted ? coalesce(var.truefoundry_aurora_secondary_config.kms_key_id, try(aws_kms_key.aurora_secondary[0].arn, null)) : null
+  enabled_cloudwatch_logs_exports     = var.truefoundry_aurora_cloudwatch_log_exports
+  iam_database_authentication_enabled = var.iam_database_authentication_enabled
+  apply_immediately                   = true
+  tags                                = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
 
   depends_on = [aws_rds_cluster_instance.truefoundry_aurora]
 
@@ -190,14 +234,10 @@ resource "aws_rds_cluster_instance" "aurora_secondary" {
   performance_insights_enabled          = var.truefoundry_aurora_secondary_config.enable_insights
   performance_insights_retention_period = var.truefoundry_aurora_secondary_config.enable_insights ? 31 : null
   monitoring_interval                   = var.truefoundry_aurora_secondary_config.enable_monitoring ? var.truefoundry_aurora_secondary_config.monitoring_interval : null
-  monitoring_role_arn = var.truefoundry_aurora_secondary_config.enable_monitoring ? (
-    var.truefoundry_aurora_secondary_config.monitoring_role_arn != "" ?
-    var.truefoundry_aurora_secondary_config.monitoring_role_arn :
-    try(aws_iam_role.truefoundry_db_monitoring_role[0].arn, null)
-  ) : null
-  publicly_accessible = var.truefoundry_aurora_secondary_config.publicly_accessible
-  apply_immediately   = true
-  tags                = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
+  monitoring_role_arn                   = local.aurora_secondary_monitoring_role_arn
+  publicly_accessible                   = var.truefoundry_aurora_secondary_config.publicly_accessible
+  apply_immediately                     = true
+  tags                                  = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
 }
 
 ##################################################################################
@@ -303,7 +343,7 @@ resource "aws_lambda_function" "failover" {
     variables = {
       GLOBAL_CLUSTER = aws_rds_global_cluster.truefoundry[0].id
       DR_CLUSTER_ARN = aws_rds_cluster.aurora_secondary[0].arn
-      DR_REGION      = data.aws_region.secondary[0].id
+      DR_REGION      = data.aws_region.secondary[0].region
       SNS_TOPIC_ARN  = aws_sns_topic.failover_alerts[0].arn
     }
   }
@@ -334,7 +374,7 @@ resource "aws_cloudwatch_metric_alarm" "replication_lag" {
   evaluation_periods  = var.truefoundry_aurora_alarm_evaluation_periods
   threshold           = 30000
   comparison_operator = "GreaterThanThreshold"
-  treat_missing_data  = "breaching"
+  treat_missing_data  = var.truefoundry_aurora_alarm_treat_missing_data
 
   dimensions = {
     DBClusterIdentifier = aws_rds_cluster.aurora_secondary[0].cluster_identifier
@@ -347,7 +387,7 @@ resource "aws_cloudwatch_metric_alarm" "replication_lag" {
 }
 
 resource "aws_cloudwatch_event_rule" "failover_trigger" {
-  count       = local.secondary_enabled ? 1 : 0
+  count       = local.automated_failover_enabled ? 1 : 0
   provider    = aws.secondary
   name        = "${var.truefoundry_aurora_secondary_config.cluster_identifier}-failover-trigger"
   description = "Triggers Aurora failover Lambda when replication lag alarm fires"
@@ -364,7 +404,7 @@ resource "aws_cloudwatch_event_rule" "failover_trigger" {
 }
 
 resource "aws_cloudwatch_event_target" "failover_lambda" {
-  count     = local.secondary_enabled ? 1 : 0
+  count     = local.automated_failover_enabled ? 1 : 0
   provider  = aws.secondary
   rule      = aws_cloudwatch_event_rule.failover_trigger[0].name
   target_id = "${var.truefoundry_aurora_secondary_config.cluster_identifier}-failover"
@@ -372,7 +412,7 @@ resource "aws_cloudwatch_event_target" "failover_lambda" {
 }
 
 resource "aws_lambda_permission" "eventbridge_invoke" {
-  count         = local.secondary_enabled ? 1 : 0
+  count         = local.automated_failover_enabled ? 1 : 0
   provider      = aws.secondary
   statement_id  = "eventbridge-invoke"
   action        = "lambda:InvokeFunction"

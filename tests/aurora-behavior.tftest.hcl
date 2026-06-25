@@ -58,6 +58,23 @@ override_module {
   }
 }
 
+run "aurora_primary_uses_customer_storage_kms_key" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_db_storage_encrypted = true
+    truefoundry_db_kms_key_arn       = "arn:aws:kms:us-west-2:123456789012:key/11111111-1111-1111-1111-111111111111"
+  }
+
+  assert {
+    condition     = aws_rds_cluster.truefoundry_aurora[0].kms_key_id == "arn:aws:kms:us-west-2:123456789012:key/11111111-1111-1111-1111-111111111111"
+    error_message = "Aurora primary kms_key_id should use truefoundry_db_kms_key_arn when storage is encrypted."
+  }
+}
+
 run "aurora_cluster_replaces_rds_when_engine_mode_is_aurora" {
   command = plan
   plan_options {
@@ -176,5 +193,151 @@ run "aurora_supplied_secret_kms_key_skips_module_key" {
   assert {
     condition     = aws_rds_cluster.truefoundry_aurora[0].master_user_secret_kms_key_id == "arn:aws:kms:us-west-2:123456789012:key/22222222-2222-2222-2222-222222222222"
     error_message = "Aurora cluster master_user_secret_kms_key_id should use the supplied customer KMS key ARN."
+  }
+}
+
+##################################################################################
+## Aurora Global Database (secondary cluster + failover pipeline) regressions
+##################################################################################
+
+# Bugbot eb980f06: the DR cluster must inherit IAM database authentication so
+# IAM-token clients keep working after a regional failover.
+run "aurora_secondary_inherits_iam_db_auth" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    iam_database_authentication_enabled      = true
+    truefoundry_aurora_enable_global_cluster = true
+    truefoundry_aurora_secondary_config = {
+      cluster_identifier  = "tfy-test-aurora-dr"
+      vpc_id              = "vpc-0dr00000000000000"
+      subnet_ids          = ["subnet-0dr0000000000000a", "subnet-0dr0000000000000b"]
+      ingress_cidr_blocks = ["10.1.0.0/16"]
+    }
+  }
+
+  assert {
+    condition     = aws_rds_cluster.aurora_secondary[0].iam_database_authentication_enabled == true
+    error_message = "Secondary cluster should mirror iam_database_authentication_enabled from the primary."
+  }
+}
+
+# Bugbot: automated global promotion must be opt-in. By default the alarm and
+# SNS topic exist (alerting), but no EventBridge -> Lambda auto-invoke wiring.
+run "aurora_automated_failover_off_by_default" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_aurora_enable_global_cluster = true
+    truefoundry_aurora_secondary_config = {
+      cluster_identifier  = "tfy-test-aurora-dr"
+      vpc_id              = "vpc-0dr00000000000000"
+      subnet_ids          = ["subnet-0dr0000000000000a", "subnet-0dr0000000000000b"]
+      ingress_cidr_blocks = ["10.1.0.0/16"]
+    }
+  }
+
+  assert {
+    condition     = length(aws_cloudwatch_metric_alarm.replication_lag) == 1
+    error_message = "Replication-lag alarm should still be created for alerting."
+  }
+
+  assert {
+    condition     = length(aws_cloudwatch_event_rule.failover_trigger) == 0
+    error_message = "EventBridge auto-invoke rule must not exist unless automated failover is enabled."
+  }
+
+  assert {
+    condition     = length(aws_lambda_permission.eventbridge_invoke) == 0
+    error_message = "EventBridge invoke permission must not exist unless automated failover is enabled."
+  }
+
+  assert {
+    condition     = aws_cloudwatch_metric_alarm.replication_lag[0].treat_missing_data == "missing"
+    error_message = "Alarm should treat missing data as 'missing' by default."
+  }
+}
+
+run "aurora_automated_failover_wires_eventbridge_when_enabled" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_aurora_enable_global_cluster     = true
+    truefoundry_aurora_enable_automated_failover = true
+    truefoundry_aurora_secondary_config = {
+      cluster_identifier  = "tfy-test-aurora-dr"
+      vpc_id              = "vpc-0dr00000000000000"
+      subnet_ids          = ["subnet-0dr0000000000000a", "subnet-0dr0000000000000b"]
+      ingress_cidr_blocks = ["10.1.0.0/16"]
+    }
+  }
+
+  assert {
+    condition     = length(aws_cloudwatch_event_rule.failover_trigger) == 1
+    error_message = "EventBridge rule should be created when automated failover is enabled."
+  }
+
+  assert {
+    condition     = length(aws_lambda_permission.eventbridge_invoke) == 1
+    error_message = "EventBridge invoke permission should be created when automated failover is enabled."
+  }
+}
+
+# Bugbot: secondary enhanced monitoring must have a valid role. With monitoring
+# on and no role supplied, the module creates a dedicated one rather than
+# relying on the primary-only role (which may not exist).
+run "aurora_secondary_creates_monitoring_role_when_needed" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_aurora_enable_global_cluster = true
+    truefoundry_aurora_secondary_config = {
+      cluster_identifier  = "tfy-test-aurora-dr"
+      vpc_id              = "vpc-0dr00000000000000"
+      subnet_ids          = ["subnet-0dr0000000000000a", "subnet-0dr0000000000000b"]
+      ingress_cidr_blocks = ["10.1.0.0/16"]
+      enable_monitoring   = true
+    }
+  }
+
+  assert {
+    condition     = length(aws_iam_role.aurora_secondary_monitoring) == 1
+    error_message = "A dedicated secondary monitoring role should be created when enable_monitoring is on and no role is supplied."
+  }
+}
+
+run "aurora_secondary_skips_monitoring_role_when_supplied" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_aurora_enable_global_cluster = true
+    truefoundry_aurora_secondary_config = {
+      cluster_identifier  = "tfy-test-aurora-dr"
+      vpc_id              = "vpc-0dr00000000000000"
+      subnet_ids          = ["subnet-0dr0000000000000a", "subnet-0dr0000000000000b"]
+      ingress_cidr_blocks = ["10.1.0.0/16"]
+      enable_monitoring   = true
+      monitoring_role_arn = "arn:aws:iam::123456789012:role/existing-monitoring-role"
+    }
+  }
+
+  assert {
+    condition     = length(aws_iam_role.aurora_secondary_monitoring) == 0
+    error_message = "No secondary monitoring role should be created when an ARN is supplied."
   }
 }

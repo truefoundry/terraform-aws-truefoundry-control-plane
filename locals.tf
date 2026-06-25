@@ -38,6 +38,21 @@ locals {
 
   vpc_peering_enabled = local.secondary_enabled && var.truefoundry_aurora_vpc_peering_enabled
 
+  # Automated failover (EventBridge alarm -> Lambda) is opt-in. When disabled,
+  # the alarm and SNS topic still notify, but no automatic global promotion runs.
+  automated_failover_enabled = local.secondary_enabled && var.truefoundry_aurora_enable_automated_failover
+
+  # Whether the module needs to create a dedicated monitoring role for the
+  # secondary cluster instances (enhanced monitoring on, no role supplied).
+  aurora_secondary_create_monitoring_role = local.secondary_enabled && var.truefoundry_aurora_secondary_config.enable_monitoring && var.truefoundry_aurora_secondary_config.monitoring_role_arn == ""
+
+  # Effective monitoring role ARN for the secondary cluster instances.
+  aurora_secondary_monitoring_role_arn = local.secondary_enabled && var.truefoundry_aurora_secondary_config.enable_monitoring ? (
+    var.truefoundry_aurora_secondary_config.monitoring_role_arn != "" ?
+    var.truefoundry_aurora_secondary_config.monitoring_role_arn :
+    try(aws_iam_role.aurora_secondary_monitoring[0].arn, null)
+  ) : null
+
   # Use the customer-provided KMS key for the master user secret when set, otherwise the module-created key.
   truefoundry_db_master_user_secret_kms_key_arn = var.truefoundry_db_enabled && var.manage_master_user_password ? (
     var.truefoundry_db_master_user_secret_kms_key_arn != null
