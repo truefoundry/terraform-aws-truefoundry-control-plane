@@ -37,7 +37,7 @@ resource "aws_rds_cluster" "truefoundry_aurora" {
   master_username                     = local.truefoundry_db_master_username
   master_password                     = var.manage_master_user_password ? null : random_password.truefoundry_db_password[0].result
   manage_master_user_password         = var.manage_master_user_password ? true : null
-  master_user_secret_kms_key_id       = var.manage_master_user_password ? aws_kms_key.truefoundry_db_master_user_secret_kms_key[0].arn : null
+  master_user_secret_kms_key_id       = local.truefoundry_db_master_user_secret_kms_key_arn
   db_subnet_group_name                = aws_db_subnet_group.rds[0].name
   vpc_security_group_ids              = concat([aws_security_group.rds[0].id], aws_security_group.rds-public[*].id, var.truefoundry_db_additional_security_group_ids)
   db_cluster_parameter_group_name     = var.truefoundry_db_postgres_parameter_group_enabled ? aws_rds_cluster_parameter_group.truefoundry_aurora_parameter_group[0].name : null
