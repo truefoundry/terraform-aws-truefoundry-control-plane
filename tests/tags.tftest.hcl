@@ -12,6 +12,13 @@ mock_provider "aws" {
   }
 }
 
+# The module declares configuration_aliases = [aws.secondary] for the Aurora
+# Global Database DR region. Mock it so plan-time tests resolve the alias even
+# though no secondary resources are created at default settings.
+mock_provider "aws" {
+  alias = "secondary"
+}
+
 mock_provider "random" {}
 
 run "tags_applied" {
