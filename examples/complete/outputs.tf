@@ -36,15 +36,15 @@ output "aurora_cluster_reader_endpoint" {
 }
 
 output "aurora_global_cluster_id" {
-  value = module.control_plane.truefoundry_aurora_global_cluster_id
+  value = var.db_engine_mode == "aurora" && var.enable_global_cluster ? module.aurora_global[0].truefoundry_aurora_global_cluster_id : ""
 }
 
 output "aurora_secondary_endpoint" {
-  value = module.control_plane.truefoundry_aurora_secondary_cluster_endpoint
+  value = var.db_engine_mode == "aurora" && var.enable_global_cluster ? module.aurora_global[0].truefoundry_aurora_secondary_cluster_endpoint : ""
 }
 
 output "aurora_secondary_reader_endpoint" {
-  value = module.control_plane.truefoundry_aurora_secondary_cluster_reader_endpoint
+  value = var.db_engine_mode == "aurora" && var.enable_global_cluster ? module.aurora_global[0].truefoundry_aurora_secondary_cluster_reader_endpoint : ""
 }
 
 output "vpc_peering_id" {

@@ -26,7 +26,7 @@ There are only two things you must do to upgrade:
 | Required AWS provider | `~> 6.33` | `~> 6.33` (unchanged) |
 | Provider blocks needed in caller | `aws` | `aws` **and** `aws.secondary` |
 | Removed variables | — | None |
-| New variables (additive) | — | `truefoundry_db_engine_mode`, `truefoundry_aurora_*` (engine version, instance class/count, log exports, global cluster toggles, secondary config, alert email, alarm evaluation periods), `truefoundry_aurora_vpc_peering_enabled` + supporting route-table / DNS resolution inputs |
+| New variables (additive) | — | `truefoundry_db_engine_mode`, `truefoundry_db_instance_count`, `truefoundry_db_enable_global_cluster`, `truefoundry_aurora_*` (secondary config, VPC peering, alert email, alarm evaluation periods, automated failover) |
 | New resources (opt-in) | — | Aurora primary + secondary cluster, global cluster, failover Lambda + SNS + CloudWatch alarm + EventBridge rule, optional cross-region VPC peering + routes |
 
 No RDS-related variables were renamed or removed — your existing `truefoundry_db_*` inputs continue to work as-is.

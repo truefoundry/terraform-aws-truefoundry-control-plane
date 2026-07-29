@@ -52,6 +52,16 @@ variable "truefoundry_db_enabled" {
   default     = true
 }
 
+variable "truefoundry_db_engine_mode" {
+  description = "Database engine mode. 'rds' for standard PostgreSQL, 'aurora' for Aurora PostgreSQL."
+  type        = string
+  default     = "rds"
+  validation {
+    condition     = contains(["rds", "aurora"], var.truefoundry_db_engine_mode)
+    error_message = "truefoundry_db_engine_mode must be one of: rds, aurora"
+  }
+}
+
 variable "truefoundry_db_database_name" {
   type        = string
   description = "Name of the database in DB"
@@ -92,6 +102,23 @@ variable "truefoundry_db_ingress_cidr_blocks" {
   default     = []
 }
 
+variable "truefoundry_db_security_group_name_override_enabled" {
+  description = "Enable override for the module-created DB security group name."
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_security_group_name_override" {
+  description = "Override name for the module-created DB security group when truefoundry_db_security_group_name_override_enabled is true."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.truefoundry_db_security_group_name_override_enabled ? trimspace(var.truefoundry_db_security_group_name_override) != "" : true
+    error_message = "truefoundry_db_security_group_name_override must be set when truefoundry_db_security_group_name_override_enabled is true."
+  }
+}
+
 variable "truefoundry_db_subnet_ids" {
   type        = list(string)
   description = "List of subnets where the RDS database will be deployed"
@@ -103,10 +130,38 @@ variable "truefoundry_db_subnet_ids" {
   }
 }
 
+variable "truefoundry_db_subnet_group_name_override_enabled" {
+  description = "Enable override for the module-created DB subnet group name."
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_subnet_group_name_override" {
+  description = "Override name for the module-created DB subnet group when truefoundry_db_subnet_group_name_override_enabled is true."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.truefoundry_db_subnet_group_name_override_enabled ? trimspace(var.truefoundry_db_subnet_group_name_override) != "" : true
+    error_message = "truefoundry_db_subnet_group_name_override must be set when truefoundry_db_subnet_group_name_override_enabled is true."
+  }
+}
+
 variable "truefoundry_db_instance_class" {
   type        = string
-  description = "Instance class for RDS"
-  default     = "db.t3.medium"
+  description = "Instance class for RDS or Aurora cluster instances. When null, defaults to db.t3.medium (RDS) or db.r6g.large (Aurora) based on truefoundry_db_engine_mode."
+  default     = null
+  nullable    = true
+}
+
+variable "truefoundry_db_instance_count" {
+  description = "Number of Aurora cluster instances. Ignored when truefoundry_db_engine_mode = \"rds\"."
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.truefoundry_db_instance_count >= 1
+    error_message = "truefoundry_db_instance_count must be at least 1"
+  }
 }
 
 variable "truefoundry_db_publicly_accessible" {
@@ -178,7 +233,7 @@ variable "truefoundry_db_master_user_secret_kms_key_arn" {
 }
 
 variable "truefoundry_db_engine_version" {
-  default     = "17.5"
+  default     = "17.9"
   type        = string
   description = "Truefoundry DB Postgres version"
 }
@@ -196,6 +251,28 @@ variable "truefoundry_db_override_name" {
   validation {
     condition     = length(var.truefoundry_db_override_name) <= 63
     error_message = "Error: DB Instance name is too long."
+  }
+}
+
+variable "truefoundry_db_instance_identifier_override_enabled" {
+  description = "Enable override for Aurora DB instance identifier prefix. You must pass truefoundry_db_instance_identifier_override."
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_instance_identifier_override" {
+  description = "Override prefix for Aurora DB instance identifiers. Final names are generated as <override>-<index> when truefoundry_db_instance_identifier_override_enabled is true."
+  type        = string
+  default     = ""
+  validation {
+    condition     = var.truefoundry_db_instance_identifier_override_enabled ? trimspace(var.truefoundry_db_instance_identifier_override) != "" : true
+    error_message = "truefoundry_db_instance_identifier_override must be set when truefoundry_db_instance_identifier_override_enabled is true."
+  }
+  validation {
+    condition = var.truefoundry_db_instance_identifier_override_enabled ? (
+      length(var.truefoundry_db_instance_identifier_override) + 1 + length(tostring(var.truefoundry_db_instance_count)) <= 63
+    ) : true
+    error_message = "truefoundry_db_instance_identifier_override is too long for Aurora instance identifiers after appending '-<index>' (max 63 chars)."
   }
 }
 
@@ -247,8 +324,8 @@ variable "truefoundry_db_allow_major_version_upgrade" {
   default     = false
 }
 
-variable "truefoundry_cloudwatch_log_exports" {
-  description = "Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported"
+variable "truefoundry_db_cloudwatch_log_exports" {
+  description = "Set of log types to enable for exporting to CloudWatch logs. RDS supports postgresql and upgrade; Aurora PostgreSQL supports postgresql only (upgrade is filtered out automatically)."
   type        = list(string)
   default     = ["postgresql", "upgrade"]
 }
@@ -281,144 +358,6 @@ variable "iam_database_authentication_enabled" {
   description = "Enable IAM database authentication"
   type        = bool
   default     = false
-}
-
-##################################################################################
-## Aurora
-##################################################################################
-
-variable "truefoundry_db_engine_mode" {
-  description = "Database engine mode. 'rds' for standard PostgreSQL, 'aurora' for Aurora PostgreSQL."
-  type        = string
-  default     = "rds"
-  validation {
-    condition     = contains(["rds", "aurora"], var.truefoundry_db_engine_mode)
-    error_message = "truefoundry_db_engine_mode must be one of: rds, aurora"
-  }
-}
-
-variable "truefoundry_aurora_engine_version" {
-  description = "Aurora PostgreSQL engine version"
-  type        = string
-  default     = "17.4"
-}
-
-variable "truefoundry_aurora_instance_class" {
-  description = "Instance class for Aurora cluster instances"
-  type        = string
-  default     = "db.r6g.large"
-}
-
-variable "truefoundry_aurora_instance_count" {
-  description = "Number of Aurora cluster instances"
-  type        = number
-  default     = 1
-  validation {
-    condition     = var.truefoundry_aurora_instance_count >= 1
-    error_message = "truefoundry_aurora_instance_count must be at least 1"
-  }
-}
-
-variable "truefoundry_aurora_cloudwatch_log_exports" {
-  description = "Set of log types to enable for exporting to CloudWatch logs for Aurora. Valid values for Aurora PostgreSQL: postgresql"
-  type        = list(string)
-  default     = ["postgresql"]
-}
-
-variable "truefoundry_aurora_enable_global_cluster" {
-  description = "Enable Aurora Global Database with a secondary cluster in a DR region. The secondary region's provider must be passed as aws.secondary."
-  type        = bool
-  default     = false
-}
-
-variable "truefoundry_aurora_secondary_config" {
-  description = <<-EOT
-    Configuration for the secondary Aurora cluster in the DR region (aws.secondary provider).
-    Required when truefoundry_aurora_enable_global_cluster = true.
-  EOT
-  type = object({
-    cluster_identifier            = string
-    vpc_id                        = string
-    subnet_ids                    = list(string)
-    instance_class                = optional(string, "db.r6g.large")
-    instance_count                = optional(number, 1)
-    ingress_cidr_blocks           = optional(list(string), [])
-    ingress_security_group_ids    = optional(list(string), [])
-    additional_security_group_ids = optional(list(string), [])
-    publicly_accessible           = optional(bool, false)
-    backup_retention_period       = optional(number, 1)
-    kms_key_id                    = optional(string, null)
-    enable_insights               = optional(bool, false)
-    enable_monitoring             = optional(bool, false)
-    monitoring_interval           = optional(number, 5)
-    monitoring_role_arn           = optional(string, "")
-    tags                          = optional(map(string), {})
-  })
-  default = null
-}
-
-##################################################################################
-## Cross-region VPC peering (optional, for Aurora Global Database)
-##################################################################################
-
-variable "truefoundry_aurora_vpc_peering_enabled" {
-  description = <<-EOT
-    Create cross-region VPC peering between the primary VPC (var.vpc_id) and
-    the DR VPC (truefoundry_aurora_secondary_config.vpc_id). Only effective
-    when truefoundry_aurora_enable_global_cluster = true AND
-    truefoundry_aurora_secondary_config is set.
-
-    Aurora Global Database replication itself does NOT need this — AWS
-    replicates over its own backbone. Enable when resources in one VPC must
-    reach the database endpoint in the other VPC privately (e.g. primary-VPC
-    apps reading from the DR reader endpoint, cross-region operators,
-    monitoring crossing regions).
-
-    Requires non-overlapping VPC CIDRs. Leave disabled if you already have
-    connectivity via Transit Gateway, an existing peering, or VPN.
-  EOT
-  type        = bool
-  default     = false
-}
-
-variable "truefoundry_aurora_vpc_peering_primary_route_table_ids" {
-  description = <<-EOT
-    Route table IDs in the primary VPC that should receive a route to the DR
-    VPC CIDR via the peering connection. Typically the route tables
-    associated with the subnets whose workloads need to reach the DR cluster
-    (for example EKS node subnets, app subnets).
-
-    Leave empty if you'll add the routes elsewhere — the peering connection
-    will still be created, but no routes will be added. Only used when
-    truefoundry_aurora_vpc_peering_enabled = true.
-  EOT
-  type        = list(string)
-  default     = []
-}
-
-variable "truefoundry_aurora_vpc_peering_dr_route_table_ids" {
-  description = <<-EOT
-    Route table IDs in the DR VPC that should receive a route to the primary
-    VPC CIDR via the peering connection.
-
-    Leave empty if you'll add the routes elsewhere. Only used when
-    truefoundry_aurora_vpc_peering_enabled = true.
-  EOT
-  type        = list(string)
-  default     = []
-}
-
-variable "truefoundry_aurora_vpc_peering_allow_remote_dns_resolution" {
-  description = <<-EOT
-    Enable cross-VPC private DNS resolution on the peering. With this on,
-    RDS/Aurora endpoint hostnames resolve to private IPs across the peering,
-    so clients in one VPC can reach the peer cluster via private addresses
-    transparently. Recommended.
-
-    Only used when truefoundry_aurora_vpc_peering_enabled = true.
-  EOT
-  type        = bool
-  default     = true
 }
 
 ##################################################################################

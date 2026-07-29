@@ -91,6 +91,39 @@ run "db_requires_subnet_ids" {
   ]
 }
 
+run "db_subnet_group_override_requires_name" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_db_subnet_group_name_override_enabled = true
+    truefoundry_db_subnet_group_name_override         = ""
+    truefoundry_db_subnet_ids                         = ["subnet-0123456789abcdef0"]
+  }
+
+  expect_failures = [
+    var.truefoundry_db_subnet_group_name_override,
+  ]
+}
+
+run "db_security_group_name_override_requires_name" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_db_security_group_name_override_enabled = true
+    truefoundry_db_security_group_name_override         = ""
+  }
+
+  expect_failures = [
+    var.truefoundry_db_security_group_name_override,
+  ]
+}
+
 run "db_additional_sg_ids_must_be_valid" {
   command = plan
   plan_options {

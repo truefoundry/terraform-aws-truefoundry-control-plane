@@ -107,6 +107,56 @@ run "db_identifier_uses_override_when_enabled" {
   }
 }
 
+run "db_subnet_group_override_uses_existing_name" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_db_subnet_ids                          = ["subnet-0123456789abcdef0", "subnet-0fedcba9876543210"]
+    truefoundry_db_subnet_group_name_override_enabled = true
+    truefoundry_db_subnet_group_name_override         = "existing-db-subnet-group"
+  }
+
+  assert {
+    condition     = length(aws_db_subnet_group.rds) == 1
+    error_message = "Module should create aws_db_subnet_group.rds even when subnet group override is enabled."
+  }
+
+  assert {
+    condition     = aws_db_subnet_group.rds[0].name == "existing-db-subnet-group"
+    error_message = "DB subnet group resource name should use truefoundry_db_subnet_group_name_override when override is enabled."
+  }
+
+  assert {
+    condition     = aws_db_instance.truefoundry_db[0].db_subnet_group_name == "existing-db-subnet-group"
+    error_message = "DB subnet group name should use truefoundry_db_subnet_group_name_override when override is enabled."
+  }
+}
+
+run "db_security_group_name_override_uses_existing_name" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_db_security_group_name_override_enabled = true
+    truefoundry_db_security_group_name_override         = "existing-db-security-group"
+  }
+
+  assert {
+    condition     = length(aws_security_group.rds) == 1
+    error_message = "Module should create aws_security_group.rds when DB is enabled."
+  }
+
+  assert {
+    condition     = aws_security_group.rds[0].name == "existing-db-security-group"
+    error_message = "DB security group resource name should use truefoundry_db_security_group_name_override when override is enabled."
+  }
+}
+
 run "public_sg_disabled_when_db_not_public" {
   command = plan
   plan_options {

@@ -1,18 +1,27 @@
+# terraform {
+#   required_version = "~> 1.9"
+#   required_providers {
+#     aws = {
+#       source  = "hashicorp/aws"
+#       version = "~> 6.33"
+#     }
+#     random = {
+#       source  = "hashicorp/random"
+#       version = "~> 3.6"
+#     }
+#   }
+# }
+
 terraform {
   required_version = "~> 1.9"
   required_providers {
     aws = {
-      source                = "hashicorp/aws"
-      version               = "~> 6.33"
-      configuration_aliases = [aws.secondary]
+      source  = "hashicorp/aws"
+      version = "~> 6.33"
     }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.6"
-    }
-    archive = {
-      source  = "hashicorp/archive"
-      version = "~> 2.0"
     }
   }
 }
