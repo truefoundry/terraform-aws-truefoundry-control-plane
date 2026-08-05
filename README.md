@@ -73,6 +73,7 @@ Truefoundry AWS Control Plane Module
 | <a name="input_master_user_password_rotation_duration"></a> [master\_user\_password\_rotation\_duration](#input\_master\_user\_password\_rotation\_duration) | Master user password rotation duration | `string` | `"3h"` | no |
 | <a name="input_mlfoundry_k8s_namespace"></a> [mlfoundry\_k8s\_namespace](#input\_mlfoundry\_k8s\_namespace) | The k8s mlfoundry namespace | `string` | `"truefoundry"` | no |
 | <a name="input_mlfoundry_k8s_service_account"></a> [mlfoundry\_k8s\_service\_account](#input\_mlfoundry\_k8s\_service\_account) | The k8s mlfoundry service account name | `string` | `"mlfoundry-server"` | no |
+| <a name="input_secondary_cluster_oidc_issuer_url"></a> [secondary\_cluster\_oidc\_issuer\_url](#input\_secondary\_cluster\_oidc\_issuer\_url) | The oidc url of the secondary cluster | `string` | `null` | no |
 | <a name="input_svcfoundry_k8s_namespace"></a> [svcfoundry\_k8s\_namespace](#input\_svcfoundry\_k8s\_namespace) | The k8s svcfoundry namespace | `string` | `"truefoundry"` | no |
 | <a name="input_svcfoundry_k8s_service_account"></a> [svcfoundry\_k8s\_service\_account](#input\_svcfoundry\_k8s\_service\_account) | The k8s svcfoundry service account name | `string` | `"servicefoundry-server"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | AWS Tags common to all the resources created | `map(string)` | `{}` | no |
