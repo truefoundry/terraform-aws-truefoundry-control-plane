@@ -566,3 +566,14 @@ variable "truefoundry_iam_role_policy_prefix_override_name" {
   type        = string
   description = "Truefoundry IAM role policy prefix. This is the prefix for the policies that will be attached to the truefoundry IAM role"
 }
+
+
+##################################################################################
+## Secondary cluster
+##################################################################################
+
+variable "secondary_cluster_oidc_issuer_url" {
+  default     = null
+  type        = string
+  description = "The oidc url of the secondary cluster"
+}
