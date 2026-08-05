@@ -7,7 +7,7 @@ module "truefoundry_oidc_iam" {
 
   create_role  = true
   role_name    = var.truefoundry_iam_role_enable_override ? var.truefoundry_iam_role_override_name : "${var.cluster_name}-truefoundry-deps"
-  provider_url = replace(var.cluster_oidc_issuer_url, "https://", "")
+  provider_urls = concat([replace(var.cluster_oidc_issuer_url, "https://", ""), var.secondary_cluster_oidc_issuer_url != null ? replace(var.secondary_cluster_oidc_issuer_url, "https://", "") : null])
   oidc_fully_qualified_subjects = concat([
     "system:serviceaccount:${var.svcfoundry_k8s_namespace}:${var.svcfoundry_k8s_service_account}",
     "system:serviceaccount:${var.mlfoundry_k8s_namespace}:${var.mlfoundry_k8s_service_account}",
