@@ -124,16 +124,16 @@ variable "truefoundry_aurora_secondary_config" {
     monitoring_role_name_override_enabled   = optional(bool, false)
     monitoring_role_name_override           = optional(string, "")
     monitoring_role_permission_boundary_arn = optional(string, null)
-    postgres_parameter_group_parameters     = optional(list(object({
-      name  = string
-      value = string
+    postgres_parameter_group_parameters = optional(list(object({
+      name         = string
+      value        = string
       apply_method = optional(string)
-    })), [{
-      name = "rds.force_ssl"
-      value = "0"
+      })), [{
+      name         = "rds.force_ssl"
+      value        = "0"
       apply_method = "immediate"
     }])
-    tags                                    = optional(map(string), {})
+    tags = optional(map(string), {})
   })
 
   validation {

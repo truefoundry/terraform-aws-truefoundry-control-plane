@@ -1,7 +1,7 @@
 locals {
   aurora_parameter_group_family = "aurora-postgresql${split(".", var.truefoundry_db_engine_version)[0]}"
 
-  secondary_config = var.truefoundry_aurora_secondary_config
+  secondary_config  = var.truefoundry_aurora_secondary_config
   secondary_enabled = var.truefoundry_aurora_secondary_config != null
 
   secondary_cluster_identifier   = length(local.secondary_config.cluster_identifier) != 0 && trimspace(local.secondary_config.cluster_identifier) != "" ? local.secondary_config.cluster_identifier : "${var.secondary_cluster_name}-cluster"

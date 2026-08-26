@@ -149,13 +149,13 @@ variable "truefoundry_db_subnet_group_name_override" {
 
 variable "truefoundry_db_postgres_parameter_group_parameters" {
   description = "Parameters for the postgres parameter group"
-  type        = list(object({
-    name  = string
-    value = string
+  type = list(object({
+    name         = string
+    value        = string
     apply_method = optional(string)
   }))
-  default     = [{
-    name = "rds.force_ssl"
+  default = [{
+    name  = "rds.force_ssl"
     value = "0"
   }]
 }

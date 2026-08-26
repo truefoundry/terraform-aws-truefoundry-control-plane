@@ -1,8 +1,8 @@
 resource "aws_rds_global_cluster" "truefoundry" {
-  global_cluster_identifier    = var.truefoundry_aurora_global_cluster_identifier
-  deletion_protection          = local.secondary_config.deletion_protection
-  force_destroy                = !local.secondary_config.deletion_protection
-  tags                         = local.tags
+  global_cluster_identifier = var.truefoundry_aurora_global_cluster_identifier
+  deletion_protection       = local.secondary_config.deletion_protection
+  force_destroy             = !local.secondary_config.deletion_protection
+  tags                      = local.tags
 }
 
 resource "aws_db_subnet_group" "truefoundry_aurora_secondary" {
@@ -44,8 +44,8 @@ resource "aws_rds_cluster_parameter_group" "truefoundry_aurora_secondary" {
   dynamic "parameter" {
     for_each = local.secondary_config.postgres_parameter_group_parameters
     content {
-      name  = parameter.value.name
-      value = parameter.value.value
+      name         = parameter.value.name
+      value        = parameter.value.value
       apply_method = parameter.value.apply_method
     }
   }
@@ -100,6 +100,7 @@ resource "aws_rds_cluster" "truefoundry_aurora_secondary" {
   backup_retention_period               = local.secondary_config.backup_retention_period
   deletion_protection                   = local.secondary_config.deletion_protection
   skip_final_snapshot                   = local.secondary_config.skip_final_snapshot
+  final_snapshot_identifier             = local.secondary_config.skip_final_snapshot ? null : "${local.secondary_cluster_identifier}-${formatdate("DD-MM-YYYY-hh-mm-ss", timestamp())}"
   storage_encrypted                     = local.secondary_config.storage_encrypted
   kms_key_id                            = local.secondary_config.storage_encrypted ? local.secondary_config.kms_key_id : null
   enabled_cloudwatch_logs_exports       = local.secondary_cloudwatch_log_exports
@@ -108,7 +109,10 @@ resource "aws_rds_cluster" "truefoundry_aurora_secondary" {
   tags                                  = local.secondary_tags
 
   lifecycle {
-    ignore_changes = [replication_source_identifier]
+    ignore_changes = [
+      replication_source_identifier,
+      final_snapshot_identifier,
+    ]
   }
 }
 
