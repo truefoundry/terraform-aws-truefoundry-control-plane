@@ -4,30 +4,30 @@ data "aws_region" "secondary" {
 
 resource "aws_rds_global_cluster" "truefoundry" {
   global_cluster_identifier    = var.truefoundry_aurora_global_cluster_identifier
-  deletion_protection          = var.truefoundry_db_deletion_protection
-  force_destroy                = !var.truefoundry_db_deletion_protection
+  deletion_protection          = local.secondary_config.deletion_protection
+  force_destroy                = !local.secondary_config.deletion_protection
   tags                         = local.tags
 }
 
 resource "aws_db_subnet_group" "truefoundry_aurora_secondary" {
   provider   = aws.secondary
   name       = local.secondary_subnet_group_name
-  subnet_ids = var.truefoundry_aurora_secondary_config.subnet_ids
+  subnet_ids = local.secondary_config.subnet_ids
   tags       = local.secondary_tags
 }
 
 resource "aws_security_group" "truefoundry_aurora_secondary" {
   provider = aws.secondary
   name     = local.secondary_security_group_name
-  vpc_id   = var.truefoundry_aurora_secondary_config.vpc_id
+  vpc_id   = local.secondary_config.vpc_id
   tags     = local.secondary_tags
 
   ingress {
     from_port       = var.truefoundry_db_port
     to_port         = var.truefoundry_db_port
     protocol        = "tcp"
-    security_groups = var.truefoundry_aurora_secondary_config.ingress_security_group_ids
-    cidr_blocks     = var.truefoundry_aurora_secondary_config.ingress_cidr_blocks
+    security_groups = local.secondary_config.ingress_security_group_ids
+    cidr_blocks     = local.secondary_config.ingress_cidr_blocks
   }
 
   egress {
@@ -39,14 +39,14 @@ resource "aws_security_group" "truefoundry_aurora_secondary" {
 }
 
 resource "aws_rds_cluster_parameter_group" "truefoundry_aurora_secondary" {
-  count    = var.truefoundry_db_postgres_parameter_group_enabled ? 1 : 0
+  count    = local.secondary_config.postgres_parameter_group_enabled ? 1 : 0
   provider = aws.secondary
   name     = local.secondary_parameter_group_name
   family   = local.aurora_parameter_group_family
   tags     = local.secondary_tags
 
   dynamic "parameter" {
-    for_each = var.truefoundry_aurora_secondary_config.postgres_parameter_group_parameters
+    for_each = local.secondary_config.postgres_parameter_group_parameters
     content {
       name  = parameter.value.name
       value = parameter.value.value
@@ -78,7 +78,7 @@ resource "aws_iam_role" "aurora_secondary_monitoring" {
   name_prefix          = local.aurora_secondary_monitoring_role_name == null ? "${substr(local.secondary_cluster_identifier, 0, 25)}-mon-" : null
   description          = "Enhanced monitoring role for Aurora secondary cluster ${local.secondary_cluster_identifier}"
   assume_role_policy   = data.aws_iam_policy_document.aurora_secondary_monitoring_assume[0].json
-  permissions_boundary = var.truefoundry_aurora_secondary_config.monitoring_role_permission_boundary_arn
+  permissions_boundary = local.secondary_config.monitoring_role_permission_boundary_arn
   tags                 = local.secondary_tags
 }
 
@@ -96,18 +96,18 @@ resource "aws_rds_cluster" "truefoundry_aurora_secondary" {
   engine_version                        = var.truefoundry_db_engine_version
   port                                  = var.truefoundry_db_port
   db_subnet_group_name                  = aws_db_subnet_group.truefoundry_aurora_secondary.name
-  vpc_security_group_ids                = concat([aws_security_group.truefoundry_aurora_secondary.id], var.truefoundry_aurora_secondary_config.additional_security_group_ids)
-  db_cluster_parameter_group_name       = var.truefoundry_db_postgres_parameter_group_enabled ? aws_rds_cluster_parameter_group.truefoundry_aurora_secondary[0].name : null
-  performance_insights_enabled          = var.truefoundry_aurora_secondary_config.enable_insights
-  performance_insights_retention_period = var.truefoundry_aurora_secondary_config.enable_insights ? 31 : null
+  vpc_security_group_ids                = concat([aws_security_group.truefoundry_aurora_secondary.id], local.secondary_config.additional_security_group_ids)
+  db_cluster_parameter_group_name       = local.secondary_config.postgres_parameter_group_enabled ? aws_rds_cluster_parameter_group.truefoundry_aurora_secondary[0].name : null
+  performance_insights_enabled          = local.secondary_config.enable_insights
+  performance_insights_retention_period = local.secondary_config.enable_insights ? 31 : null
   monitoring_role_arn                   = local.aurora_secondary_monitoring_role_arn
-  backup_retention_period               = var.truefoundry_aurora_secondary_config.backup_retention_period
-  deletion_protection                   = var.truefoundry_db_deletion_protection
-  skip_final_snapshot                   = var.truefoundry_db_skip_final_snapshot
-  storage_encrypted                     = var.truefoundry_db_storage_encrypted
-  kms_key_id                            = var.truefoundry_db_storage_encrypted ? var.truefoundry_aurora_secondary_config.kms_key_id : null
-  enabled_cloudwatch_logs_exports       = var.truefoundry_db_aurora_cloudwatch_log_exports
-  iam_database_authentication_enabled   = var.iam_database_authentication_enabled
+  backup_retention_period               = local.secondary_config.backup_retention_period
+  deletion_protection                   = local.secondary_config.deletion_protection
+  skip_final_snapshot                   = local.secondary_config.skip_final_snapshot
+  storage_encrypted                     = local.secondary_config.storage_encrypted
+  kms_key_id                            = local.secondary_config.storage_encrypted ? local.secondary_config.kms_key_id : null
+  enabled_cloudwatch_logs_exports       = local.secondary_cloudwatch_log_exports
+  iam_database_authentication_enabled   = local.secondary_config.iam_database_authentication_enabled
   apply_immediately                     = true
   tags                                  = local.secondary_tags
 
@@ -117,20 +117,20 @@ resource "aws_rds_cluster" "truefoundry_aurora_secondary" {
 }
 
 resource "aws_rds_cluster_instance" "truefoundry_aurora_secondary" {
-  count                                 = var.truefoundry_aurora_secondary_config.instance_count
+  count                                 = local.secondary_config.instance_count
   provider                              = aws.secondary
-  identifier                            = length(var.truefoundry_aurora_secondary_config.instances_identifier) != 0 && trimspace(var.truefoundry_aurora_secondary_config.instances_identifier[count.index]) != "" ? var.truefoundry_aurora_secondary_config.instances_identifier[count.index] : "${local.secondary_cluster_identifier}-instance-${count.index + 1}"
+  identifier                            = length(local.secondary_config.instances_identifier) != 0 && trimspace(local.secondary_config.instances_identifier[count.index]) != "" ? local.secondary_config.instances_identifier[count.index] : "${local.secondary_cluster_identifier}-instance-${count.index + 1}"
   cluster_identifier                    = aws_rds_cluster.truefoundry_aurora_secondary.id
   engine                                = "aurora-postgresql"
   copy_tags_to_snapshot                 = true
   engine_version                        = var.truefoundry_db_engine_version
-  instance_class                        = var.truefoundry_aurora_secondary_config.instance_class
+  instance_class                        = local.secondary_config.instance_class
   db_subnet_group_name                  = aws_db_subnet_group.truefoundry_aurora_secondary.name
-  performance_insights_enabled          = var.truefoundry_aurora_secondary_config.enable_insights
-  performance_insights_retention_period = var.truefoundry_aurora_secondary_config.enable_insights ? 31 : null
-  monitoring_interval                   = var.truefoundry_aurora_secondary_config.enable_monitoring ? var.truefoundry_aurora_secondary_config.monitoring_interval : null
+  performance_insights_enabled          = local.secondary_config.enable_insights
+  performance_insights_retention_period = local.secondary_config.enable_insights ? 31 : null
+  monitoring_interval                   = local.secondary_config.enable_monitoring ? local.secondary_config.monitoring_interval : null
   monitoring_role_arn                   = local.aurora_secondary_monitoring_role_arn
-  publicly_accessible                   = var.truefoundry_aurora_secondary_config.publicly_accessible
+  publicly_accessible                   = local.secondary_config.publicly_accessible
   apply_immediately                     = true
   tags                                  = local.secondary_tags
 }

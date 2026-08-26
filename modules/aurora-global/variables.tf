@@ -84,30 +84,6 @@ variable "truefoundry_db_subnet_group_name_override" {
   }
 }
 
-variable "truefoundry_db_deletion_protection" {
-  description = "Whether to enable deletion protection."
-  type        = bool
-  default     = true
-}
-
-variable "truefoundry_db_skip_final_snapshot" {
-  description = "Whether to skip final snapshot on deletion."
-  type        = bool
-  default     = false
-}
-
-variable "truefoundry_db_storage_encrypted" {
-  description = "Whether to enable storage encryption."
-  type        = bool
-  default     = true
-}
-
-variable "truefoundry_db_postgres_parameter_group_enabled" {
-  description = "Whether to create and attach Aurora parameter groups."
-  type        = bool
-  default     = true
-}
-
 variable "truefoundry_db_postgres_parameter_group_override_enabled" {
   description = "Enable override for the module-created secondary Aurora parameter group name."
   type        = bool
@@ -124,18 +100,6 @@ variable "truefoundry_db_postgres_parameter_group_override_name" {
   }
 }
 
-variable "truefoundry_db_aurora_cloudwatch_log_exports" {
-  description = "Aurora-compatible CloudWatch log exports."
-  type        = list(string)
-  default     = ["postgresql"]
-}
-
-variable "iam_database_authentication_enabled" {
-  description = "Enable IAM database authentication for Aurora clusters."
-  type        = bool
-  default     = false
-}
-
 variable "truefoundry_aurora_secondary_config" {
   description = "Configuration for Aurora secondary cluster in the DR region."
   type = object({
@@ -150,7 +114,13 @@ variable "truefoundry_aurora_secondary_config" {
     additional_security_group_ids           = optional(list(string), [])
     publicly_accessible                     = optional(bool, false)
     backup_retention_period                 = optional(number, 14)
+    storage_encrypted                       = optional(bool, true)
     kms_key_id                              = optional(string, null)
+    deletion_protection                     = optional(bool, true)
+    skip_final_snapshot                     = optional(bool, false)
+    postgres_parameter_group_enabled        = optional(bool, true)
+    cloudwatch_log_exports                  = optional(list(string), ["postgresql"])
+    iam_database_authentication_enabled     = optional(bool, false)
     enable_insights                         = optional(bool, true)
     enable_monitoring                       = optional(bool, true)
     monitoring_interval                     = optional(number, 60)
