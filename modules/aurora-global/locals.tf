@@ -12,9 +12,6 @@ locals {
     for log in local.secondary_config.cloudwatch_log_exports : log if log != "upgrade"
   ]
 
-  vpc_peering_enabled        = local.secondary_enabled && var.truefoundry_aurora_vpc_peering_enabled
-  automated_failover_enabled = local.secondary_enabled && var.truefoundry_aurora_enable_automated_failover
-
   aurora_secondary_monitoring_role_external_enabled = local.secondary_enabled && (
     local.secondary_config.monitoring_role_enable_override ||
     trimspace(local.secondary_config.monitoring_role_arn) != ""

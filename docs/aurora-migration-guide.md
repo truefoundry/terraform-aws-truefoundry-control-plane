@@ -51,21 +51,20 @@ When using Aurora, you can optionally add Aurora Global Database by using the se
 
 ### What this module creates (and what you must bring)
 
-This module manages the **data-plane** layer (databases, IAM, the failover pipeline). It does **not** create networking — VPCs, subnets, route tables, or NAT/Internet gateways are caller-side inputs.
+This module manages the **data-plane** layer (databases, IAM). It does **not** create networking — VPCs, subnets, route tables, cross-region VPC peering, or NAT/Internet gateways are caller-side inputs.
 
 
 | Layer                                     | This module                        | You provide                                                                                 |
 | ----------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------- |
 | VPC(s)                                    | —                                  | One VPC in each region you want to deploy to                                                |
 | Subnets                                   | —                                  | At least 2 private subnets across 2 AZs per VPC (RDS/Aurora subnet groups require this)     |
-| Route tables                              | —                                  | Existing route tables (the module only writes routes into them when VPC peering is enabled) |
+| Route tables / cross-region connectivity  | —                                  | Existing route tables; optional caller-managed VPC peering (see example)                    |
 | DB subnet group                           | created                            | —                                                                                           |
 | DB security group                         | created (with port 5432 ingress)   | (optional) extra SG IDs or CIDR blocks to add to ingress                                    |
 | RDS instance / Aurora cluster + instances | created                            | —                                                                                           |
 | Aurora Global cluster + DR cluster        | created by `modules/aurora-global` | A separate VPC + subnets in the DR region                                                   |
-| Failover Lambda + alarm + SNS             | created (when Global is on)        | (optional) email for SNS subscription                                                       |
-| KMS key for DR storage                    | created (opt-out via `kms_key_id`) | —                                                                                           |
-| Cross-region VPC peering                  | created (opt-in)                   | Non-overlapping VPC CIDRs; optionally, route-table IDs                                      |
+| DR storage KMS key                        | —                                  | Region-local KMS key ARN via `truefoundry_aurora_secondary_config.kms_key_id` (optional)    |
+| Cross-region VPC peering                  | —                                  | Caller-managed (see `examples/complete/vpc-peering.tf`)                                     |
 | S3 bucket, IAM roles, OIDC trust          | created                            | OIDC issuer URL from your EKS cluster                                                       |
 
 
@@ -610,11 +609,6 @@ terraform import \
   'module.aurora_global[0].aws_security_group.truefoundry_aurora_secondary' \
   sg-xxxxxxxxxxxxxxxxx
 
-# Secondary KMS key (if module created it)
-terraform import \
-  'module.aurora_global[0].aws_kms_key.truefoundry_aurora_secondary[0]' \
-  arn:aws:kms:<dr-region>:111122223333:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-
 # Secondary parameter group
 terraform import \
   'module.aurora_global[0].aws_rds_cluster_parameter_group.truefoundry_aurora_secondary[0]' \
@@ -692,7 +686,7 @@ This is the path with the most caller-side setup. You will configure two modules
 - **A separate VPC** in the DR region. This module will not create a VPC anywhere — you bring your own (e.g., via `terraform-aws-modules/vpc/aws`, your network module, or hand-rolled Terraform).
 - **≥ 2 private subnets** across **≥ 2 AZs** in that DR-region VPC.
 - The DR VPC's **CIDR block** (or a list of CIDRs) that should be allowed to reach the secondary cluster on port 5432, passed via `truefoundry_aurora_secondary_config.ingress_cidr_blocks`. Security-group IDs from the primary region's VPC **do not work** here — security groups are region-scoped.
-- (Optional) An existing **KMS key ARN in the DR region** for storage encryption (`truefoundry_aurora_secondary_config.kms_key_id`). If you omit it and `truefoundry_db_storage_encrypted = true`, the module will create a region-local KMS key for you.
+- (Optional) An existing **KMS key ARN in the DR region** for storage encryption (`truefoundry_aurora_secondary_config.kms_key_id`). If omitted with `storage_encrypted = true`, AWS uses the default RDS encryption key in that region.
 
 **Caller-side Terraform:**
 
@@ -703,7 +697,7 @@ This is the path with the most caller-side setup. You will configure two modules
     aws.secondary = aws.dr
   }
   ```
-- AWS credentials with permission to create RDS clusters, KMS keys, IAM roles, Lambda functions, SNS topics, CloudWatch alarms, and EventBridge rules in **both regions**.
+- AWS credentials with permission to create RDS clusters and IAM roles in **both regions**.
 
 **Aurora Global constraints (AWS-side):**
 
@@ -714,7 +708,7 @@ This is the path with the most caller-side setup. You will configure two modules
 **What each module creates for this path:**
 
 - `module.control_plane` (primary region): Aurora cluster + instance(s), DB subnet group, DB security group, parameter group (optional).
-- `module.aurora_global` (global + DR): `aws_rds_global_cluster`, DR Aurora cluster + instance(s), DR subnet/security groups, optional DR KMS key, failover Lambda + alarm + SNS pipeline, and optional cross-region peering.
+- `module.aurora_global` (global + DR): `aws_rds_global_cluster`, DR Aurora cluster + instance(s), DR subnet/security groups, optional DR parameter group and monitoring IAM role.
 
 
 
@@ -744,66 +738,20 @@ Security groups exist within a single VPC in a single region. You **cannot** ref
 
 For the secondary cluster, prefer `ingress_cidr_blocks` (e.g., the DR VPC CIDR) since cross-region security group references are not possible. Only use `ingress_security_group_ids` if you have security groups in the DR region's VPC that you want to allow.
 
-### Cross-region VPC peering (optional)
+### Cross-region VPC peering (optional, caller-managed)
 
-Aurora Global Database replication itself does **not** require VPC peering — AWS replicates between regions over its own backbone. Enable peering only when resources in one VPC must reach the database endpoint in the other VPC privately, for example:
+Aurora Global Database replication itself does **not** require VPC peering — AWS replicates between regions over its own backbone. Create peering in your own infra when resources in one VPC must reach the database endpoint in the other VPC privately, for example:
 
 - primary-region apps reading from the DR reader endpoint,
 - operators or monitoring crossing regions over private IPs,
 - a failover drill where workloads remain in the primary VPC but the writer is in DR.
 
-**Additional prerequisites if you enable peering:**
+**Prerequisites:**
 
-- The primary VPC (`var.vpc_id`) and the DR VPC (`truefoundry_aurora_secondary_config.vpc_id`) must have **non-overlapping CIDR blocks**. AWS rejects peering otherwise; the module surfaces the AWS error at apply.
-- (Optional) IDs of the **route tables** in each VPC that should learn the peer CIDR — typically the route tables associated with the subnets whose workloads need to reach the peer cluster. Leave them empty if you manage cross-region routes elsewhere (e.g., in your network module); the peering connection is still created.
+- The primary VPC and the DR VPC (`truefoundry_aurora_secondary_config.vpc_id`) must have **non-overlapping CIDR blocks**.
+- Route tables in each VPC that should learn the peer CIDR.
 
-The `aurora_global` submodule can manage cross-region VPC peering for you. Set the following on that submodule:
-
-```hcl
-module "aurora_global" {
-  # ... required aurora-global inputs ...
-  truefoundry_aurora_secondary_config = { /* see above */ }
-
-  # Module-native cross-region peering
-  truefoundry_aurora_vpc_peering_enabled = true
-
-  # Route tables that should learn the peer VPC's CIDR. Typically the
-  # route tables associated with the subnets whose workloads need to
-  # reach the peer cluster (EKS nodes, app subnets, etc.).
-  truefoundry_aurora_vpc_peering_primary_route_table_ids = [
-    "rtb-aaaaaaaaaaaaaaaaa",
-    "rtb-bbbbbbbbbbbbbbbbb",
-  ]
-  truefoundry_aurora_vpc_peering_dr_route_table_ids = [
-    "rtb-cccccccccccccccc",
-  ]
-
-  # Defaults to true; lets RDS/Aurora endpoint hostnames resolve to private
-  # IPs across the peering.
-  truefoundry_aurora_vpc_peering_allow_remote_dns_resolution = true
-}
-```
-
-What the submodule creates when `truefoundry_aurora_vpc_peering_enabled = true`:
-
-
-| Resource                                                         | Provider        | Purpose                                                                                                                        |
-| ---------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `aws_vpc_peering_connection.primary_to_dr`                       | default (`aws`) | Requester, in the primary VPC                                                                                                  |
-| `aws_vpc_peering_connection_accepter.secondary`                  | `aws.secondary` | Accepts the peering in the DR region                                                                                           |
-| `aws_vpc_peering_connection_options.primary` / `.secondary`      | both            | Enables cross-VPC private DNS resolution on both sides (gated by `truefoundry_aurora_vpc_peering_allow_remote_dns_resolution`) |
-| `aws_route.primary_to_dr` (one per supplied primary route table) | default         | Route to the DR VPC CIDR                                                                                                       |
-| `aws_route.dr_to_primary` (one per supplied DR route table)      | `aws.secondary` | Route to the primary VPC CIDR                                                                                                  |
-
-
-Things to know:
-
-- **Non-overlapping CIDRs.** AWS rejects peering between VPCs with overlapping CIDR blocks. Plan your VPC CIDRs accordingly before flipping the flag.
-- **Empty route table lists are allowed.** If you leave `*_route_table_ids` empty, the peering connection is still created (and DNS resolution still enabled), but no routes are added. Use this if you manage cross-region routes in another module.
-- **Already connected?** If your VPCs already share connectivity via Transit Gateway, an existing peering, or VPN, leave `truefoundry_aurora_vpc_peering_enabled = false`.
-- **Outputs.** When peering is enabled the module exposes `truefoundry_aurora_vpc_peering_id` and `truefoundry_aurora_vpc_peering_status`.
-
-> **Prefer not to let the module manage peering?** The standalone example at `examples/complete/vpc-peering.tf` shows the same pattern as a caller-side resource set you can copy into your own infra repo (uses `var.create_vpc_peering`, picks non-main route tables via `data "aws_route_tables"`). It predates the module-native option and is kept for users who need different route-table selection or want peering decoupled from this module's lifecycle.
+The `examples/complete/vpc-peering.tf` file shows a caller-side pattern using `var.create_vpc_peering`. Copy or adapt it into your network/infra repo — the `aurora-global` submodule does not manage peering.
 
 
 
@@ -842,12 +790,12 @@ module "aurora_global" {
     aws.secondary = aws.dr
   }
 
-  aws_account_id                 = var.account_id
-  vpc_id                         = var.vpc_id
-  truefoundry_aurora_unique_name = "${var.cluster_name}-aurora"
-  truefoundry_db_port            = 5432
-  truefoundry_db_engine_version  = "17.4"
-  primary_cluster_arn            = module.control_plane.truefoundry_aurora_cluster_arn
+  aws_account_id                               = var.account_id
+  cluster_name                                 = var.cluster_name
+  secondary_cluster_name                       = "${var.cluster_name}-aurora-dr"
+  truefoundry_aurora_global_cluster_identifier = "${var.cluster_name}-aurora-global"
+  truefoundry_db_port                          = 5432
+  truefoundry_db_engine_version                = "17.4"
 
   truefoundry_aurora_secondary_config = {
     cluster_identifier  = "my-cluster-aurora-dr"
@@ -856,10 +804,9 @@ module "aurora_global" {
     instance_class      = "db.r6g.large"
     instance_count      = 1
     ingress_cidr_blocks = ["10.0.0.0/16"] # DR VPC CIDR (recommended)
+    storage_encrypted   = true
+    kms_key_id          = var.dr_kms_key_arn # optional; omit for AWS default RDS key
   }
-
-  # Optional module-native peering
-  truefoundry_aurora_vpc_peering_enabled = true
 
   depends_on = [module.control_plane]
 }
@@ -883,10 +830,10 @@ module "aurora_global" {
 
 ### Failover Procedure
 
-If the primary region goes down, promote the secondary cluster. Pass the
+If the primary region goes down, promote the secondary cluster manually. Pass the
 secondary cluster's **ARN** to `--target-db-cluster-identifier` — for a
 cross-region global failover AWS uses the ARN to locate the cluster in its
-region, and it is the same value the automated failover Lambda uses:
+region:
 
 ```bash
 aws rds failover-global-cluster \
@@ -900,12 +847,6 @@ After failover:
 1. The secondary becomes the new primary (read-write)
 2. Update your application to use the secondary endpoint
 3. Update Terraform state to reflect the new topology
-
-> **Automated failover is opt-in.** By default this module only *alerts* on
-> sustained replication lag (CloudWatch alarm → SNS). To let the module promote
-> the DR cluster automatically (alarm → EventBridge → Lambda), set
-> `truefoundry_aurora_enable_automated_failover = true`. Leaving it off avoids an
-> unplanned global promotion during transient lag or a metric gap.
 
 
 
@@ -925,11 +866,17 @@ All fields except `cluster_identifier`, `vpc_id`, and `subnet_ids` are optional:
 | `ingress_security_group_ids`    | `[]`             | Security groups allowed to connect. **Must be SGs in the DR region's VPC** — you cannot use primary-region SG IDs here. |
 | `additional_security_group_ids` | `[]`             | Extra SGs to attach                                                                                                     |
 | `publicly_accessible`           | `false`          | Public access                                                                                                           |
-| `backup_retention_period`       | `1`              | Min 1 for global members                                                                                                |
-| `kms_key_id`                    | `null`           | Region-specific KMS key for encryption                                                                                  |
-| `enable_insights`               | `false`          | Performance Insights                                                                                                    |
-| `enable_monitoring`             | `false`          | Enhanced monitoring                                                                                                     |
-| `monitoring_interval`           | `5`              | Monitoring interval (1,5,10,15,30,60)                                                                                   |
+| `backup_retention_period`       | `14`             | Backup retention (min 1 for global members)                                                                             |
+| `storage_encrypted`               | `true`           | Enable storage encryption on the secondary cluster                                                                      |
+| `kms_key_id`                      | `null`           | DR-region KMS key ARN; omit for AWS default RDS key when encrypted                                                      |
+| `deletion_protection`             | `true`           | Deletion protection on global + secondary cluster                                                                       |
+| `skip_final_snapshot`             | `false`          | Skip final snapshot when deleting secondary cluster                                                                     |
+| `postgres_parameter_group_enabled`| `true`           | Create and attach a secondary parameter group                                                                           |
+| `cloudwatch_log_exports`          | `["postgresql"]` | Aurora log exports (`upgrade` is filtered out)                                                                          |
+| `iam_database_authentication_enabled` | `false`      | Enable IAM DB auth on secondary cluster                                                                                 |
+| `enable_insights`               | `true`           | Performance Insights                                                                                                    |
+| `enable_monitoring`             | `true`           | Enhanced monitoring                                                                                                     |
+| `monitoring_interval`           | `60`             | Monitoring interval (1,5,10,15,30,60)                                                                                   |
 | `monitoring_role_arn`           | `""`             | Existing monitoring IAM role                                                                                            |
 | `tags`                          | `{}`             | Additional tags                                                                                                         |
 
@@ -959,12 +906,12 @@ All fields except `cluster_identifier`, `vpc_id`, and `subnet_ids` are optional:
 ### Global Cluster (Submodule Inputs)
 
 
-| Variable                                 | Type     | Default | Description                                                   |
-| ---------------------------------------- | -------- | ------- | ------------------------------------------------------------- |
-| `primary_cluster_arn`                    | `string` | n/a     | Primary Aurora cluster ARN from `module.control_plane` output |
-| `truefoundry_aurora_secondary_config`    | `object` | n/a     | Secondary cluster config (DR VPC, subnets, ingress, sizing)  |
-| `truefoundry_aurora_enable_automated_failover` | `bool`   | `false` | Enable alarm → EventBridge → Lambda auto-promotion          |
-| `truefoundry_aurora_vpc_peering_enabled` | `bool`   | `false` | Create cross-region VPC peering from the submodule           |
+| Variable                                      | Type     | Default | Description                                                          |
+| --------------------------------------------- | -------- | ------- | -------------------------------------------------------------------- |
+| `truefoundry_aurora_global_cluster_identifier`| `string` | n/a     | Global cluster identifier                                            |
+| `truefoundry_aurora_secondary_config`         | `object` | n/a     | Secondary cluster config (DR VPC, subnets, encryption, ingress, …) |
+| `truefoundry_db_engine_version`               | `string` | `"17.5"`| Must match the primary Aurora cluster engine version                 |
+| `truefoundry_db_port`                         | `number` | `5432`  | Database port (shared with primary)                                  |
 
 
 ---

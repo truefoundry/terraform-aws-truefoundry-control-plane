@@ -11,7 +11,6 @@ module "aurora_global" {
   cluster_name                                 = var.cluster_name
   secondary_cluster_name                       = "${var.cluster_name}-aurora-dr"
   truefoundry_aurora_global_cluster_identifier = "${var.cluster_name}-aurora-global"
-  vpc_id                                       = var.primary_vpc_id
   tags                                         = {}
   truefoundry_db_port                          = 5432
   truefoundry_db_engine_version                = "17.5"
@@ -29,8 +28,6 @@ module "aurora_global" {
     cloudwatch_log_exports          = ["postgresql"]
     iam_database_authentication_enabled = false
   }
-
-  truefoundry_aurora_vpc_peering_enabled = false
 
   depends_on = [module.control_plane]
 }

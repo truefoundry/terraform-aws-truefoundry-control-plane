@@ -1,7 +1,3 @@
-data "aws_region" "secondary" {
-  provider = aws.secondary
-}
-
 resource "aws_rds_global_cluster" "truefoundry" {
   global_cluster_identifier    = var.truefoundry_aurora_global_cluster_identifier
   deletion_protection          = local.secondary_config.deletion_protection

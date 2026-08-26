@@ -1,8 +1,9 @@
 ##################################################################################
 ## Cross-Region VPC Peering (optional, for Aurora Global)
 ##
-## Only created when enable_global_cluster = true AND create_vpc_peering = true.
-## Skip this if your VPCs are already connected (Transit Gateway, existing peering, VPN).
+## Caller-managed networking. Only created when enable_global_cluster = true AND
+## create_vpc_peering = true. Skip this if your VPCs are already connected
+## (Transit Gateway, existing peering, VPN).
 ##################################################################################
 
 data "aws_vpc" "primary" {

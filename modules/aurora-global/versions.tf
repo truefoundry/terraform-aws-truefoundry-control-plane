@@ -6,9 +6,5 @@ terraform {
       version               = "~> 6.33"
       configuration_aliases = [aws.secondary]
     }
-    archive = {
-      source  = "hashicorp/archive"
-      version = "~> 2.0"
-    }
   }
 }

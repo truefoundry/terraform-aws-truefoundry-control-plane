@@ -10,7 +10,7 @@ provider "aws" {
 }
 
 # Mirror the default provider for the aws.secondary alias declared via
-# configuration_aliases in versions.tf. Aurora Global / VPC peering / failover
+# configuration_aliases in versions.tf. Aurora Global resources are not exercised in these tests.
 # resources are gated to count = 0 in these tests, so the credentials never run.
 provider "aws" {
   alias                       = "secondary"
