@@ -9,6 +9,7 @@ module "aurora_global" {
 
   aws_account_id                                  = data.aws_caller_identity.current.account_id
   cluster_name                                    = var.cluster_name
+  secondary_cluster_name                          = "${var.cluster_name}-aurora-dr"
   truefoundry_aurora_global_cluster_identifier    = "${var.cluster_name}-aurora-global"
   vpc_id                                          = var.primary_vpc_id
   tags                                            = {}
