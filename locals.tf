@@ -37,7 +37,7 @@ locals {
   ]
 
   truefoundry_aurora_unique_name                = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : "${var.cluster_name}-aurora"
-  truefoundry_aurora_instance_identifier_prefix = var.truefoundry_db_instance_identifier_override_enabled ? var.truefoundry_db_instance_identifier_override : local.truefoundry_aurora_unique_name
+  truefoundry_aurora_instance_identifier_prefix = local.truefoundry_aurora_unique_name
 
   truefoundry_iam_role_policy_prefix = var.truefoundry_iam_role_policy_prefix_override_enabled ? "${var.truefoundry_iam_role_policy_prefix_override_name}-${local.svcfoundry_unique_name}" : local.svcfoundry_unique_name
 

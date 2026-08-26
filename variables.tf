@@ -147,6 +147,19 @@ variable "truefoundry_db_subnet_group_name_override" {
   }
 }
 
+variable "truefoundry_db_postgres_parameter_group_parameters" {
+  description = "Parameters for the postgres parameter group"
+  type        = list(object({
+    name  = string
+    value = string
+    apply_method = optional(string)
+  }))
+  default     = [{
+    name = "rds.force_ssl"
+    value = "0"
+  }]
+}
+
 variable "truefoundry_db_instance_class" {
   type        = string
   description = "Instance class for RDS or Aurora cluster instances. When null, defaults to db.t3.medium (RDS) or db.r6g.large (Aurora) based on truefoundry_db_engine_mode."
@@ -254,25 +267,42 @@ variable "truefoundry_db_override_name" {
   }
 }
 
-variable "truefoundry_db_instance_identifier_override_enabled" {
-  description = "Enable override for Aurora DB instance identifier prefix. You must pass truefoundry_db_instance_identifier_override."
+variable "truefoundry_db_instance_identifiers_override_enabled" {
+  description = "Enable explicit Aurora instance identifier overrides via truefoundry_db_instance_identifiers_override."
   type        = bool
   default     = false
 }
 
-variable "truefoundry_db_instance_identifier_override" {
-  description = "Override prefix for Aurora DB instance identifiers. Final names are generated as <override>-<index> when truefoundry_db_instance_identifier_override_enabled is true."
-  type        = string
-  default     = ""
+variable "truefoundry_db_instance_identifiers_override" {
+  description = "Ordered list of Aurora instance identifiers. Index 0 maps to first instance, index 1 to second, etc."
+  type        = list(string)
+  default     = []
+
   validation {
-    condition     = var.truefoundry_db_instance_identifier_override_enabled ? trimspace(var.truefoundry_db_instance_identifier_override) != "" : true
-    error_message = "truefoundry_db_instance_identifier_override must be set when truefoundry_db_instance_identifier_override_enabled is true."
-  }
-  validation {
-    condition = var.truefoundry_db_instance_identifier_override_enabled ? (
-      length(var.truefoundry_db_instance_identifier_override) + 1 + length(tostring(var.truefoundry_db_instance_count)) <= 63
+    condition = var.truefoundry_db_instance_identifiers_override_enabled ? (
+      length(var.truefoundry_db_instance_identifiers_override) > 0
     ) : true
-    error_message = "truefoundry_db_instance_identifier_override is too long for Aurora instance identifiers after appending '-<index>' (max 63 chars)."
+    error_message = "truefoundry_db_instance_identifiers_override must be non-empty when truefoundry_db_instance_identifiers_override_enabled is true."
+  }
+
+  validation {
+    condition = alltrue([
+      for id in var.truefoundry_db_instance_identifiers_override :
+      trimspace(id) != "" && length(id) <= 63
+    ])
+    error_message = "Each identifier in truefoundry_db_instance_identifiers_override must be non-empty and <= 63 characters."
+  }
+
+  validation {
+    condition     = length(distinct(var.truefoundry_db_instance_identifiers_override)) == length(var.truefoundry_db_instance_identifiers_override)
+    error_message = "Values in truefoundry_db_instance_identifiers_override must be unique."
+  }
+
+  validation {
+    condition = var.truefoundry_db_instance_identifiers_override_enabled ? (
+      length(var.truefoundry_db_instance_identifiers_override) == var.truefoundry_db_instance_count
+    ) : true
+    error_message = "When truefoundry_db_instance_identifiers_override_enabled is true, provide exactly truefoundry_db_instance_count identifiers."
   }
 }
 

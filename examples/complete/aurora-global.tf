@@ -8,18 +8,18 @@ module "aurora_global" {
   }
 
   aws_account_id                                  = data.aws_caller_identity.current.account_id
+  cluster_name                                    = var.cluster_name
+  truefoundry_aurora_global_cluster_identifier    = "${var.cluster_name}-aurora-global"
   vpc_id                                          = var.primary_vpc_id
   tags                                            = {}
-  truefoundry_aurora_unique_name                 = "${var.cluster_name}-aurora"
-  truefoundry_db_port                            = 5432
-  truefoundry_db_engine_version                  = "17.5"
-  truefoundry_db_deletion_protection             = false
-  truefoundry_db_skip_final_snapshot             = true
-  truefoundry_db_storage_encrypted               = true
+  truefoundry_db_port                             = 5432
+  truefoundry_db_engine_version                   = "17.5"
+  truefoundry_db_deletion_protection              = false
+  truefoundry_db_skip_final_snapshot              = true
+  truefoundry_db_storage_encrypted                = true
   truefoundry_db_postgres_parameter_group_enabled = true
   truefoundry_db_aurora_cloudwatch_log_exports    = ["postgresql"]
   iam_database_authentication_enabled             = false
-  primary_cluster_arn                             = module.control_plane.truefoundry_aurora_cluster_arn
 
   truefoundry_aurora_secondary_config = {
     cluster_identifier         = "${var.cluster_name}-aurora-dr"

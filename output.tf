@@ -85,8 +85,13 @@ output "truefoundry_db_engine_mode" {
 ##################################################################################
 
 output "truefoundry_aurora_cluster_id" {
-  description = "Aurora cluster identifier"
+  description = "Aurora cluster ID"
   value       = local.aurora_enabled ? aws_rds_cluster.truefoundry_aurora[0].id : ""
+}
+
+output "truefoundry_aurora_cluster_identifier" {
+  description = "Aurora cluster identifier"
+  value       = local.aurora_enabled ? aws_rds_cluster.truefoundry_aurora[0].cluster_identifier : ""
 }
 
 output "truefoundry_aurora_cluster_arn" {

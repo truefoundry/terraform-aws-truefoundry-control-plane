@@ -3,11 +3,10 @@ locals {
 
   secondary_enabled = var.truefoundry_aurora_secondary_config != null
 
-  secondary_cluster_identifier         = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : var.truefoundry_aurora_secondary_config.cluster_identifier
-  secondary_instance_identifier_prefix = trimspace(var.truefoundry_aurora_secondary_config.instance_identifier) != "" ? var.truefoundry_aurora_secondary_config.instance_identifier : local.secondary_cluster_identifier
-  secondary_subnet_group_name          = var.truefoundry_db_subnet_group_name_override_enabled ? var.truefoundry_db_subnet_group_name_override : "${local.secondary_cluster_identifier}-subnet"
-  secondary_security_group_name        = var.truefoundry_db_security_group_name_override_enabled ? var.truefoundry_db_security_group_name_override : "${local.secondary_cluster_identifier}-sg"
-  secondary_parameter_group_name       = var.truefoundry_db_postgres_parameter_group_override_enabled ? var.truefoundry_db_postgres_parameter_group_override_name : "${local.secondary_cluster_identifier}-pg"
+  secondary_cluster_identifier   = length(var.truefoundry_aurora_secondary_config.cluster_identifier) != 0 && trimspace(var.truefoundry_aurora_secondary_config.cluster_identifier) != "" ? var.truefoundry_aurora_secondary_config.cluster_identifier : "${var.secondary_cluster_name}-cluster"
+  secondary_subnet_group_name    = var.truefoundry_db_subnet_group_name_override_enabled ? var.truefoundry_db_subnet_group_name_override : "${var.secondary_cluster_name}-subnet"
+  secondary_security_group_name  = var.truefoundry_db_security_group_name_override_enabled ? var.truefoundry_db_security_group_name_override : "${var.secondary_cluster_name}-db-sg"
+  secondary_parameter_group_name = var.truefoundry_db_postgres_parameter_group_override_enabled ? var.truefoundry_db_postgres_parameter_group_override_name : "${var.secondary_cluster_name}-db-pg"
 
   vpc_peering_enabled        = local.secondary_enabled && var.truefoundry_aurora_vpc_peering_enabled
   automated_failover_enabled = local.secondary_enabled && var.truefoundry_aurora_enable_automated_failover
@@ -23,4 +22,16 @@ locals {
     var.truefoundry_aurora_secondary_config.monitoring_role_arn :
     try(aws_iam_role.aurora_secondary_monitoring[0].arn, null)
   ) : null
+
+  tags = merge(
+    var.disable_default_tags ? {} : {
+      "truefoundry-terraform-module" = "control-plane"
+      "truefoundry-managed"          = "true"
+      "truefoundry-cluster-name"     = var.cluster_name
+      "cluster-name"                 = var.cluster_name
+    },
+    var.tags
+  )
+
+  secondary_tags = merge(local.tags, var.truefoundry_aurora_secondary_config.tags)
 }

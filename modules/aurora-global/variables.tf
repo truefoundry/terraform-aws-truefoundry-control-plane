@@ -8,6 +8,22 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "cluster_name" {
+  description = "Primary cluster name. This is used for tagging the resources"
+  type        = string
+}
+
+variable "secondary_cluster_name" {
+  description = "Secondary cluster name."
+  type        = string
+}
+
+variable "disable_default_tags" {
+  description = "Disable default tags added by this module."
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "Base tags for all global/secondary resources."
   type        = map(string)
@@ -27,31 +43,13 @@ variable "truefoundry_aurora_global_cluster_identifier" {
 variable "truefoundry_db_port" {
   description = "Database port."
   type        = number
+  default     = 5432
 }
 
 variable "truefoundry_db_engine_version" {
   description = "Aurora PostgreSQL engine version."
   type        = string
-}
-
-variable "truefoundry_db_enable_override" {
-  description = "Enable override for the secondary Aurora cluster identifier. You must pass truefoundry_db_override_name."
-  type        = bool
-  default     = false
-}
-
-variable "truefoundry_db_override_name" {
-  description = "Override name for the secondary Aurora cluster identifier when truefoundry_db_enable_override is true."
-  type        = string
-  default     = ""
-  validation {
-    condition     = length(var.truefoundry_db_override_name) <= 63
-    error_message = "Error: DB cluster identifier is too long."
-  }
-  validation {
-    condition     = var.truefoundry_db_enable_override ? trimspace(var.truefoundry_db_override_name) != "" : true
-    error_message = "truefoundry_db_override_name must be set when truefoundry_db_enable_override is true."
-  }
+  default     = "17.5"
 }
 
 variable "truefoundry_db_security_group_name_override_enabled" {
@@ -95,16 +93,19 @@ variable "truefoundry_db_deletion_protection" {
 variable "truefoundry_db_skip_final_snapshot" {
   description = "Whether to skip final snapshot on deletion."
   type        = bool
+  default     = false
 }
 
 variable "truefoundry_db_storage_encrypted" {
   description = "Whether to enable storage encryption."
   type        = bool
+  default     = true
 }
 
 variable "truefoundry_db_postgres_parameter_group_enabled" {
   description = "Whether to create and attach Aurora parameter groups."
   type        = bool
+  default     = true
 }
 
 variable "truefoundry_db_postgres_parameter_group_override_enabled" {
@@ -132,24 +133,25 @@ variable "truefoundry_db_aurora_cloudwatch_log_exports" {
 variable "iam_database_authentication_enabled" {
   description = "Enable IAM database authentication for Aurora clusters."
   type        = bool
+  default     = false
 }
 
 variable "truefoundry_aurora_secondary_config" {
   description = "Configuration for Aurora secondary cluster in the DR region."
   type = object({
-    cluster_identifier                      = string
+    cluster_identifier                      = optional(string, "")
     vpc_id                                  = string
     subnet_ids                              = list(string)
-    instance_class                          = optional(string, "db.r6g.large")
+    instance_class                          = optional(string, "db.r7g.large")
     instance_count                          = optional(number, 1)
-    instance_identifier                     = optional(string, "")
+    instances_identifier                    = optional(list(string), [])
     ingress_cidr_blocks                     = optional(list(string), [])
     ingress_security_group_ids              = optional(list(string), [])
     additional_security_group_ids           = optional(list(string), [])
     publicly_accessible                     = optional(bool, false)
     backup_retention_period                 = optional(number, 14)
     kms_key_id                              = optional(string, null)
-    enable_insights                         = optional(bool, false)
+    enable_insights                         = optional(bool, true)
     enable_monitoring                       = optional(bool, true)
     monitoring_interval                     = optional(number, 60)
     monitoring_role_enable_override         = optional(bool, false)
@@ -157,6 +159,15 @@ variable "truefoundry_aurora_secondary_config" {
     monitoring_role_name_override_enabled   = optional(bool, false)
     monitoring_role_name_override           = optional(string, "")
     monitoring_role_permission_boundary_arn = optional(string, null)
+    postgres_parameter_group_parameters     = optional(list(object({
+      name  = string
+      value = string
+      apply_method = optional(string)
+    })), [{
+      name = "rds.force_ssl"
+      value = "0"
+      apply_method = "immediate"
+    }])
     tags                                    = optional(map(string), {})
   })
 
@@ -240,3 +251,4 @@ variable "truefoundry_aurora_vpc_peering_allow_remote_dns_resolution" {
   type        = bool
   default     = true
 }
+
