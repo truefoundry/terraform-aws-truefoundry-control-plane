@@ -44,7 +44,7 @@ variable "truefoundry_db_port" {
 variable "truefoundry_db_engine_version" {
   description = "Aurora PostgreSQL engine version."
   type        = string
-  default     = "17.5"
+  default     = "17.9"
 }
 
 variable "truefoundry_db_security_group_name_override_enabled" {
