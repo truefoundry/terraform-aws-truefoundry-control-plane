@@ -35,6 +35,12 @@ variable "truefoundry_aurora_global_cluster_identifier" {
   }
 }
 
+variable "truefoundry_aurora_global_cluster_source_db_cluster_identifier" {
+  description = "Source DB cluster identifier for the global Aurora cluster."
+  type        = string
+  default     = ""
+}
+
 variable "truefoundry_db_port" {
   description = "Database port."
   type        = number

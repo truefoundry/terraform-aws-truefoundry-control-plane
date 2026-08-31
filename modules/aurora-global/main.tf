@@ -1,8 +1,15 @@
 resource "aws_rds_global_cluster" "truefoundry" {
   global_cluster_identifier = var.truefoundry_aurora_global_cluster_identifier
+  source_db_cluster_identifier = var.truefoundry_aurora_global_cluster_source_db_cluster_identifier
   deletion_protection       = local.secondary_config.deletion_protection
   force_destroy             = !local.secondary_config.deletion_protection
   tags                      = local.tags
+
+  lifecycle {
+    ignore_changes = [
+      source_db_cluster_identifier,
+    ]
+  }
 }
 
 resource "aws_db_subnet_group" "truefoundry_aurora_secondary" {
