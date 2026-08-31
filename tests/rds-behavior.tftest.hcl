@@ -114,7 +114,7 @@ run "db_subnet_group_override_uses_existing_name" {
   }
 
   variables {
-    truefoundry_db_subnet_ids                          = ["subnet-0123456789abcdef0", "subnet-0fedcba9876543210"]
+    truefoundry_db_subnet_ids                         = ["subnet-0123456789abcdef0", "subnet-0fedcba9876543210"]
     truefoundry_db_subnet_group_name_override_enabled = true
     truefoundry_db_subnet_group_name_override         = "existing-db-subnet-group"
   }
