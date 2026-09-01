@@ -9,6 +9,21 @@ provider "aws" {
   skip_metadata_api_check     = true
 }
 
+# Mirror the default provider for the aws.secondary alias declared via
+# configuration_aliases in versions.tf. Aurora Global resources are not exercised in these tests.
+# resources are gated to count = 0 in these tests, so the credentials never run.
+provider "aws" {
+  alias                       = "secondary"
+  region                      = var.aws_region
+  access_key                  = "test-access-key"
+  secret_key                  = "test-secret-key"
+  token                       = "test-session-token"
+  skip_credentials_validation = true
+  skip_requesting_account_id  = true
+  skip_region_validation      = true
+  skip_metadata_api_check     = true
+}
+
 variables {
   cluster_name            = "tfy-test-cluster"
   cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/EXAMPLED539D4633E53DE1B716D3041E"

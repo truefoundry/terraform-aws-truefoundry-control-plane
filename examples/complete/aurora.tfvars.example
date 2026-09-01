@@ -1,0 +1,12 @@
+aws_profile    = "your-aws-profile"
+primary_region = "us-east-1"
+dr_region      = "us-east-1"
+cluster_name   = "my-cluster"
+
+db_engine_mode        = "aurora"
+enable_global_cluster = false
+
+primary_vpc_id              = "vpc-xxxxxxxxxxxxxxxxx"
+primary_subnet_ids          = ["subnet-xxxxxxxxxxxxxxxxx", "subnet-yyyyyyyyyyyyyyyyy"]
+primary_ingress_cidr_blocks = ["10.0.0.0/16"]
+ingress_security_group      = "sg-xxxxxxxxxxxxxxxxx"
