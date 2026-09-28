@@ -1,0 +1,17 @@
+aws_profile    = "your-aws-profile"
+primary_region = "us-east-1"
+dr_region      = "eu-west-1"
+cluster_name   = "my-cluster"
+
+db_engine_mode        = "aurora"
+enable_global_cluster = true
+
+primary_vpc_id              = "vpc-xxxxxxxxxxxxxxxxx"
+primary_subnet_ids          = ["subnet-xxxxxxxxxxxxxxxxx", "subnet-yyyyyyyyyyyyyyyyy"]
+primary_ingress_cidr_blocks = ["10.0.0.0/16"]
+ingress_security_group      = "sg-xxxxxxxxxxxxxxxxx"
+
+dr_vpc_id                     = "vpc-yyyyyyyyyyyyyyyyy"
+dr_subnet_ids                 = ["subnet-aaaaaaaaaaaaaaaaa", "subnet-bbbbbbbbbbbbbbbbb"]
+dr_ingress_cidr_blocks        = ["10.1.0.0/16"]
+# dr_ingress_security_group_ids = ["sg-yyyyyyyyyyyyyyyyy"]  # only SGs in the DR region's VPC work here

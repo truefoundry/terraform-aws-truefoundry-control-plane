@@ -1,5 +1,45 @@
 # terraform-aws-truefoundry-control-plane
-Truefoundry AWS Control Plane Module
+
+Truefoundry AWS Control Plane Module.
+
+This module deploys the persistence and IAM dependencies of a Truefoundry control plane: a PostgreSQL database, an S3 bucket, and the IAM roles that bind workloads (`mlfoundry`, `servicefoundry`, the LLM gateway, the workflow admin) to the cluster's OIDC provider.
+
+## Quick start — pick your database mode
+
+The root module now supports two database topologies:
+
+- Standard RDS PostgreSQL (`truefoundry_db_engine_mode = "rds"`)
+- Single-region Aurora PostgreSQL (`truefoundry_db_engine_mode = "aurora"`)
+
+Aurora Global Database (multi-region DR) is now handled by the child module at `modules/aurora-global`.
+
+### Minimal RDS example (default)
+
+```hcl
+module "tfy_control_plane" {
+  source  = "truefoundry/truefoundry-control-plane/aws"
+  version = "0.6.0"
+
+  cluster_name            = "my-cluster"
+  cluster_oidc_issuer_url = module.cluster.cluster_oidc_issuer_url
+  aws_region              = "<primary-region>"
+  aws_account_id          = data.aws_caller_identity.current.account_id
+  vpc_id                  = module.network.vpc_id
+
+  truefoundry_db_subnet_ids             = module.network.private_subnets_id
+  truefoundry_db_ingress_security_group = module.cluster.node_security_group_id
+}
+```
+
+### Switching to Aurora later
+
+Migrating an existing RDS deployment to Aurora is destructive at the RDS resource (Terraform tears down RDS and creates an Aurora cluster), so do it as a deliberate operation following [Option 2](docs/aurora-migration-guide.md#option-2-migrating-from-rds-to-aurora) (pg_dump / DMS) or [Option 2b](docs/aurora-migration-guide.md#option-2b-near-zero-downtime-migration-using-aurora-read-replica) (Aurora Read Replica + import — near-zero downtime).
+
+### Adding a DR region
+
+Use the child module `truefoundry/truefoundry-control-plane/aws//modules/aurora-global` to provision Aurora Global Database resources. That child module requires `aws.secondary` (DR region), while the root module does not.
+
+For full version-to-version upgrade steps, see the [upgrade guide](upgrade-guide.md).
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -41,6 +81,10 @@ Truefoundry AWS Control Plane Module
 | [aws_iam_role_policy_attachment.truefoundry_db_monitoring_role_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_kms_alias.truefoundry_db_master_user_secret_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.truefoundry_db_master_user_secret_kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
+| [aws_rds_cluster.truefoundry_aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster) | resource |
+| [aws_rds_cluster_instance.truefoundry_aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance) | resource |
+| [aws_rds_cluster_parameter_group.truefoundry_aurora_parameter_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_parameter_group) | resource |
+| [aws_secretsmanager_secret_rotation.truefoundry_aurora_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_rotation) | resource |
 | [aws_secretsmanager_secret_rotation.turefoundry_db_secret_rotation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_rotation) | resource |
 | [aws_security_group.rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.rds-public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
@@ -82,21 +126,25 @@ Truefoundry AWS Control Plane Module
 | <a name="input_tfy_workflow_admin_k8s_namespace"></a> [tfy\_workflow\_admin\_k8s\_namespace](#input\_tfy\_workflow\_admin\_k8s\_namespace) | The k8s tfy workflow admin namespace | `string` | `"truefoundry"` | no |
 | <a name="input_tfy_workflow_admin_k8s_service_account"></a> [tfy\_workflow\_admin\_k8s\_service\_account](#input\_tfy\_workflow\_admin\_k8s\_service\_account) | The k8s tfy workflow admin service account name | `string` | `"tfy-workflow-admin"` | no |
 | <a name="input_truefoundry_artifact_buckets_will_read"></a> [truefoundry\_artifact\_buckets\_will\_read](#input\_truefoundry\_artifact\_buckets\_will\_read) | A list of bucket IDs mlfoundry will need read access to, in order to show the stored artifacts. It accepts any valid IAM resource, including ARNs with wildcards, so you can do something like arn:aws:s3:::bucket-prefix-* | `list(string)` | `[]` | no |
-| <a name="input_truefoundry_cloudwatch_log_exports"></a> [truefoundry\_cloudwatch\_log\_exports](#input\_truefoundry\_cloudwatch\_log\_exports) | Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported | `list(string)` | <pre>[<br/>  "postgresql",<br/>  "upgrade"<br/>]</pre> | no |
 | <a name="input_truefoundry_db_additional_security_group_ids"></a> [truefoundry\_db\_additional\_security\_group\_ids](#input\_truefoundry\_db\_additional\_security\_group\_ids) | Additional security group IDs to add to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_allocated_storage"></a> [truefoundry\_db\_allocated\_storage](#input\_truefoundry\_db\_allocated\_storage) | Storage for RDS. Minimum storage allowed for gp3 volumes is 20GB | `string` | `"20"` | no |
 | <a name="input_truefoundry_db_allow_major_version_upgrade"></a> [truefoundry\_db\_allow\_major\_version\_upgrade](#input\_truefoundry\_db\_allow\_major\_version\_upgrade) | Allow major version upgrade. This should be set to true if you want to upgrade the db version | `bool` | `false` | no |
 | <a name="input_truefoundry_db_backup_retention_period"></a> [truefoundry\_db\_backup\_retention\_period](#input\_truefoundry\_db\_backup\_retention\_period) | Backup retention period for RDS | `number` | `14` | no |
+| <a name="input_truefoundry_db_cloudwatch_log_exports"></a> [truefoundry\_db\_cloudwatch\_log\_exports](#input\_truefoundry\_db\_cloudwatch\_log\_exports) | Set of log types to enable for exporting to CloudWatch logs. RDS supports postgresql and upgrade; Aurora PostgreSQL supports postgresql only (upgrade is filtered out automatically). | `list(string)` | <pre>[<br/>  "postgresql",<br/>  "upgrade"<br/>]</pre> | no |
 | <a name="input_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#input\_truefoundry\_db\_database\_name) | Name of the database in DB | `string` | `"ctl"` | no |
 | <a name="input_truefoundry_db_deletion_protection"></a> [truefoundry\_db\_deletion\_protection](#input\_truefoundry\_db\_deletion\_protection) | n/a | `bool` | `true` | no |
 | <a name="input_truefoundry_db_enable_insights"></a> [truefoundry\_db\_enable\_insights](#input\_truefoundry\_db\_enable\_insights) | Enable insights to truefoundry db | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enable_monitoring"></a> [truefoundry\_db\_enable\_monitoring](#input\_truefoundry\_db\_enable\_monitoring) | Enable enhanced monitoring for the RDS DB instance.<br/><br/>  This will create an IAM role and attach the necessary policies to the DB instance. If you want to use an existing IAM role, set `truefoundry_db_monitoring_role_arn`<br/><br/>  Default collection interval is 5 seconds. Override with `truefoundry_db_monitoring_interval`.<br/><br/>  https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enable_override"></a> [truefoundry\_db\_enable\_override](#input\_truefoundry\_db\_enable\_override) | Enable override for truefoundry db name. You must pass truefoundry\_db\_override\_name | `bool` | `false` | no |
 | <a name="input_truefoundry_db_enabled"></a> [truefoundry\_db\_enabled](#input\_truefoundry\_db\_enabled) | variable to enable/disable truefoundry db creation | `bool` | `true` | no |
-| <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"17.5"` | no |
+| <a name="input_truefoundry_db_engine_mode"></a> [truefoundry\_db\_engine\_mode](#input\_truefoundry\_db\_engine\_mode) | Database engine mode. 'rds' for standard PostgreSQL, 'aurora' for Aurora PostgreSQL. | `string` | `"rds"` | no |
+| <a name="input_truefoundry_db_engine_version"></a> [truefoundry\_db\_engine\_version](#input\_truefoundry\_db\_engine\_version) | Truefoundry DB Postgres version | `string` | `"17.9"` | no |
 | <a name="input_truefoundry_db_ingress_cidr_blocks"></a> [truefoundry\_db\_ingress\_cidr\_blocks](#input\_truefoundry\_db\_ingress\_cidr\_blocks) | CIDR blocks allowed to connect to the database | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_db_ingress_security_group"></a> [truefoundry\_db\_ingress\_security\_group](#input\_truefoundry\_db\_ingress\_security\_group) | SG allowed to connect to the database | `string` | `""` | no |
-| <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS | `string` | `"db.t3.medium"` | no |
+| <a name="input_truefoundry_db_instance_class"></a> [truefoundry\_db\_instance\_class](#input\_truefoundry\_db\_instance\_class) | Instance class for RDS or Aurora cluster instances. When null, defaults to db.t3.medium (RDS) or db.r6g.large (Aurora) based on truefoundry\_db\_engine\_mode. | `string` | `null` | no |
+| <a name="input_truefoundry_db_instance_count"></a> [truefoundry\_db\_instance\_count](#input\_truefoundry\_db\_instance\_count) | Number of Aurora cluster instances. Ignored when truefoundry\_db\_engine\_mode = "rds". | `number` | `1` | no |
+| <a name="input_truefoundry_db_instance_identifiers_override"></a> [truefoundry\_db\_instance\_identifiers\_override](#input\_truefoundry\_db\_instance\_identifiers\_override) | Ordered list of Aurora instance identifiers. Index 0 maps to first instance, index 1 to second, etc. | `list(string)` | `[]` | no |
+| <a name="input_truefoundry_db_instance_identifiers_override_enabled"></a> [truefoundry\_db\_instance\_identifiers\_override\_enabled](#input\_truefoundry\_db\_instance\_identifiers\_override\_enabled) | Enable explicit Aurora instance identifier overrides via truefoundry\_db\_instance\_identifiers\_override. | `bool` | `false` | no |
 | <a name="input_truefoundry_db_kms_key_arn"></a> [truefoundry\_db\_kms\_key\_arn](#input\_truefoundry\_db\_kms\_key\_arn) | ARN of a user-managed KMS key for RDS storage encryption. If null, the AWS-managed aws/rds key is used. Requires truefoundry\_db\_storage\_encrypted = true. Changing this on an existing instance forces replacement. | `string` | `null` | no |
 | <a name="input_truefoundry_db_master_user_secret_kms_key_arn"></a> [truefoundry\_db\_master\_user\_secret\_kms\_key\_arn](#input\_truefoundry\_db\_master\_user\_secret\_kms\_key\_arn) | ARN of a user-managed KMS key to encrypt the RDS master user password secret. If null, the module creates and manages a dedicated KMS key. Only used when manage\_master\_user\_password = true. | `string` | `null` | no |
 | <a name="input_truefoundry_db_max_allocated_storage"></a> [truefoundry\_db\_max\_allocated\_storage](#input\_truefoundry\_db\_max\_allocated\_storage) | Max allowed storage for RDS when autoscaling is enabled | `string` | `"30"` | no |
@@ -108,11 +156,16 @@ Truefoundry AWS Control Plane Module
 | <a name="input_truefoundry_db_postgres_parameter_group_enabled"></a> [truefoundry\_db\_postgres\_parameter\_group\_enabled](#input\_truefoundry\_db\_postgres\_parameter\_group\_enabled) | Enable/disable postgres parameter group creation. If set to true, a new postgres parameter group will be created | `bool` | `true` | no |
 | <a name="input_truefoundry_db_postgres_parameter_group_override_enabled"></a> [truefoundry\_db\_postgres\_parameter\_group\_override\_enabled](#input\_truefoundry\_db\_postgres\_parameter\_group\_override\_enabled) | Enable override for postgres parameter group. You must pass truefoundry\_db\_postgres\_parameter\_group\_override\_name | `bool` | `false` | no |
 | <a name="input_truefoundry_db_postgres_parameter_group_override_name"></a> [truefoundry\_db\_postgres\_parameter\_group\_override\_name](#input\_truefoundry\_db\_postgres\_parameter\_group\_override\_name) | Override name for postgres parameter group. truefoundry\_db\_postgres\_parameter\_group\_override\_enabled must be set true | `string` | `""` | no |
+| <a name="input_truefoundry_db_postgres_parameter_group_parameters"></a> [truefoundry\_db\_postgres\_parameter\_group\_parameters](#input\_truefoundry\_db\_postgres\_parameter\_group\_parameters) | Parameters for the postgres parameter group | <pre>list(object({<br/>    name         = string<br/>    value        = string<br/>    apply_method = optional(string)<br/>  }))</pre> | <pre>[<br/>  {<br/>    "name": "rds.force_ssl",<br/>    "value": "0"<br/>  }<br/>]</pre> | no |
 | <a name="input_truefoundry_db_publicly_accessible"></a> [truefoundry\_db\_publicly\_accessible](#input\_truefoundry\_db\_publicly\_accessible) | Make database publicly accessible. Subnets and SG must match | `string` | `false` | no |
+| <a name="input_truefoundry_db_security_group_name_override"></a> [truefoundry\_db\_security\_group\_name\_override](#input\_truefoundry\_db\_security\_group\_name\_override) | Override name for the module-created DB security group when truefoundry\_db\_security\_group\_name\_override\_enabled is true. | `string` | `""` | no |
+| <a name="input_truefoundry_db_security_group_name_override_enabled"></a> [truefoundry\_db\_security\_group\_name\_override\_enabled](#input\_truefoundry\_db\_security\_group\_name\_override\_enabled) | Enable override for the module-created DB security group name. | `bool` | `false` | no |
 | <a name="input_truefoundry_db_skip_final_snapshot"></a> [truefoundry\_db\_skip\_final\_snapshot](#input\_truefoundry\_db\_skip\_final\_snapshot) | n/a | `bool` | `false` | no |
 | <a name="input_truefoundry_db_storage_encrypted"></a> [truefoundry\_db\_storage\_encrypted](#input\_truefoundry\_db\_storage\_encrypted) | n/a | `bool` | `true` | no |
 | <a name="input_truefoundry_db_storage_iops"></a> [truefoundry\_db\_storage\_iops](#input\_truefoundry\_db\_storage\_iops) | Provisioned IOPS for the db | `number` | `0` | no |
 | <a name="input_truefoundry_db_storage_type"></a> [truefoundry\_db\_storage\_type](#input\_truefoundry\_db\_storage\_type) | Storage type for truefoundry db | `string` | `"gp3"` | no |
+| <a name="input_truefoundry_db_subnet_group_name_override"></a> [truefoundry\_db\_subnet\_group\_name\_override](#input\_truefoundry\_db\_subnet\_group\_name\_override) | Override name for the module-created DB subnet group when truefoundry\_db\_subnet\_group\_name\_override\_enabled is true. | `string` | `""` | no |
+| <a name="input_truefoundry_db_subnet_group_name_override_enabled"></a> [truefoundry\_db\_subnet\_group\_name\_override\_enabled](#input\_truefoundry\_db\_subnet\_group\_name\_override\_enabled) | Enable override for the module-created DB subnet group name. | `bool` | `false` | no |
 | <a name="input_truefoundry_db_subnet_ids"></a> [truefoundry\_db\_subnet\_ids](#input\_truefoundry\_db\_subnet\_ids) | List of subnets where the RDS database will be deployed | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_iam_role_additional_oidc_subjects"></a> [truefoundry\_iam\_role\_additional\_oidc\_subjects](#input\_truefoundry\_iam\_role\_additional\_oidc\_subjects) | List of fully qualifies oidc subjects that can assume the truefoundry IAM role | `list(string)` | `[]` | no |
 | <a name="input_truefoundry_iam_role_additional_policies_arn"></a> [truefoundry\_iam\_role\_additional\_policies\_arn](#input\_truefoundry\_iam\_role\_additional\_policies\_arn) | List of ARN of policies that you want to attach to the | `list(string)` | `[]` | no |
@@ -146,14 +199,21 @@ Truefoundry AWS Control Plane Module
 
 | Name | Description |
 |------|-------------|
+| <a name="output_truefoundry_aurora_cluster_arn"></a> [truefoundry\_aurora\_cluster\_arn](#output\_truefoundry\_aurora\_cluster\_arn) | Aurora cluster ARN |
+| <a name="output_truefoundry_aurora_cluster_endpoint"></a> [truefoundry\_aurora\_cluster\_endpoint](#output\_truefoundry\_aurora\_cluster\_endpoint) | Aurora cluster writer endpoint |
+| <a name="output_truefoundry_aurora_cluster_id"></a> [truefoundry\_aurora\_cluster\_id](#output\_truefoundry\_aurora\_cluster\_id) | Aurora cluster ID |
+| <a name="output_truefoundry_aurora_cluster_identifier"></a> [truefoundry\_aurora\_cluster\_identifier](#output\_truefoundry\_aurora\_cluster\_identifier) | Aurora cluster identifier |
+| <a name="output_truefoundry_aurora_cluster_port"></a> [truefoundry\_aurora\_cluster\_port](#output\_truefoundry\_aurora\_cluster\_port) | Aurora cluster port |
+| <a name="output_truefoundry_aurora_cluster_reader_endpoint"></a> [truefoundry\_aurora\_cluster\_reader\_endpoint](#output\_truefoundry\_aurora\_cluster\_reader\_endpoint) | Aurora cluster reader endpoint |
 | <a name="output_truefoundry_bucket_id"></a> [truefoundry\_bucket\_id](#output\_truefoundry\_bucket\_id) | n/a |
-| <a name="output_truefoundry_db_address"></a> [truefoundry\_db\_address](#output\_truefoundry\_db\_address) | n/a |
-| <a name="output_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#output\_truefoundry\_db\_database\_name) | n/a |
-| <a name="output_truefoundry_db_endpoint"></a> [truefoundry\_db\_endpoint](#output\_truefoundry\_db\_endpoint) | n/a |
-| <a name="output_truefoundry_db_engine"></a> [truefoundry\_db\_engine](#output\_truefoundry\_db\_engine) | n/a |
-| <a name="output_truefoundry_db_id"></a> [truefoundry\_db\_id](#output\_truefoundry\_db\_id) | n/a |
-| <a name="output_truefoundry_db_password"></a> [truefoundry\_db\_password](#output\_truefoundry\_db\_password) | n/a |
-| <a name="output_truefoundry_db_port"></a> [truefoundry\_db\_port](#output\_truefoundry\_db\_port) | n/a |
-| <a name="output_truefoundry_db_username"></a> [truefoundry\_db\_username](#output\_truefoundry\_db\_username) | n/a |
+| <a name="output_truefoundry_db_address"></a> [truefoundry\_db\_address](#output\_truefoundry\_db\_address) | Database hostname |
+| <a name="output_truefoundry_db_database_name"></a> [truefoundry\_db\_database\_name](#output\_truefoundry\_db\_database\_name) | Database name |
+| <a name="output_truefoundry_db_endpoint"></a> [truefoundry\_db\_endpoint](#output\_truefoundry\_db\_endpoint) | Database connection endpoint in address:port format |
+| <a name="output_truefoundry_db_engine"></a> [truefoundry\_db\_engine](#output\_truefoundry\_db\_engine) | Database engine type |
+| <a name="output_truefoundry_db_engine_mode"></a> [truefoundry\_db\_engine\_mode](#output\_truefoundry\_db\_engine\_mode) | Active database engine mode |
+| <a name="output_truefoundry_db_id"></a> [truefoundry\_db\_id](#output\_truefoundry\_db\_id) | Database identifier (RDS instance ID or Aurora cluster ID) |
+| <a name="output_truefoundry_db_password"></a> [truefoundry\_db\_password](#output\_truefoundry\_db\_password) | Database master password |
+| <a name="output_truefoundry_db_port"></a> [truefoundry\_db\_port](#output\_truefoundry\_db\_port) | Database port |
+| <a name="output_truefoundry_db_username"></a> [truefoundry\_db\_username](#output\_truefoundry\_db\_username) | Database master username |
 | <a name="output_truefoundry_iam_role_arn"></a> [truefoundry\_iam\_role\_arn](#output\_truefoundry\_iam\_role\_arn) | n/a |
 <!-- END_TF_DOCS -->

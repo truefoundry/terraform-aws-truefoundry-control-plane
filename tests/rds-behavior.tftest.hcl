@@ -9,6 +9,21 @@ provider "aws" {
   skip_metadata_api_check     = true
 }
 
+# Mirror the default provider for the aws.secondary alias declared via
+# configuration_aliases in versions.tf. Aurora Global resources are not exercised in these tests.
+# resources are gated to count = 0 in these tests, so the credentials never run.
+provider "aws" {
+  alias                       = "secondary"
+  region                      = var.aws_region
+  access_key                  = "test-access-key"
+  secret_key                  = "test-secret-key"
+  token                       = "test-session-token"
+  skip_credentials_validation = true
+  skip_requesting_account_id  = true
+  skip_region_validation      = true
+  skip_metadata_api_check     = true
+}
+
 variables {
   cluster_name            = "tfy-test-cluster"
   cluster_oidc_issuer_url = "https://oidc.eks.us-west-2.amazonaws.com/id/EXAMPLED539D4633E53DE1B716D3041E"
@@ -89,6 +104,56 @@ run "db_identifier_uses_override_when_enabled" {
   assert {
     condition     = aws_db_instance.truefoundry_db[0].identifier == "custom-db-identifier"
     error_message = "identifier should match override name when override is enabled."
+  }
+}
+
+run "db_subnet_group_override_uses_existing_name" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_db_subnet_ids                         = ["subnet-0123456789abcdef0", "subnet-0fedcba9876543210"]
+    truefoundry_db_subnet_group_name_override_enabled = true
+    truefoundry_db_subnet_group_name_override         = "existing-db-subnet-group"
+  }
+
+  assert {
+    condition     = length(aws_db_subnet_group.rds) == 1
+    error_message = "Module should create aws_db_subnet_group.rds even when subnet group override is enabled."
+  }
+
+  assert {
+    condition     = aws_db_subnet_group.rds[0].name == "existing-db-subnet-group"
+    error_message = "DB subnet group resource name should use truefoundry_db_subnet_group_name_override when override is enabled."
+  }
+
+  assert {
+    condition     = aws_db_instance.truefoundry_db[0].db_subnet_group_name == "existing-db-subnet-group"
+    error_message = "DB subnet group name should use truefoundry_db_subnet_group_name_override when override is enabled."
+  }
+}
+
+run "db_security_group_name_override_uses_existing_name" {
+  command = plan
+  plan_options {
+    refresh = false
+  }
+
+  variables {
+    truefoundry_db_security_group_name_override_enabled = true
+    truefoundry_db_security_group_name_override         = "existing-db-security-group"
+  }
+
+  assert {
+    condition     = length(aws_security_group.rds) == 1
+    error_message = "Module should create aws_security_group.rds when DB is enabled."
+  }
+
+  assert {
+    condition     = aws_security_group.rds[0].name == "existing-db-security-group"
+    error_message = "DB security group resource name should use truefoundry_db_security_group_name_override when override is enabled."
   }
 }
 

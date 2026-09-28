@@ -52,6 +52,16 @@ variable "truefoundry_db_enabled" {
   default     = true
 }
 
+variable "truefoundry_db_engine_mode" {
+  description = "Database engine mode. 'rds' for standard PostgreSQL, 'aurora' for Aurora PostgreSQL."
+  type        = string
+  default     = "rds"
+  validation {
+    condition     = contains(["rds", "aurora"], var.truefoundry_db_engine_mode)
+    error_message = "truefoundry_db_engine_mode must be one of: rds, aurora"
+  }
+}
+
 variable "truefoundry_db_database_name" {
   type        = string
   description = "Name of the database in DB"
@@ -92,6 +102,23 @@ variable "truefoundry_db_ingress_cidr_blocks" {
   default     = []
 }
 
+variable "truefoundry_db_security_group_name_override_enabled" {
+  description = "Enable override for the module-created DB security group name."
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_security_group_name_override" {
+  description = "Override name for the module-created DB security group when truefoundry_db_security_group_name_override_enabled is true."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.truefoundry_db_security_group_name_override_enabled ? trimspace(var.truefoundry_db_security_group_name_override) != "" : true
+    error_message = "truefoundry_db_security_group_name_override must be set when truefoundry_db_security_group_name_override_enabled is true."
+  }
+}
+
 variable "truefoundry_db_subnet_ids" {
   type        = list(string)
   description = "List of subnets where the RDS database will be deployed"
@@ -103,10 +130,51 @@ variable "truefoundry_db_subnet_ids" {
   }
 }
 
+variable "truefoundry_db_subnet_group_name_override_enabled" {
+  description = "Enable override for the module-created DB subnet group name."
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_subnet_group_name_override" {
+  description = "Override name for the module-created DB subnet group when truefoundry_db_subnet_group_name_override_enabled is true."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.truefoundry_db_subnet_group_name_override_enabled ? trimspace(var.truefoundry_db_subnet_group_name_override) != "" : true
+    error_message = "truefoundry_db_subnet_group_name_override must be set when truefoundry_db_subnet_group_name_override_enabled is true."
+  }
+}
+
+variable "truefoundry_db_postgres_parameter_group_parameters" {
+  description = "Parameters for the postgres parameter group"
+  type = list(object({
+    name         = string
+    value        = string
+    apply_method = optional(string)
+  }))
+  default = [{
+    name  = "rds.force_ssl"
+    value = "0"
+  }]
+}
+
 variable "truefoundry_db_instance_class" {
   type        = string
-  description = "Instance class for RDS"
-  default     = "db.t3.medium"
+  description = "Instance class for RDS or Aurora cluster instances. When null, defaults to db.t3.medium (RDS) or db.r6g.large (Aurora) based on truefoundry_db_engine_mode."
+  default     = null
+  nullable    = true
+}
+
+variable "truefoundry_db_instance_count" {
+  description = "Number of Aurora cluster instances. Ignored when truefoundry_db_engine_mode = \"rds\"."
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.truefoundry_db_instance_count >= 1
+    error_message = "truefoundry_db_instance_count must be at least 1"
+  }
 }
 
 variable "truefoundry_db_publicly_accessible" {
@@ -178,7 +246,7 @@ variable "truefoundry_db_master_user_secret_kms_key_arn" {
 }
 
 variable "truefoundry_db_engine_version" {
-  default     = "17.5"
+  default     = "17.9"
   type        = string
   description = "Truefoundry DB Postgres version"
 }
@@ -196,6 +264,45 @@ variable "truefoundry_db_override_name" {
   validation {
     condition     = length(var.truefoundry_db_override_name) <= 63
     error_message = "Error: DB Instance name is too long."
+  }
+}
+
+variable "truefoundry_db_instance_identifiers_override_enabled" {
+  description = "Enable explicit Aurora instance identifier overrides via truefoundry_db_instance_identifiers_override."
+  type        = bool
+  default     = false
+}
+
+variable "truefoundry_db_instance_identifiers_override" {
+  description = "Ordered list of Aurora instance identifiers. Index 0 maps to first instance, index 1 to second, etc."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = var.truefoundry_db_instance_identifiers_override_enabled ? (
+      length(var.truefoundry_db_instance_identifiers_override) > 0
+    ) : true
+    error_message = "truefoundry_db_instance_identifiers_override must be non-empty when truefoundry_db_instance_identifiers_override_enabled is true."
+  }
+
+  validation {
+    condition = alltrue([
+      for id in var.truefoundry_db_instance_identifiers_override :
+      trimspace(id) != "" && length(id) <= 63
+    ])
+    error_message = "Each identifier in truefoundry_db_instance_identifiers_override must be non-empty and <= 63 characters."
+  }
+
+  validation {
+    condition     = length(distinct(var.truefoundry_db_instance_identifiers_override)) == length(var.truefoundry_db_instance_identifiers_override)
+    error_message = "Values in truefoundry_db_instance_identifiers_override must be unique."
+  }
+
+  validation {
+    condition = var.truefoundry_db_instance_identifiers_override_enabled ? (
+      length(var.truefoundry_db_instance_identifiers_override) == var.truefoundry_db_instance_count
+    ) : true
+    error_message = "When truefoundry_db_instance_identifiers_override_enabled is true, provide exactly truefoundry_db_instance_count identifiers."
   }
 }
 
@@ -247,8 +354,8 @@ variable "truefoundry_db_allow_major_version_upgrade" {
   default     = false
 }
 
-variable "truefoundry_cloudwatch_log_exports" {
-  description = "Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported"
+variable "truefoundry_db_cloudwatch_log_exports" {
+  description = "Set of log types to enable for exporting to CloudWatch logs. RDS supports postgresql and upgrade; Aurora PostgreSQL supports postgresql only (upgrade is filtered out automatically)."
   type        = list(string)
   default     = ["postgresql", "upgrade"]
 }
@@ -282,6 +389,10 @@ variable "iam_database_authentication_enabled" {
   type        = bool
   default     = false
 }
+
+##################################################################################
+## Master user password management
+##################################################################################
 
 variable "manage_master_user_password" {
   description = "Enable master user password management. If set to true master user management is done by RDS in secrets manager, if false a random password is generated"

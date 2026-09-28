@@ -7,14 +7,14 @@ resource "random_password" "truefoundry_db_password" {
 
 resource "aws_db_subnet_group" "rds" {
   count      = var.truefoundry_db_enabled ? 1 : 0
-  name       = "${local.truefoundry_db_unique_name}-rds"
+  name       = var.truefoundry_db_subnet_group_name_override_enabled ? var.truefoundry_db_subnet_group_name_override : "${local.truefoundry_db_unique_name}-rds"
   subnet_ids = var.truefoundry_db_subnet_ids
   tags       = local.tags
 }
 
 resource "aws_security_group" "rds" {
   count  = var.truefoundry_db_enabled ? 1 : 0
-  name   = "${local.truefoundry_db_unique_name}-rds"
+  name   = var.truefoundry_db_security_group_name_override_enabled ? var.truefoundry_db_security_group_name_override : "${local.truefoundry_db_unique_name}-rds"
   vpc_id = var.vpc_id
   tags   = local.tags
 
@@ -23,7 +23,7 @@ resource "aws_security_group" "rds" {
     to_port         = local.truefoundry_db_port
     protocol        = "tcp"
     security_groups = var.truefoundry_db_ingress_security_group != "" ? [var.truefoundry_db_ingress_security_group] : []
-    cidr_blocks     = length(var.truefoundry_db_ingress_cidr_blocks) > 0 ? var.truefoundry_db_ingress_cidr_blocks : []
+    cidr_blocks     = var.truefoundry_db_ingress_cidr_blocks != "" ? var.truefoundry_db_ingress_cidr_blocks : []
   }
 
   egress {
@@ -55,7 +55,7 @@ resource "aws_security_group" "rds-public" {
 }
 
 resource "aws_db_instance" "truefoundry_db" {
-  count                                 = var.truefoundry_db_enabled ? 1 : 0
+  count                                 = local.rds_enabled ? 1 : 0
   tags                                  = local.tags
   engine                                = "postgres"
   engine_version                        = var.truefoundry_db_engine_version
@@ -63,7 +63,7 @@ resource "aws_db_instance" "truefoundry_db" {
   allocated_storage                     = var.truefoundry_db_allocated_storage
   max_allocated_storage                 = var.truefoundry_db_max_allocated_storage
   port                                  = local.truefoundry_db_port
-  db_subnet_group_name                  = aws_db_subnet_group.rds[0].name
+  db_subnet_group_name                  = local.truefoundry_db_subnet_group_name
   vpc_security_group_ids                = concat([aws_security_group.rds[0].id], aws_security_group.rds-public[*].id, var.truefoundry_db_additional_security_group_ids)
   username                              = local.truefoundry_db_master_username
   identifier                            = var.truefoundry_db_enable_override ? var.truefoundry_db_override_name : null
@@ -76,7 +76,7 @@ resource "aws_db_instance" "truefoundry_db" {
   kms_key_id                            = var.truefoundry_db_kms_key_arn
   final_snapshot_identifier             = var.truefoundry_db_skip_final_snapshot ? null : "${var.truefoundry_db_database_name}-${formatdate("DD-MM-YYYY-hh-mm-ss", timestamp())}"
   backup_retention_period               = var.truefoundry_db_backup_retention_period
-  instance_class                        = var.truefoundry_db_instance_class
+  instance_class                        = local.truefoundry_db_instance_class
   performance_insights_enabled          = var.truefoundry_db_enable_insights
   performance_insights_retention_period = var.truefoundry_db_enable_insights ? 31 : 0
   monitoring_interval                   = local.truefoundry_db_monitoring_interval
@@ -87,7 +87,7 @@ resource "aws_db_instance" "truefoundry_db" {
   apply_immediately                     = true
   allow_major_version_upgrade           = var.truefoundry_db_allow_major_version_upgrade
   storage_encrypted                     = var.truefoundry_db_storage_encrypted
-  enabled_cloudwatch_logs_exports       = var.truefoundry_cloudwatch_log_exports
+  enabled_cloudwatch_logs_exports       = var.truefoundry_db_cloudwatch_log_exports
   storage_type                          = var.truefoundry_db_storage_type
   iops                                  = var.truefoundry_db_storage_iops == 0 ? null : var.truefoundry_db_storage_iops
   parameter_group_name                  = var.truefoundry_db_postgres_parameter_group_enabled ? aws_db_parameter_group.truefoundry_db_parameter_group[0].name : var.truefoundry_db_postgres_parameter_group_override_name
@@ -100,19 +100,23 @@ resource "aws_db_instance" "truefoundry_db" {
 }
 
 resource "aws_db_parameter_group" "truefoundry_db_parameter_group" {
-  count  = var.truefoundry_db_postgres_parameter_group_enabled ? 1 : 0
+  count  = local.rds_enabled && var.truefoundry_db_postgres_parameter_group_enabled ? 1 : 0
   name   = var.truefoundry_db_postgres_parameter_group_override_enabled ? var.truefoundry_db_postgres_parameter_group_override_name : "${local.truefoundry_db_unique_name}-rds-pg"
   family = local.postgres_parameter_group_family
   tags   = local.tags
 
-  parameter {
-    name  = "rds.force_ssl"
-    value = "0"
+  dynamic "parameter" {
+    for_each = var.truefoundry_db_postgres_parameter_group_parameters
+    content {
+      name         = parameter.value.name
+      value        = parameter.value.value
+      apply_method = parameter.value.apply_method
+    }
   }
 }
 
 resource "aws_secretsmanager_secret_rotation" "turefoundry_db_secret_rotation" {
-  count              = var.truefoundry_db_enabled ? var.manage_master_user_password ? var.manage_master_user_password_rotation ? 1 : 0 : 0 : 0
+  count              = local.rds_enabled ? var.manage_master_user_password ? var.manage_master_user_password_rotation ? 1 : 0 : 0 : 0
   secret_id          = aws_db_instance.truefoundry_db[0].master_user_secret[0].secret_arn
   rotate_immediately = var.master_user_password_rotate_immediately
   rotation_rules {
